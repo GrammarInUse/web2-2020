@@ -1,6 +1,8 @@
 import React, { Component } from "react";
+import { FaPlus } from "react-icons/fa";
 import "./style.css";
-import ModalEdit from "./ModalEdit";
+import ModalEditProfile from "./ModalEditProfile";
+import Rate from "./Rate";
 const staffs = [
   { id: 1, name: "vu van leo", position: "lao cong", salary: 2000, role: 1 },
   { id: 2, name: "tran thi a", position: "lao cong", salary: 2000, role: 2 },
@@ -89,13 +91,7 @@ class StaffManager extends Component {
           <div className="panel-heading">
             <h3>STAFF MANAGER</h3>
           </div>
-          <button
-            type="button"
-            className="btn btn-large btn-block btn-info"
-            style={{ width: 50, marginLeft: 20 }}
-          >
-            ADD
-          </button>
+          <FaPlus color="blue" cursor="pointer" size="40px" />
 
           <table className="table table-bordered">
             <thead>
@@ -112,7 +108,7 @@ class StaffManager extends Component {
           </table>
         </div>
         {status === true ? (
-          <ModalEdit staff={staff} onToggleModal={this.toggleModal} />
+          <ModalEditProfile staff={staff} onToggleModal={this.toggleModal} />
         ) : (
           ""
         )}

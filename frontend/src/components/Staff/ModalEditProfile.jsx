@@ -1,7 +1,7 @@
 import React, { PureComponent } from "react";
 import "./style.css";
 
-class ModalEdit extends PureComponent {
+class ModalEditProfile extends PureComponent {
   constructor(props) {
     super(props);
     let { staff } = props;
@@ -112,4 +112,4 @@ class ModalEdit extends PureComponent {
     );
   }
 }
-export default ModalEdit;
+export default ModalEditProfile;

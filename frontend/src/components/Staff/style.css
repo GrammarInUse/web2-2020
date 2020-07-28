@@ -55,3 +55,36 @@ h3 {
   font-weight: 200%;
   line-height: 50px;
 }
+
+.account-payment {
+  height: 100%;
+  margin-left: 20px;
+}
+.account-payment label {
+  width: 15%;
+  font-size: 20px;
+  color: black;
+  margin-bottom: 30px;
+}
+.account-payment label:first-child {
+  color: #cf1b1b;
+  font-size: 24px;
+  font-weight: 200%;
+}
+
+.find-history tr th {
+  width: 25%;
+  float: left;
+}
+.find-history a {
+  height: 30px;
+  width: 50px;
+  background-color: red;
+  cursor: pointer;
+  align-items: center;
+  display: flex;
+}
+.find-history tr td {
+  width: 15%;
+  float: left;
+}

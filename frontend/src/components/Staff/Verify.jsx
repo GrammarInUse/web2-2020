@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { PureComponent } from "react";
+import { FaCheck, FaTimes } from "react-icons/fa";
 
 class Verify extends PureComponent {
   render() {
@@ -31,13 +32,13 @@ class Verify extends PureComponent {
                 <td style={{ maxWidth: 100 }}>
                   <td style={{ border: "none" }}>
                     <button type="button" class="btn btn-primary">
-                      Xác Thực
+                      <FaCheck />
                     </button>
                   </td>
 
                   <td style={{ border: "none" }}>
                     <button type="button" class="btn  btn-danger">
-                      Xoá
+                      <FaTimes />
                     </button>
                   </td>
                 </td>

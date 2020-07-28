@@ -10,6 +10,8 @@ import Intros from "./components/Intros";
 import Verify from "./components/Staff/Verify";
 import NotFound from "./components/NotFound";
 import StaffManager from "./components/Staff/StaffManager";
+import PaymentAccount from "./components/Staff/PaymentAccount";
+import Rate from "./components/Staff/Rate";
 
 class App extends Component {
   constructor(props) {
@@ -123,6 +125,12 @@ class App extends Component {
           </Route>
           <Route path="/staffmanager">
             <StaffManager />
+          </Route>
+          <Route path="/spend-account">
+            <PaymentAccount />
+          </Route>
+          <Route path="/rate">
+            <Rate />
           </Route>
           <Route component={NotFound} />
         </Switch>
