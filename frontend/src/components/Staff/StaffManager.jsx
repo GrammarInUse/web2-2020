@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import { FaPlus, FaEdit ,FaLock} from "react-icons/fa";
+import { FaPlus, FaEdit ,FaLock, FaLockOpen} from "react-icons/fa";
 import "./style.css";
 import ModalEditProfile from "./ModalEditProfile";
 import Rate from "./Rate";
 const staffs = [
-  { id: 1, name: "vu van leo", position: "lao cong", salary: 2000, role: 1 },
+  { id: 1, name: "vu van leo", position: "lao cong", salary: 2000, role: 1 ,isLock:false},
   { id: 2, name: "tran thi a", position: "lao cong", salary: 2000, role: 2 },
   { id: 3, name: "vu van leo", position: "lao cong", salary: 2000, role: 1 },
   { id: 4, name: "tran thi a", position: "lao cong", salary: 2000, role: 2 },
@@ -12,13 +12,32 @@ const staffs = [
   { id: 6, name: "tran thi a", position: "lao cong", salary: 2000, role: 2 },
   { id: 7, name: "vu van leo", position: "lao cong", salary: 2000, role: 1 },
 ];
-let staff = { id: null, name: "", position: "", salary: null, role: 1 };
+let staff = { id: null, name: "", position: "", salary: null, role: 1 ,isLock:false};
 class StaffManager extends Component {
   constructor(props) {
     super(props);
     this.state = {
       status: false,
+      staffs
     };
+  }
+  findIndex = (id) => {
+    let index = -1;
+    staffs.forEach((item, i) => {
+      if (item.id === id) {
+        index = i;
+      }
+    });
+    return index;
+  };
+  onLock=(id)=>{
+    let index=this.findIndex(id)
+    this.setState({
+      staffs:[...this.state.staffs,
+        this.state.staffs[index].isLock=!this.state.staffs[index].isLock
+        
+      ]
+    })
   }
   listStaff = () => {
     let list = staffs.map((item, index) => {
@@ -43,8 +62,12 @@ class StaffManager extends Component {
               </td>
 
               <td style={{ border: "none" }}>
-                <button type="button" className="btn  btn-danger">
-                 <FaLock/>
+                <button
+                 type="button" 
+                 className="btn  btn-danger"
+                 onClick={()=>this.onLock(item.id)}
+                 >
+                {item.isLock?<FaLock/>:<FaLockOpen/>}
                 </button>
               </td>
             </td>
@@ -54,15 +77,7 @@ class StaffManager extends Component {
     });
     return list;
   };
-  findIndex = (id) => {
-    let index = -1;
-    staffs.forEach((item, i) => {
-      if (item.id === id) {
-        index = i;
-      }
-    });
-    return index;
-  };
+  
   toggleModal = (id) => {
     if (id) {
       let index = this.findIndex(id);
@@ -71,7 +86,7 @@ class StaffManager extends Component {
       }
     }
     else{
-      staff={ id: null, name: "", position: "", salary: null, role: 1 };
+      staff={ id: null, name: "", position: "", salary: null, role: 1,isLock:false };
     }
     this.setState({
       status: !this.state.status,

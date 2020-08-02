@@ -14,7 +14,11 @@ class ModalEditProfile extends PureComponent {
       salary: staff.salary,
       role: staff.role,
 
-      validate:true
+      validate:true,
+
+      nameErr:"",
+      posErr:"",
+      salErr:""
     };
   }
   closeModal = () => {
@@ -24,6 +28,7 @@ class ModalEditProfile extends PureComponent {
       position: "",
       salary: 0,
       role: 1,
+      
     });
     this.props.onToggleModal();
 
@@ -38,11 +43,35 @@ class ModalEditProfile extends PureComponent {
   str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
   str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
   str = str.replace(/đ/g, "d");
+  str = str.replace(/\s/g, '');
   return str;
   }
-  isvalid=(string)=>{
+  isvalid=()=>{
     const re = /^[A-Za-z]*$/ 
-      return re.test(this.removeAscent(string))
+    const sa=/^\d+$/;
+    let nameErr="";
+    let posErr="";
+    let salErr="";
+    let isName= re.test(this.removeAscent(this.state.name));
+    let isPos=re.test(this.removeAscent(this.state.position));
+    let isSal=sa.test(this.state.salary)
+    if(!isName){
+      nameErr="please enter name only characters !"
+     
+    }
+    if(!isPos){
+      posErr="please enter position only characters !"
+     
+    }
+    if(!isSal){
+      salErr="please enter position only number"
+      
+    }
+    if(nameErr!==""||posErr!==""||salErr!==""){
+      this.setState({nameErr,posErr,salErr});
+      return false;
+    }
+    return true
   }
   onChange = (e) => {
     let target = e.target;
@@ -55,12 +84,16 @@ class ModalEditProfile extends PureComponent {
   };
   onSubmit = (e) => {
     e.preventDefault();
-   console.log(this.isvalid(this.state.name))
-
+  
+    
+   if(this.isvalid()){
+     console.log(this.state)
+   }
+  
 
   };
   render() {
-    let {validate, id, name, position, salary, role } = this.state;
+    let {validate, id, name, position, salary, role ,nameErr,posErr,salErr} = this.state;
    
 
     return (
@@ -83,7 +116,9 @@ class ModalEditProfile extends PureComponent {
                       onChange={this.onChange}
                       
                     />
+                     <span style={{color:"red"}}>{nameErr}</span>
                   </td>
+                 
                 </tr>
 
                 <tr>
@@ -98,6 +133,7 @@ class ModalEditProfile extends PureComponent {
                       value={position}
                       onChange={this.onChange}
                     />
+                     <span style={{color:"red"}}>{posErr}</span>
                   </td>
                 </tr>
                 <tr>
@@ -112,6 +148,7 @@ class ModalEditProfile extends PureComponent {
                       value={salary}
                       onChange={this.onChange}
                     />
+                     <span style={{color:"red"}}>{salErr}</span>
                   </td>
                 </tr>
                 <tr>

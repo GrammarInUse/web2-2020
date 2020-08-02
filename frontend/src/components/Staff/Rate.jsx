@@ -1,21 +1,22 @@
 import React, { Component } from "react";
 import { PureComponent } from "react";
-import { FaCheck, FaTimes, FaPlus, FaEdit, FaLock } from "react-icons/fa";
+import { FaCheck, FaTimes, FaPlus, FaEdit, FaLock, FaLockOpen } from "react-icons/fa";
 import ModalEditRate from "./ModalEditRate";
 const listRate = [
-  { Id: 1, Term: "3 thang", rate: 0 },
-  { Id: 2, Term: "3 thang", rate: 0 },
-  { Id: 3, Term: "2 thang", rate: 10 },
-  { Id: 4, Term: "3 thang", rate: 20 },
-  { Id: 5, Term: "2 thang", rate: 0 },
-  { Id: 6, Term: "6 thang", rate: 40 },
+  { Id: 1, Term: "3 thang", rate: 0 ,isLock:false},
+  { Id: 2, Term: "3 thang", rate: 0 ,isLock:false},
+  { Id: 3, Term: "2 thang", rate: 10 ,isLock:false},
+  { Id: 4, Term: "3 thang", rate: 20 ,isLock:false},
+  { Id: 5, Term: "2 thang", rate: 0 ,isLock:false},
+  { Id: 6, Term: "6 thang", rate: 40 ,isLock:false},
 ];
-let rate = { Id: null, Term: "", rate: 0 };
+let rate = { Id: null, Term: "", rate: 0 ,isLock:false};
 class Rate extends PureComponent {
   constructor() {
     super();
     this.state = {
       status: false,
+      listRate,
     };
   }
 
@@ -36,12 +37,22 @@ class Rate extends PureComponent {
       }
     }
     else{
-      rate={ Id: null, Term: "", rate: 0 };
+      rate={ Id: null, Term: "", rate: 0 ,isLock:false};
     }
     this.setState({
       status: !this.state.status,
     });
   };
+  onLock=(id)=>{
+    const index=this.findIndex(id);
+    
+    this.setState({
+      listRate:[
+        ...this.state.listRate,
+        this.state.listRate[index].isLock=!this.state.listRate[index].isLock
+      ]
+    })
+  }
   listRate = () => {
     return listRate.map((item, index) => {
       return (
@@ -62,8 +73,12 @@ class Rate extends PureComponent {
             </td>
 
             <td style={{ border: "none" }}>
-              <button type="button" class="btn  btn-danger">
-                <FaLock />
+              <button 
+              type="button"
+               className="btn  btn-danger"
+               onClick={()=>this.onLock(item.Id)}
+               >
+                {item.isLock?<FaLock/>:<FaLockOpen/>}
               </button>
             </td>
           </td>

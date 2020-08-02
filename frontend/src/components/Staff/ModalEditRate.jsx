@@ -23,6 +23,7 @@ export default class ModalEditRate extends Component {
     e.preventDefault();
     console.log(this.state);
   };
+  
   onChange = (e) => {
     let target = e.target;
     let name = target.name;
