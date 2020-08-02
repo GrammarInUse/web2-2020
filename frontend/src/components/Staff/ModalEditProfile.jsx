@@ -1,4 +1,6 @@
 import React, { PureComponent } from "react";
+import * as bootstrapValidate from 'bootstrap-validate';
+
 import "./style.css";
 
 class ModalEditProfile extends PureComponent {
@@ -6,42 +8,66 @@ class ModalEditProfile extends PureComponent {
     super(props);
     let { staff } = props;
     this.state = {
+      id: staff.id,
       name: staff.name,
       position: staff.position,
       salary: staff.salary,
       role: staff.role,
+
+      validate:true
     };
   }
   closeModal = () => {
     this.setState({
+      id: null,
       name: "",
       position: "",
       salary: 0,
       role: 1,
     });
     this.props.onToggleModal();
+
   };
+  removeAscent=(str)=>{
+    if (str === null || str === undefined) return str;
+  str = str.toLowerCase();
+  str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+  str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+  str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+  str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+  str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+  str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+  str = str.replace(/đ/g, "d");
+  return str;
+  }
+  isvalid=(string)=>{
+    const re = /^[A-Za-z]*$/ 
+      return re.test(this.removeAscent(string))
+  }
   onChange = (e) => {
     let target = e.target;
     let name = target.name;
     let value = target.value;
-    console.log([name]);
+    
     this.setState({
       [name]: value,
     });
   };
   onSubmit = (e) => {
     e.preventDefault();
-    console.log(this.state);
+   console.log(this.isvalid(this.state.name))
+
+
   };
   render() {
-    let { name, position, salary, role } = this.state;
+    let {validate, id, name, position, salary, role } = this.state;
+   
 
     return (
       <div>
         <div className="modal-profile">
           <div className="profile">
-            <h3>Edit Profile</h3>
+            <h3>{id !== null ? "Edit" : "Add"} Profile</h3>
             <form className="formEdit" onSubmit={this.onSubmit}>
               <tbody>
                 <tr>
@@ -50,10 +76,12 @@ class ModalEditProfile extends PureComponent {
                   </td>
                   <td>
                     <input
+                      id="name"
                       type="text"
                       name="name"
                       value={name}
                       onChange={this.onChange}
+                      
                     />
                   </td>
                 </tr>
@@ -64,6 +92,7 @@ class ModalEditProfile extends PureComponent {
                   </td>
                   <td>
                     <input
+                      id="position"
                       type="text"
                       name="position"
                       value={position}
@@ -77,6 +106,7 @@ class ModalEditProfile extends PureComponent {
                   </td>
                   <td>
                     <input
+                      id="salary"
                       type="number"
                       name="salary"
                       value={salary}
@@ -99,8 +129,12 @@ class ModalEditProfile extends PureComponent {
                 </tr>
               </tbody>
 
-              <button type="submit" className="btn btn-sm btn-success">
-                Update
+              <button 
+              type="submit"
+               className="btn btn-sm btn-success"
+              disabled={validate===false?true:false}
+                >
+                {id !== null ? "UPDATE" : "ADD"}
               </button>
             </form>
             <a id="close" onClick={this.closeModal}>

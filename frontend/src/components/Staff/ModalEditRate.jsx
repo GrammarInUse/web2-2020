@@ -3,15 +3,17 @@ import React, { Component } from "react";
 export default class ModalEditRate extends Component {
   constructor(props) {
     super(props);
-    let { rate, Term } = props.rate;
+    let { Id,rate, Term } = props.rate;
 
     this.state = {
+      id:Id,
       rate: rate,
       term: Term,
     };
   }
   closeModal = () => {
     this.setState({
+      id:null,
       rete: "",
       term: "",
     });
@@ -31,13 +33,14 @@ export default class ModalEditRate extends Component {
     });
   };
   render() {
-    const { term, rate } = this.state;
+    const { id,term, rate } = this.state;
+  
 
     return (
       <div>
         <div className="modal-profile">
           <div className="profile">
-            <h3>Edit Rate</h3>
+            <h3>{id!==null?"Edit":"Add"} Rate</h3>
             <form className="formEdit" onSubmit={this.onSubmit}>
               <tbody>
                 <tr>
@@ -70,7 +73,7 @@ export default class ModalEditRate extends Component {
               </tbody>
 
               <button type="submit" className="btn btn-sm btn-success">
-                Update
+                {id?"UPDATE":"ADD"}
               </button>
             </form>
             <a id="close" onClick={this.closeModal}>

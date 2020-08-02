@@ -10,7 +10,7 @@ const listRate = [
   { Id: 5, Term: "2 thang", rate: 0 },
   { Id: 6, Term: "6 thang", rate: 40 },
 ];
-let rate = { id: null, Term: "", rate: 0 };
+let rate = { Id: null, Term: "", rate: 0 };
 class Rate extends PureComponent {
   constructor() {
     super();
@@ -34,6 +34,9 @@ class Rate extends PureComponent {
       if (index !== -1) {
         rate = listRate[index];
       }
+    }
+    else{
+      rate={ Id: null, Term: "", rate: 0 };
     }
     this.setState({
       status: !this.state.status,
@@ -88,6 +91,7 @@ class Rate extends PureComponent {
           <button
             type="button"
             class="btn btn-primary"
+            onClick={this.onToggleModal}
             style={{ width: 40, height: 40 }}
           >
             <FaPlus />

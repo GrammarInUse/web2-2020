@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaEdit ,FaLock} from "react-icons/fa";
 import "./style.css";
 import ModalEditProfile from "./ModalEditProfile";
 import Rate from "./Rate";
@@ -38,13 +38,13 @@ class StaffManager extends Component {
                   className="btn btn-primary"
                   onClick={() => this.toggleModal(item.id)}
                 >
-                  Edit
+                  <FaEdit/>
                 </button>
               </td>
 
               <td style={{ border: "none" }}>
                 <button type="button" className="btn  btn-danger">
-                  Lock
+                 <FaLock/>
                 </button>
               </td>
             </td>
@@ -70,6 +70,9 @@ class StaffManager extends Component {
         staff = staffs[index];
       }
     }
+    else{
+      staff={ id: null, name: "", position: "", salary: null, role: 1 };
+    }
     this.setState({
       status: !this.state.status,
     });
@@ -91,7 +94,7 @@ class StaffManager extends Component {
           <div className="panel-heading">
             <h3>STAFF MANAGER</h3>
           </div>
-          <FaPlus color="blue" cursor="pointer" size="40px" />
+          <FaPlus color="blue" cursor="pointer" size="40px" onClick={this.toggleModal}/>
 
           <table className="table table-bordered">
             <thead>
