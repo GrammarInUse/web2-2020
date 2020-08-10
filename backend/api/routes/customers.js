@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const verifyToken = require("../../middlewares/checkAuth");
 const Send = require("../../services/send-email");
+const { isNull, isNullOrUndefined } = require("util");
 
 
 router.post("/signup", async (req, res) => {
@@ -40,7 +41,6 @@ router.post("/signup", async (req, res) => {
                 email,
                 password,
                 verifyToken,
-                bankBranchId
             }).then(() => {
                 console.log("Succesfully created a account");
             })
@@ -89,18 +89,18 @@ router.post("/login", async (req, res) => {
 
     if(tempCustomer.length >= 1){
         const passwordAuth = await bcrypt.compare(password, tempCustomer[0].password);
-        const verifyToken = tempCustomer.verifyToken;
+        const verifyToken = isNullOrUndefined(tempCustomer.verifyToken);
         console.log(verifyToken);
         if(!passwordAuth){
             res.status(200).json({
                 message: "Wrong password!"
             });
-        }else if(passwordAuth && verifyToken !== null){
+        }else if(passwordAuth && !verifyToken){
             res.status(200).json({
                 message: "You haven't verified your account! Please check your email!!!"
             });
         }
-        else if(passwordAuth && verifyToken === null){
+        else if(passwordAuth && verifyToken){
             const token = jwt.sign({
                 username: tempCustomer[0].username,
                 password: tempCustomer[0].password
