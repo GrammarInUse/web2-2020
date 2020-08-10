@@ -5,12 +5,10 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const verifyToken = require("../../middlewares/checkAuth");
 const Send = require("../../services/send-email");
-const checkAuth = require("../../middlewares/checkAuth");
-const { isNullOrUndefined } = require("util");
 
 
-//SIGN UP A NEW USER
 router.post("/signup", async (req, res) => {
     const id = Date.now().toString();
     const username = req.body.username;
@@ -41,7 +39,8 @@ router.post("/signup", async (req, res) => {
                 username,
                 email,
                 password,
-                verifyToken
+                verifyToken,
+                bankBranchId
             }).then(() => {
                 console.log("Succesfully created a account");
             })
@@ -82,7 +81,6 @@ router.post("/signup", async (req, res) => {
     await Send(tempUser);
 });
 
-//LOGIN TO THE CLIENT SIDE
 router.post("/login", async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
@@ -97,26 +95,24 @@ router.post("/login", async (req, res) => {
             res.status(200).json({
                 message: "Wrong password!"
             });
-        }else if(passwordAuth && verifyToken != null){
+        }else if(passwordAuth && verifyToken !== null){
             res.status(200).json({
                 message: "You haven't verified your account! Please check your email!!!"
             });
         }
-        else if(passwordAuth && isNullOrUndefined(verifyToken)){
-            jwt.sign({
+        else if(passwordAuth && verifyToken === null){
+            const token = jwt.sign({
                 username: tempCustomer[0].username,
                 password: tempCustomer[0].password
-            }, "shhh", (err, token) => {
-                if(err) {
-                    res.status(404).json({
-                        message: err
-                    })
-                }
-                res.status(200).json({
-                    message: "Successfully authenticated!",
-                    token,
-                    customerId: tempCustomer[0].id
-                });
+            }, "mySecret", {
+                expiresIn: "1h",
+                
+            });
+
+            res.status(200).json({
+                message: "Successfully authenticated!",
+                token,
+                customerId: tempCustomer[0].id
             });
         }else{
             res.status(200).json({
@@ -130,10 +126,14 @@ router.post("/login", async (req, res) => {
             customer: null
         });
     }
+
+    
+
+
+    
 });
 
-//GET INFORMATION OF USER WHEN THEY LOGGED IN
-router.get("/:id", checkAuth, async (req, res) => {
+router.get("/:id", async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await Customers.findByPk(id);
     const findingAccount = await Accounts.findByPk(id);
@@ -150,8 +150,7 @@ router.get("/:id", checkAuth, async (req, res) => {
     });
 });
 
-//CHANGE THE INFORMATION OF USER WHEN THEY LOGGED IN
-router.patch("/profile/:id", checkAuth, async (req, res) => {
+router.patch("/profile/:id", async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await Customers.findByPk(id);
 
@@ -173,8 +172,7 @@ router.patch("/profile/:id", checkAuth, async (req, res) => {
     });
 });
 
-//CHANGE THE PASSWORD OF USER WHEN THEY LOGGED IN
-router.patch("/password/:id", checkAuth, async (req, res) => {
+router.patch("/password/:id", async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await Accounts.findByPk(id);
     const newPassword = await bcrypt.hash(req.body.password, 10);
@@ -195,8 +193,7 @@ router.patch("/password/:id", checkAuth, async (req, res) => {
     });
 });
 
-//DELETE A CUSTOMER (NO NEEDED, DON'T ATTEND TO BELOW CODE)
-router.delete("/:id", checkAuth, async (req, res) => {
+router.delete("/:id", async (req, res) => {
     const id = req.params.id;
     await Customers.destroy({
         where: {
@@ -215,7 +212,6 @@ router.delete("/:id", checkAuth, async (req, res) => {
     });
 });
 
-//VERIFY THE EMAIL FOR USER WITH THE ID AND THE VERIFY TOKEN
 router.get("/signup/:id/:verifyToken", async (req, res) => {
     const id = req.params.id;
     const verifyToken = req.params.verifyToken;
