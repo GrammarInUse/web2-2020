@@ -5,8 +5,9 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const verifyToken = require("../../middlewares/checkAuth");
 const Send = require("../../services/send-email");
+const checkAuth = require("../../middlewares/checkAuth");
+const { isNullOrUndefined } = require("util");
 
 //CUSTOMER API
 router.post("/signup", async (req, res) => {
@@ -95,19 +96,16 @@ router.post("/login", async (req, res) => {
             res.status(200).json({
                 message: "Wrong password!"
             });
-        }else if(passwordAuth && verifyToken !== null){
+        }else if(passwordAuth && verifyToken != null){
             res.status(200).json({
                 message: "You haven't verified your account! Please check your email!!!"
             });
         }
-        else if(passwordAuth && verifyToken === null){
+        else if(passwordAuth && isNullOrUndefined(verifyToken)){
             const token = jwt.sign({
                 username: tempCustomer[0].username,
                 password: tempCustomer[0].password
-            }, "mySecret", {
-                expiresIn: "1h",
-                
-            });
+            }, "mySecret");
 
             res.status(200).json({
                 message: "Successfully authenticated!",
@@ -133,7 +131,7 @@ router.post("/login", async (req, res) => {
     
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await Customers.findByPk(id);
     const findingAccount = await Accounts.findByPk(id);
@@ -150,7 +148,7 @@ router.get("/:id", async (req, res) => {
     });
 });
 
-router.patch("/profile/:id", async (req, res) => {
+router.patch("/profile/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await Customers.findByPk(id);
 
@@ -172,7 +170,7 @@ router.patch("/profile/:id", async (req, res) => {
     });
 });
 
-router.patch("/password/:id", async (req, res) => {
+router.patch("/password/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await Accounts.findByPk(id);
     const newPassword = await bcrypt.hash(req.body.password, 10);
@@ -193,7 +191,7 @@ router.patch("/password/:id", async (req, res) => {
     });
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
     await Customers.destroy({
         where: {
