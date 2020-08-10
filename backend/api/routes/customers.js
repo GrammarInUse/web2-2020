@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const verifyToken = require("../../middlewares/checkAuth");
 const Send = require("../../services/send-email");
 
-
+//CUSTOMER API
 router.post("/signup", async (req, res) => {
     const id = Date.now().toString();
     const username = req.body.username;
