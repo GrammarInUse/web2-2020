@@ -1,28 +1,31 @@
 import React, { Component } from "react";
 import { PureComponent } from "react";
-import { FaCheck, FaTimes, FaPlus, FaEdit, FaLock } from "react-icons/fa";
+import {
+  FaCheck,
+  FaTimes,
+  FaPlus,
+  FaEdit,
+  FaLock,
+  FaLockOpen,
+} from "react-icons/fa";
 import ModalEditRate from "./ModalEditRate";
-const listRate = [
-  { Id: 1, Term: "3 thang", rate: 0 },
-  { Id: 2, Term: "3 thang", rate: 0 },
-  { Id: 3, Term: "2 thang", rate: 10 },
-  { Id: 4, Term: "3 thang", rate: 20 },
-  { Id: 5, Term: "2 thang", rate: 0 },
-  { Id: 6, Term: "6 thang", rate: 40 },
-];
-let rate = { id: null, Term: "", rate: 0 };
+import { api } from "./api";
+
+let rate = { id: null, term: "", rate: 0, isLock: false };
 class Rate extends PureComponent {
   constructor() {
     super();
     this.state = {
       status: false,
+      listRate: [],
     };
   }
 
   findIndex = (id) => {
     let index = -1;
-    listRate.forEach((item, i) => {
-      if (item.Id === id) {
+
+    this.state.listRate.forEach((item, i) => {
+      if (item.id === id) {
         index = i;
       }
     });
@@ -32,19 +35,38 @@ class Rate extends PureComponent {
     if (id) {
       let index = this.findIndex(id);
       if (index !== -1) {
-        rate = listRate[index];
+        rate = this.state.listRate[index];
       }
+    } else {
+      rate = { id: null, term: "", rate: 0, isLock: false };
     }
     this.setState({
       status: !this.state.status,
     });
   };
+  onLock = (id) => {
+    const index = this.findIndex(id);
+
+    api
+      .put(`/rate/${id}`, { isLock: !this.state.listRate[index].isLock })
+      .then((res) => {
+        console.log(res.status);
+      })
+      .catch((err) => {
+        console.log(err + "");
+      });
+    let { listRate } = this.state;
+    listRate[index].isLock = !listRate[index].isLock;
+    this.setState({
+      listRate: [...listRate],
+    });
+  };
   listRate = () => {
-    return listRate.map((item, index) => {
+    return this.state.listRate.map((item, index) => {
       return (
         <tr>
-          <td>{item.Id}</td>
-          <td>{item.Term}</td>
+          <td>{item.id}</td>
+          <td>{item.term}</td>
           <td>{item.rate} %</td>
 
           <td style={{ maxWidth: 100 }}>
@@ -52,15 +74,19 @@ class Rate extends PureComponent {
               <button
                 type="button"
                 class="btn btn-primary"
-                onClick={() => this.onToggleModal(item.Id)}
+                onClick={() => this.onToggleModal(item.id)}
               >
                 <FaEdit />
               </button>
             </td>
 
             <td style={{ border: "none" }}>
-              <button type="button" class="btn  btn-danger">
-                <FaLock />
+              <button
+                type="button"
+                className="btn  btn-danger"
+                onClick={() => this.onLock(item.id)}
+              >
+                {item.isLock ? <FaLock /> : <FaLockOpen />}
               </button>
             </td>
           </td>
@@ -68,7 +94,18 @@ class Rate extends PureComponent {
       );
     });
   };
-
+  getAll = async () => {
+    let data = await api
+      .get("/rate/")
+      .then(({ data }) => data)
+      .catch((err) => {
+        console.log(err + "");
+      });
+    this.setState({ listRate: data });
+  };
+  componentDidMount() {
+    this.getAll();
+  }
   render() {
     const { status } = this.state;
 
@@ -88,6 +125,7 @@ class Rate extends PureComponent {
           <button
             type="button"
             class="btn btn-primary"
+            onClick={this.onToggleModal}
             style={{ width: 40, height: 40 }}
           >
             <FaPlus />
@@ -106,7 +144,11 @@ class Rate extends PureComponent {
           </table>
         </div>
         {status === true ? (
-          <ModalEditRate onToggleModal={this.onToggleModal} rate={rate} />
+          <ModalEditRate
+            onToggleModal={this.onToggleModal}
+            rate={rate}
+            onGetAll={this.getAll}
+          />
         ) : (
           ""
         )}

@@ -1,28 +1,73 @@
 import React, { Component } from "react";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaEdit, FaLock, FaLockOpen } from "react-icons/fa";
 import "./style.css";
 import ModalEditProfile from "./ModalEditProfile";
-import Rate from "./Rate";
-const staffs = [
-  { id: 1, name: "vu van leo", position: "lao cong", salary: 2000, role: 1 },
-  { id: 2, name: "tran thi a", position: "lao cong", salary: 2000, role: 2 },
-  { id: 3, name: "vu van leo", position: "lao cong", salary: 2000, role: 1 },
-  { id: 4, name: "tran thi a", position: "lao cong", salary: 2000, role: 2 },
-  { id: 5, name: "vu van leo", position: "lao cong", salary: 2000, role: 1 },
-  { id: 6, name: "tran thi a", position: "lao cong", salary: 2000, role: 2 },
-  { id: 7, name: "vu van leo", position: "lao cong", salary: 2000, role: 1 },
-];
-let staff = { id: null, name: "", position: "", salary: null, role: 1 };
+
+import { api } from "./api";
+
+let staff = {
+  id: null,
+  name: "",
+  position: "",
+  salary: 0,
+  role: 1,
+  isLock: false,
+};
+
 class StaffManager extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       status: false,
+      staffs: [],
     };
   }
+  getAll = async () => {
+    let staffs = await api.get("/test/").then(({ data }) => data);
+
+    this.setState({
+      staffs,
+    });
+  };
+  Lock = (id) => {
+    let index = this.findIndex(id);
+    const staff = this.state.staffs[index];
+    let { staffs } = this.state;
+    api
+      .put(`test/${id}`, { isLock: !staff.isLock })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err + "");
+      });
+    staffs[index].isLock = !staff.isLock;
+    this.setState({
+      staffs: [...staffs],
+    });
+  };
+  componentDidMount() {
+    this.getAll();
+  }
+  findIndex = (id) => {
+    let staffs = this.state.staffs;
+    let index = -1;
+    staffs.forEach((item, i) => {
+      if (item.id === id) {
+        index = i;
+      }
+    });
+    return index;
+  };
+  onLock = async (id) => {
+    this.Lock(id);
+  };
   listStaff = () => {
+    let staffs = this.state.staffs;
     let list = staffs.map((item, index) => {
-      let role = item.role === 1 ? "watch" : "edit";
+      let role = item.role ? "watch" : "edit";
+
       return (
         <tbody key={index}>
           <tr id="listStaff">
@@ -38,13 +83,17 @@ class StaffManager extends Component {
                   className="btn btn-primary"
                   onClick={() => this.toggleModal(item.id)}
                 >
-                  Edit
+                  <FaEdit />
                 </button>
               </td>
 
               <td style={{ border: "none" }}>
-                <button type="button" className="btn  btn-danger">
-                  Lock
+                <button
+                  type="button"
+                  className="btn  btn-danger"
+                  onClick={() => this.onLock(item.id)}
+                >
+                  {item.isLock ? <FaLock /> : <FaLockOpen />}
                 </button>
               </td>
             </td>
@@ -54,21 +103,23 @@ class StaffManager extends Component {
     });
     return list;
   };
-  findIndex = (id) => {
-    let index = -1;
-    staffs.forEach((item, i) => {
-      if (item.id === id) {
-        index = i;
-      }
-    });
-    return index;
-  };
+
   toggleModal = (id) => {
+    let staffs = this.state.staffs;
     if (id) {
       let index = this.findIndex(id);
       if (index !== -1) {
         staff = staffs[index];
       }
+    } else {
+      staff = {
+        id: null,
+        name: "",
+        position: "",
+        salary: 0,
+        role: 1,
+        isLock: false,
+      };
     }
     this.setState({
       status: !this.state.status,
@@ -91,7 +142,12 @@ class StaffManager extends Component {
           <div className="panel-heading">
             <h3>STAFF MANAGER</h3>
           </div>
-          <FaPlus color="blue" cursor="pointer" size="40px" />
+          <FaPlus
+            color="blue"
+            cursor="pointer"
+            size="40px"
+            onClick={this.toggleModal}
+          />
 
           <table className="table table-bordered">
             <thead>
@@ -108,7 +164,11 @@ class StaffManager extends Component {
           </table>
         </div>
         {status === true ? (
-          <ModalEditProfile staff={staff} onToggleModal={this.toggleModal} />
+          <ModalEditProfile
+            staff={staff}
+            onToggleModal={this.toggleModal}
+            onGetAll={this.getAll}
+          />
         ) : (
           ""
         )}
