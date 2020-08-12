@@ -1,8 +1,6 @@
 import React, { PureComponent } from "react";
-import * as bootstrapValidate from "bootstrap-validate";
-
-import "./style.css";
 import { api } from "./api";
+import "./style.css";
 
 class ModalEditProfile extends PureComponent {
   constructor(props) {
@@ -51,9 +49,11 @@ class ModalEditProfile extends PureComponent {
     let nameErr = "";
     let posErr = "";
     let salErr = "";
-    let isName = re.test(this.removeAscent(this.state.name));
-    let isPos = re.test(this.removeAscent(this.state.position));
-    let isSal = sa.test(this.state.salary);
+    const { name, position, salary } = this.state;
+    let isName = re.test(this.removeAscent(name));
+    let isPos = re.test(this.removeAscent(position));
+    let isSal = sa.test(salary);
+
     if (!isName) {
       nameErr = "please enter name only characters !";
     }
@@ -62,6 +62,15 @@ class ModalEditProfile extends PureComponent {
     }
     if (!isSal) {
       salErr = "please enter position only number";
+    }
+    if (!name) {
+      nameErr = "Name is not valid";
+    }
+    if (salary === "") {
+      salErr = "Salary is not valid";
+    }
+    if (!position) {
+      posErr = "Position is not valid";
     }
     if (nameErr !== "" || posErr !== "" || salErr !== "") {
       this.setState({ nameErr, posErr, salErr });
@@ -195,11 +204,7 @@ class ModalEditProfile extends PureComponent {
                 </tr>
               </tbody>
 
-              <button
-                type="submit"
-                className="btn btn-sm btn-success"
-                disabled={validate === false ? true : false}
-              >
+              <button type="submit" className="btn btn-sm btn-success">
                 {id !== null ? "UPDATE" : "ADD"}
               </button>
             </form>
