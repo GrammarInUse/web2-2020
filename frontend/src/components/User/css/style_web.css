@@ -1,0 +1,137 @@
+@font-face { font-family: 'hel_bold'; src: url('../fonts/sfuhelveticabold.eot'); src: url('../fonts/sfuhelveticabold.eot?#iefix') format('embedded-opentype'), url('../fonts/sfuhelveticabold.ttf') format('truetype'); font-weight: 100; font-style: normal; }
+
+@font-face { font-family: 'hel_light'; src: url('../fonts/sfuhelveticalight.eot'); src: url('../fonts/sfuhelveticalight.eot?#iefix') format('embedded-opentype'), url('../fonts/sfuhelveticalight.ttf') format('truetype'); font-weight: 100; font-style: normal; }
+
+@font-face { font-family: 'hel_regular'; src: url('../fonts/sfuhelveticaregular.eot'); src: url('../fonts/sfuhelveticaregular.eot?#iefix') format('embedded-opentype'), url('../fonts/sfuhelveticaregular.ttf') format('truetype'); font-weight: 100; font-style: normal; }
+
+@font-face { font-family: 'hel_bold_oblique'; src: url('../fonts/sfuhelveticacondensedboldoblique.eot'); src: url('../fonts/sfuhelveticacondensedboldoblique.eot?#iefix') format('embedded-opentype'), url('../fonts/sfuhelveticacondensedboldoblique.ttf') format('truetype'); font-weight: 100; font-style: normal; }
+
+@font-face { font-family: 'hel_light_oblique'; src: url('../fonts/sfuhelveticacondensedlightoblique.eot'); src: url('../fonts/sfuhelveticacondensedlightoblique.eot?#iefix') format('embedded-opentype'), url('../fonts/sfuhelveticacondensedlightoblique.ttf') format('truetype'); font-weight: 100; font-style: normal; }
+
+/*Định dạng mặc định cho các tag*/
+body { font-size: 12px; font-family: arial; color: #636464; margin: 0; padding: 0; background: #e0e0e0; }
+
+h1 { font-family: Times New Roman; font-size: 24px; color: #3f6cad; margin-top: 0px; margin-bottom: 10px; }
+
+h2 { font-family: arial; font-size: 16px; color: #636464; }
+
+h3 { font-family: arial; font-size: 18px; color: #3f6cad; }
+h4 { font-family: Times New Roman; font-size: 18px; color: #3f6cad; margin: 0; text-transform: uppercase;}
+
+img { border-style: none; }
+
+/*Các class sử dụng chung*/
+.font-light-oblique { font-family: hel_light_oblique; }
+
+.button-blue { display: inline-block; width: 108px; height: 31px; background: url(../img/button-blue.png) no-repeat; font-family: Arial; font-size: 13px; color: #fff; line-height: 30px; text-align: center; -webkit-text-shadow: 1px 1px 1px rgba(0,0,0,0.5); text-shadow: 1px 1px 1px rgba(0,0,0,0.5); opacity: 0.9; text-decoration: none; }
+
+    .button-blue:hover { opacity: 1; }
+
+.ruler { width: 810px; height: 1px; background: #d4d4d4; margin: 10px 0; margin-left: -30px; }
+
+/*----------------------------------------------------------------------*/
+
+#wrapper { margin: 0 auto; width: 1005px; }
+
+    #wrapper .main { width: 100%; float: left; background: #fff; position: relative; overflow: hidden; }
+
+        /*CSS cho cột bên trái*/
+        #wrapper .main .main-left { width: 179px; float: left; border-right: solid 1px #e0e0e0; padding: 5px 5px 0; min-height: 500px; position: relative; }
+
+            #wrapper .main .main-left h1 { color: #3f6cad; font-size: 18px; margin-left: 15px; }
+
+            #wrapper .main .main-left .logo { }
+
+            #wrapper .main .main-left .box-left { background: url(../img/bg_banner.jpg) no-repeat left top; padding: 9px; width: 161px; min-height: 450px; position: relative}
+
+                #wrapper .main .main-left .box-left a { display: block; margin-bottom: 5px; }
+
+        #wrapper .main .box-left .copyright { margin-left: -8px; background: #fff; width: 177px; margin-top: 175px; position: absolute; bottom: 10px}
+
+            #wrapper .main .box-left .copyright img { }
+
+            #wrapper .main .box-left .copyright span { margin-left: 20px; display: block; }
+
+        /*CSS cho cột bên phải*/
+        #wrapper .main .main-right { float: left; width: 810px; border-left: solid 1px #e0e0e0; margin-left: -1px; }
+
+            /*CSS cho phần header*/
+            #wrapper .main .main-right .header { float: left; background: #f1f1f1; height: 40px; width: 100%; line-height: 40px; }
+
+                #wrapper .main .main-right .header .timer { margin-left: 15px; float: left; }
+
+                #wrapper .main .main-right .header .header-right { float: right; margin-right: 0px; }
+				#wrapper .main .main-right .header .home_left { float: left;  margin-left: 5px;  margin-top: 8px; opacity: 0.8;}
+                    #wrapper .main .main-right .header .header-right a { font-family: Arial; font-style: italic; text-decoration: underline; color: #333; margin-right: 5px; opacity: 0.8; }
+                        #wrapper .main .main-right .header .header-right a.blue { color: #0073B9}
+
+                        #wrapper .main .main-right .header .header-right a.marginright { margin-right: 15px; }
+
+                        #wrapper .main .main-right .header .header-right a:hover { opacity: 1; }
+
+                        #wrapper .main .main-right .header .header-right a img { margin-right: 5px; display: inline-block; vertical-align: middle; margin-top: -2px; }
+
+            /*CSS cho phần content holder*/
+            #wrapper .main .main-right .content-holder { float: left; padding: 30px; width: 750px; }
+
+                /*CSS cho phần trang chủ*/
+
+                /*CSS cho phần khung welcome*/
+                #wrapper .main .main-right .content-holder .box-welcome { float: left; width: 347px; height: 327px; position: relative; margin: 0 8px; }
+
+                    #wrapper .main .main-right .content-holder .box-welcome.second { float: right; }
+
+                    #wrapper .main .main-right .content-holder .box-welcome .cover { background: url(../img/box-welcome.png) no-repeat; height: 128px; position: relative; z-index: 1; padding: 215px 15px 0; }
+
+                    #wrapper .main .main-right .content-holder .box-welcome .image { position: absolute; width: 347px; height: 200px; top: 8px; }
+
+                /*CSS cho phần banner*/
+                #wrapper .main .main-right .content-holder .banner { float: left; margin-top: 15px; margin-left: 10px; }
+
+                    #wrapper .main .main-right .content-holder .banner img { width: 728px; }
+
+                /* CSS cho danh sách bài viết nổi bật*/
+                #wrapper .main .main-right .content-holder .news-list { float: left; width: 728px; margin-left: 10px; margin-top: 15px; }
+
+                    #wrapper .main .main-right .content-holder .news-list .news-item { float: left; margin-bottom: 20px; padding-left: 0px; width: 713px; }
+
+                        #wrapper .main .main-right .content-holder .news-list .news-item a { font-size: 15px; font-family: hel_bold; text-decoration: none; color: #3f6cad; }
+                            #wrapper .main .main-right .content-holder .news-list .news-item a:hover { text-decoration: underline; }
+
+                        #wrapper .main .main-right .content-holder .news-list .news-item p { font-size: 13px; }
+
+                        #wrapper .main .main-right .content-holder .news-list .news-item a.read-more { font-size: 12px; }
+
+                /*CSS dành cho trang khuyến mãi*/
+
+                #wrapper .main .main-right .content-holder .slideshow { float: left; width: 750px; height: 420px; overflow: hidden; }
+                    #wrapper .main .main-right .content-holder .slideshow .nivo-slider { height: 420px; }
+
+                /*CSS cho trang khách hàng cá nhân*/
+
+                /*CSS cho phần khung welcome*/
+                #wrapper .main .main-right .content-holder .box-login { float: left; width: 730px; height: 255px; position: relative; margin: 0 8px; }
+
+                    #wrapper .main .main-right .content-holder .box-login .cover { background: url(../img/box-login.png) no-repeat; height: 255px; position: relative; width: 352px; z-index: 1; padding-left: 378px; padding-top: 10px; }
+                        #wrapper .main .main-right .content-holder .box-login .cover input[type="text"] { border: solid 1px #ccc; padding: 4px 6px; color: #777; float: left; width: 230px; margin-bottom: 8px; }
+                        #wrapper .main .main-right .content-holder .box-login .cover input[type="password"] { border: solid 1px #ccc; padding: 4px 8px; color: #777; float: left; width: 230px; margin-bottom: 8px; }
+                        #wrapper .main .main-right .content-holder .box-login .cover input.special { width: 100px; margin-bottom: 0px; margin-right: 12px; }
+                        #wrapper .main .main-right .content-holder .box-login .cover .captcha { float: left; margin-left: 0px; margin-top: 0px; border-top: 1px solid #ccc;border-bottom: 1px solid #ccc; border-right:1px solid #ccc;border-left:1px solid #ccc; height: 25px;}
+                        #wrapper .main .main-right .content-holder .box-login .cover .button-blue { margin-top: 8px; margin-right: 120px;}
+ 						#wrapper .main .main-right .content-holder .box-login .cover .detailerror {font-size: 14px; color: #c92538; text-decoration:none; }
+						#wrapper .main .main-right .content-holder .box-login .cover .error { font-size: 14px; color: #c92538; text-decoration:none;  font-weight: bold;}
+        				#wrapper .main .main-right .content-holder .box-login .cover .success { font-size: 14px; color: #0066FF; text-decoration:none; font-weight: bold;}
+		
+                    #wrapper .main .main-right .content-holder .box-login .image { position: absolute; width: 352px; height: 245px; top: 8px; }
+
+:first-child + html #wrapper .main .main-right .content-holder .box-login .cover .captcha { margin-top: 0px; }
+:first-child + html #wrapper .main .main-right .content-holder .box-login .cover{ width: 372px; }
+:first-child + html #wrapper .main .main-right .content-holder .box-login .cover .button-blue { float: left; margin-right: 300px }
+
+#oCAPICOM {
+    height: 10px;
+}
+
+#qrcode td {
+    padding: 0px !important;
+}

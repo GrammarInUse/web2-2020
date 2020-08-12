@@ -137,9 +137,9 @@ export default class transaction extends Component {
                     </aside>
                     {/* End Main Sidebar */}
                     <main className="main-content col-lg-10 col-md-9 col-sm-12 p-0 offset-lg-2 offset-md-3">
-                    <h1>Xin chào, TO VAN NGUYEN</h1>
+                    <h1>Xin chào</h1>
                         {/* InstanceBeginEditable name="main" */}
-                        <h4>Chuyển khoản trong hệ thống ACB</h4>
+                        <h4>Chuyển khoản trong hệ thống ngân hàng</h4>
                         <div className="ruler" />
                         <form name="intrtxn" method="post" action="Request" className="margin:0px;">
                         <input type="hidden" name="dse_sessionId" defaultValue="NtUJvDNjrK0__TG7lXafjFc" />
