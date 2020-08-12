@@ -29,6 +29,10 @@ Accounts.init({
         type: sequelize.TEXT,
         allowNull: true
     },
+    isVerify:{
+        type: sequelize.INTEGER,
+        allowNull: true,
+    },
     accountType: {
         type: sequelize.INTEGER,
         defaultValue: 1,

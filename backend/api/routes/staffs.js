@@ -67,11 +67,23 @@ router.post("/", async (req, res) => {
     });
 });
 
-router.get("/search", async (req, res) => {
+router.post("/search", async (req, res) => {
   const { keyword } = req.body;
   const account = await Accounts.findOne({
     where: {
-      [Op.or]: [{ email: keyword }, { username: keyword }, { id: keyword }],
+      [Op.or]: [
+        {
+          email: {
+            [Op.like]: keyword,
+          },
+        },
+        {
+          username: {
+            [Op.like]: keyword,
+          },
+        },
+        { id: keyword },
+      ],
     },
   })
     .then((item) => {
@@ -101,11 +113,10 @@ router.get("/search", async (req, res) => {
             message: "Succesfully search a customer",
             data: curCustomer,
           });
-        }
-        else{
-            res.status(404).json({
-                message: "Information of customer is no longer exists" ,
-              });
+        } else {
+          res.status(404).json({
+            message: "Information of customer is no longer exists",
+          });
         }
       })
       .catch((err) => {
@@ -114,6 +125,47 @@ router.get("/search", async (req, res) => {
           error: err,
         });
       });
+  }
+});
+
+router.get("/verify/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const account = await Accounts.findByPk(id);
+    if (account) {
+      account.verifyToken = null;
+      await account.save();
+
+      res.status(200).json({
+        message: "VerifyToken of Account is successfully!",
+        data: account,
+      });
+    } else {
+      res.status(404).json({
+        message: "Account not exists!",
+      });
+    }
+  } catch (err) {
+    res.status(400).json({
+      message: err,
+    });
+    throw err;
+  }
+});
+
+router.get("/verify", async (req,res)=>{
+  try{
+    const listAccount = await Accounts.findAll({
+      where:{
+        isVerify:-1
+      }
+    });
+
+    return res.status(200).json({
+      data: listAccount,
+    });
+  }catch(err){
+    throw err;
   }
 });
 module.exports = router;
