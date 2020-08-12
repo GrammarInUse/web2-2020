@@ -1,15 +1,7 @@
-import React, { Component } from "react";
-import { PureComponent } from "react";
-import {
-  FaCheck,
-  FaTimes,
-  FaPlus,
-  FaEdit,
-  FaLock,
-  FaLockOpen,
-} from "react-icons/fa";
-import ModalEditRate from "./ModalEditRate";
+import React, { PureComponent } from "react";
+import { FaEdit, FaLock, FaLockOpen, FaPlus } from "react-icons/fa";
 import { api } from "./api";
+import ModalEditRate from "./ModalEditRate";
 
 let rate = { id: null, term: "", rate: 0, isLock: false };
 class Rate extends PureComponent {

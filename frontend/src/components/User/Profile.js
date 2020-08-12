@@ -3,362 +3,223 @@ import React, { Component } from 'react'
 export default class profile extends Component {
     render() {
         return (
-            <div>
-                <meta charSet="utf-8" />
-                <meta httpEquiv="x-ua-compatible" content="ie=edge" />
-                <title>Shards Dashboard Lite - Free Bootstrap Admin Template – DesignRevision</title>
-                <meta name="description" content="A high-quality & free Bootstrap admin dashboard template pack that comes with lots of templates and components." />
-                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-                <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet" />
-                <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-                <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossOrigin="anonymous" />
-                <link rel="stylesheet" id="main-stylesheet" data-version="1.1.0" href="styles/shards-dashboards.1.1.0.min.css" />
-                <link rel="stylesheet" href="styles/extras.1.1.0.min.css" />
-                <div className="color-switcher animated">
-                <h5>Accent Color</h5>
-                <ul className="accent-colors">
-                    <li className="accent-primary active" data-color="primary">
-                    <i className="material-icons">check</i>
-                    </li>
-                    <li className="accent-secondary" data-color="secondary">
-                    <i className="material-icons">check</i>
-                    </li>
-                    <li className="accent-success" data-color="success">
-                    <i className="material-icons">check</i>
-                    </li>
-                    <li className="accent-info" data-color="info">
-                    <i className="material-icons">check</i>
-                    </li>
-                    <li className="accent-warning" data-color="warning">
-                    <i className="material-icons">check</i>
-                    </li>
-                    <li className="accent-danger" data-color="danger">
-                    <i className="material-icons">check</i>
-                    </li>
-                </ul>
-                <div className="actions mb-4">
-                    <a className="mb-2 btn btn-sm btn-primary w-100 d-table mx-auto extra-action" href="https://designrevision.com/downloads/shards-dashboard-lite/">
-                    <i className="material-icons">cloud</i> Download</a>
-                    <a className="mb-2 btn btn-sm btn-white w-100 d-table mx-auto extra-action" href="https://designrevision.com/docs/shards-dashboard-lite">
-                    <i className="material-icons">book</i> Documentation</a>
-                </div>
-                <div className="social-wrapper">
-                    <div className="social-actions">
-                    <h5 className="my-2">Help us Grow</h5>
-                    <div className="inner-wrapper">
-                        <a className="github-button" href="https://github.com/DesignRevision/shards-dashboard" data-icon="octicon-star" data-show-count="true" aria-label="Star DesignRevision/shards-dashboard on GitHub">Star</a>
-                        {/* <iframe style="width: 91px; height: 21px;"src="https://yvoschaap.com/producthunt/counter.html#href=https%3A%2F%2Fwww.producthunt.com%2Fr%2Fp%2F112998&layout=wide" width="56" height="65" scrolling="no" frameborder="0" allowtransparency="true"></iframe> */}
-                    </div>
-                    </div>
-                    <div id="social-share" data-url="https://designrevision.com/downloads/shards-dashboard-lite/" data-text="🔥 Check out Shards Dashboard Lite, a free and beautiful Bootstrap 4 admin dashboard template!" data-title="share" />
-                    <div className="loading-overlay">
-                    <div className="spinner" />
-                    </div>
-                </div>
-                <div className="close">
-                    <i className="material-icons">close</i>
+            <div className="main-right">
+                {/***********************/}
+                {/*Ph?n header ph?a tr?n b?n ph?i */}
+                {/***********************/}
+                <div className="header">
+                <div className="timer">Thứ 3, ngày 11 tháng 08 năm 2020</div>
+                <div className="header-right">
+                    <a href="Request?&dse_sessionId=6_Ltorc3NTJPEfawX7ea-r3&dse_applicationId=-1&dse_pageId=4&dse_operationName=ibkLogoutOp&dse_errorPage=ibk/login.jsp&dse_processorState=initial" className="marginright">
+                    <img src="img/icon/logout_web.png" alt="" />Thoát</a>
+                    {/*<a href="javascript:void(0)" class="marginright"> <img
+            src="img/icon/help.png" alt="" />Tr&#7907; gi�p</a> 
+        */}
+                    <a href="Request?&dse_sessionId=6_Ltorc3NTJPEfawX7ea-r3&dse_applicationId=-1&dse_pageId=4&dse_operationName=ibkTroGiupProc&dse_errorPage=ibk/login.jsp&dse_processorState=initial&dse_nextEventName=start" className="marginright">
+                    <img src="img/icon/help.png" alt="" />Trợ giúp
+                    </a>
+                    <a href="Request?&dse_sessionId=6_Ltorc3NTJPEfawX7ea-r3&dse_applicationId=-1&dse_pageId=4&dse_operationName=ibkHopThuProc&dse_errorPage=ibk/login.jsp&dse_processorState=initial&dse_nextEventName=start" className="marginright">
+                    Hộp thư
+                    </a>
+                    <a href="javascript:void(0)">  <img src="img/support.jpg" height="40px" style={{marginRight: '-5px!important'}} /></a>
                 </div>
                 </div>
-                <div className="color-switcher-toggle animated pulse infinite">
-                <i className="material-icons">settings</i>
+                {/***********************/}
+                {/*Phần nội dung chính*/}
+                {/***********************/}
+                <div className="content-holder">
+                <h1>Xin chào, TO VAN NGUYEN</h1>
+                {/* InstanceBeginEditable name="main" */}
+                <h4>Thông tin tài khoản</h4>
+                <div className="ruler" />
+                <div className="news-item">   
+                    <iframe src="https://online.acb.com.vn/news/index.php/quang-cao-tai-khoan-khcn" frameBorder={0} width="100%" height="40px" scrolling="no" marginHeight="0px" marginWidth="0px"> </iframe>
                 </div>
-                <div className="container-fluid">
-                <div className="row">
-                    {/* Main Sidebar */}
-                    <aside className="main-sidebar col-12 col-md-3 col-lg-2 px-0">
-                    <div className="main-navbar">
-                        <nav className="navbar align-items-stretch navbar-light bg-white flex-md-nowrap border-bottom p-0">
-                        <a className="navbar-brand w-100 mr-0" href="#" style={{lineHeight: '25px'}}>
-                            <div className="d-table m-auto">
-                            <img id="main-logo" className="d-inline-block align-top mr-1" style={{maxWidth: '25px'}} src="images/shards-dashboards-logo.svg" alt="Shards Dashboard" />
-                            <span className="d-none d-md-inline ml-1">Shards Dashboard</span>
-                            </div>
-                        </a>
-                        <a className="toggle-sidebar d-sm-inline d-md-none d-lg-none">
-                            <i className="material-icons"></i>
-                        </a>
-                        </nav>
-                    </div>
-                    <form action="#" className="main-sidebar__search w-100 border-right d-sm-flex d-md-none d-lg-none">
-                        <div className="input-group input-group-seamless ml-3">
-                        <div className="input-group-prepend">
-                            <div className="input-group-text">
-                            <i className="fas fa-search" />
-                            </div>
+                <h5>Nhấp chọn số tài khoản để xem thông tin chi tiết và in sao kê tài khoản
+                </h5>
+                <table>
+                    <tbody><tr>
+                        <td>
+                        <table>
+                            <tbody><tr>
+                                <td align="left" />
+                                <td align="right"><a href="Request?&dse_sessionId=6_Ltorc3NTJPEfawX7ea-r3&dse_applicationId=-1&dse_pageId=4&dse_operationName=acctOptionProc&dse_errorPage=/ibk/login.jsp&dse_processorState=initial&dse_nextEventName=start">
+                                    Chọn cách hiển thị tài khoản
+                                </a></td>
+                            </tr>
+                            {/*<tr>
+                                <td align="right" colspan="2"><a href="#" class="trogiup">Ch&#7885;n c&#225;ch hi&#7875;n th&#7883; t&#224;i kho&#7843;n</a></td>
+                                </tr>
+                            */}</tbody></table>             
+                        </td>
+                    </tr>
+                    {/* NhiLTH, phan trang, 03/07/2018 */}
+                    <tr>
+                        <form name="choosePage" method="post" action="Request" />
+                        <input type="hidden" name="dse_sessionId" defaultValue="6_Ltorc3NTJPEfawX7ea-r3" />
+                        <input type="hidden" name="dse_applicationId" defaultValue={-1} />
+                        <input type="hidden" name="dse_pageId" defaultValue={4} />
+                        <input type="hidden" name="dse_operationName" defaultValue="ibkacctSumProc" />
+                        <input type="hidden" name="dse_errorPage" defaultValue="ibk/index.jsp" />
+                        <input type="hidden" name="dse_processorState" defaultValue="initial" />
+                        <input type="hidden" name="dse_nextEventName" defaultValue="start" />
+                        <td>
+                        <div style={{width: '50%', float: 'left'}}>
+                            <strong>
+                            Tìm theo số tài khoản
+                            </strong> &nbsp;&nbsp;&nbsp;&nbsp; <input type="text" name="AccountNumber" defaultValue className="padding-top: 8px;" size={20} onkeypress="return checkSubmit(event);" />
+                            &nbsp;&nbsp;
+                            <a style={{textAlign: 'center'}} className="img_login" href="#" onclick="ChoosePage();"><img src="img/icon/icon_search_rs.png" border={0} height="24px" /></a>
                         </div>
-                        <input className="navbar-search form-control" type="text" placeholder="Search for something..." aria-label="Search" /> </div>
-                    </form>
-                    <div className="nav-wrapper">
-                        <ul className="nav flex-column">
-                        <li className="nav-item">
-                            <a className="nav-link " href="index.html">
-                            <i className="material-icons">edit</i>
-                            <span>Blog Dashboard</span>
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link " href="components-blog-posts.html">
-                            <i className="material-icons">vertical_split</i>
-                            <span>Verifying User</span>
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link " href="add-new-post.html">
-                            <i className="material-icons">note_add</i>
-                            <span>Add New Post</span>
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link " href="form-components.html">
-                            <i className="material-icons">view_module</i>
-                            <span>Forms &amp; Components</span>
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link " href="tables.html">
-                            <i className="material-icons">table_chart</i>
-                            <span>Tables</span>
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link active" href="user-profile-lite.html">
-                            <i className="material-icons">person</i>
-                            <span>User Profile</span>
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link " href="errors.html">
-                            <i className="material-icons">error</i>
-                            <span>Errors</span>
-                            </a>
-                        </li>
-                        </ul>
-                    </div>
-                    </aside>
-                    {/* End Main Sidebar */}
-                    <main className="main-content col-lg-10 col-md-9 col-sm-12 p-0 offset-lg-2 offset-md-3">
-                    <div className="main-navbar sticky-top bg-white">
-                        {/* Main Navbar */}
-                        <nav className="navbar align-items-stretch navbar-light flex-md-nowrap p-0">
-                        <form action="#" className="main-navbar__search w-100 d-none d-md-flex d-lg-flex">
-                            <div className="input-group input-group-seamless ml-3">
-                            <div className="input-group-prepend">
-                                <div className="input-group-text">
-                                <i className="fas fa-search" />
-                                </div>
-                            </div>
-                            <input className="navbar-search form-control" type="text" placeholder="Search for something..." aria-label="Search" /> </div>
-                        </form>
-                        <ul className="navbar-nav border-left flex-row ">
-                            <li className="nav-item border-right dropdown notifications">
-                            <a className="nav-link nav-link-icon text-center" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <div className="nav-link-icon__wrapper">
-                                <i className="material-icons"></i>
-                                <span className="badge badge-pill badge-danger">2</span>
-                                </div>
-                            </a>
-                            <div className="dropdown-menu dropdown-menu-small" aria-labelledby="dropdownMenuLink">
-                                <a className="dropdown-item" href="#">
-                                <div className="notification__icon-wrapper">
-                                    <div className="notification__icon">
-                                    <i className="material-icons"></i>
+                        <input type="hidden" name="PageCurr" defaultValue id="PageCurr" />
+                        <input type="hidden" name="TotalPage" defaultValue={1} /> 
+                        </td>
+                    </tr>
+                    {/* NhiLTH, end phan trang */}
+                    <tr>
+                        <td align="left">
+                        {/* NhiLTH, 16/07/2018, IBKE201807083_ACBO_Inq_AcctBal_TinhDenNgay  */}
+                        {/*<table class="table-style" border="0" width="100%" cellspacing="1" cellpadding="0" id="table">
+        <caption></caption>
+        <tr class="table-style">
+            <th class="table-style" align="center">S&#7889; t&#224;i kho&#7843;n</th>
+            <th class="table-style" align="center">&#272&#417n v&#7883 m&#7903 TK</th>
+            <th class="table-style" align="center">S&#7889; d&#432;</th>
+            <th class="table-style" align="center">Tính &#273;&#7871;n ngày</th>
+            <th class="table-style" align="center">Ngày &#273;áo h&#7841;n</th>
+            <th class="table-style" align="center">S&#7843n ph&#7849m</th>
+        </tr>
+        <tr class="table-style">
+            <td class="table-style" align="right" width="12%"><a href="Request?&dse_sessionId=6_Ltorc3NTJPEfawX7ea-r3&dse_applicationId=-1&dse_pageId=3&dse_operationName=ibkacctDetailProc&dse_errorPage=login.jsp&dse_processorState=initial&dse_nextEventName=start&AccountNbr=11845157" class="acc_bold">11845157</a></td>
+            <td class="table-style" align="left" width="21%">ACB - PGD KIEN THIET</td>
+            <td class="table-style" align="right" width="32%"><span class="text_bold">375.354</span> (VND) <sup class="chuthich_num"> 1</sup><br /><span class="text_bold">289.100</span> (VND) <sup class="chuthich_num"> 2</sup></td>
+            <td class="table-style" align="center" width="10%">11-08-20</td>
+            <td class="table-style" align="center" width="10%">&nbsp;</td>
+            <td class="table-style" align="left" width="15%">TGTT KHTN (CA NHAN) VND</td>
+        </tr>
+        </table>
+                            
+                                */}
+                        <table className="table-style" cellSpacing={1} cellPadding={0} id="table">
+                            <caption />
+                            <tbody><tr className="table-style tr-header">
+                                <th className="table-style" align="center">Số tài khoản</th>
+                                <th className="table-style" align="center">Đơn vị mở TK</th>
+                                <th className="table-style" align="center">Số dư</th>
+                                <th className="table-style" align="center">Ngày đáo hạn</th>
+                                <th className="table-style" align="center">Sản phẩm</th>
+                            </tr>
+                            <tr className="table-style odd">
+                                <td className="table-style" align="right"><a href="Request?&dse_sessionId=6_Ltorc3NTJPEfawX7ea-r3&dse_applicationId=-1&dse_pageId=3&dse_operationName=ibkacctDetailProc&dse_errorPage=login.jsp&dse_processorState=initial&dse_nextEventName=start&AccountNbr=11845157" className="acc_bold">11845157</a></td>
+                                <td className="table-style" align="left">ACB - PGD KIEN THIET</td>
+                                <td className="table-style" align="right"><span className="text_bold">375.354</span> (VND) <sup className="chuthich_num"> 1</sup><br /><span className="text_bold">289.100</span> (VND) <sup className="chuthich_num"> 2</sup></td>
+                                <td className="table-style" align="center">&nbsp;</td>
+                                <td className="table-style" align="left">TGTT KHTN (CA NHAN) VND</td>
+                            </tr>
+                            </tbody></table>
+                        {/* NhiLTH, end */}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td />
+                    </tr>
+                    <tr>
+                        <td align="left"><sup className="chuthich_num"> 1 </sup> <span className="red_tieude">SỐ DƯ THỰC (CURRENT BALANCE)</span><br />
+                        Là số dư có thực tế trên tài khoản tiền gửi của khách hàng<br />
+                        <br />
+                        <sup className="chuthich_num"> 2 </sup> <span className="red_tieude"> SỐ DƯ KHẢ DỤNG (AVAILABLE BALANCE)</span><br />
+                        Là số dư trên tài khoản tiền gửi thanh toán mà khách hàng được phép sử dụng. 
+                        Trong trường hợp khách hàng được cấp hạn mức thấu chi thì số dư khả dụng bằng tổng số dư thực cộng với hạn mức thấu chi trừ đi số tiền bị phong tỏa trên tài khoản (nếu có ).
+                        <br /></td>
+                    </tr>
+                    <tr>
+                        <td align="left">&nbsp;</td>
+                    </tr>
+                    </tbody></table>
+                <div id="ZN_5gXroaGs8mlLApf">{/*DO NOT REMOVE-CONTENTS PLACED HERE*/}</div>
+                {/*END WEBSITE FEEDBACK SNIPPET*/}
+                {/* InstanceEndEditable */}
+                </div>
+                <h4>Thay đổi mật khẩu đăng nhập</h4>
+                <div className="ruler" />
+                <form name="changepassrtxn" method="post" action="Request" className="margin:0px;">
+                <input type="hidden" name="dse_sessionId" defaultValue="6_Ltorc3NTJPEfawX7ea-r3" />
+                <input type="hidden" name="dse_applicationId" defaultValue={-1} />
+                <input type="hidden" name="dse_operationName" defaultValue="ibkchangePassProc" />
+                <input type="hidden" name="dse_pageId" defaultValue={5} />
+                <input type="hidden" name="dse_processorState" defaultValue="changePassPage" />
+                <input type="hidden" name="dse_processorId" defaultValue="DEDYENGEBMHTBXAOGCEYIOIODSABIJDOFIDPALGT" />
+                <input type="hidden" name="dse_errorPage" defaultValue="/ibk/option/changepassrtxn.jsp" />
+                <table className="table-form">
+                    <tbody><tr>
+                        <td className="white_tieude_2">THÔNG TIN MẬT KHẨU </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        <table>
+                            <tbody><tr>
+                                <td className="caption">
+                                Tên truy cập </td>
+                                <td><input type="text" name="UserNameNew" defaultValue={11845157} size={25} id="UserNameNew" disabled="disabled" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Mật khẩu mới</td>
+                                <td>
+                                <div>{/*201908017*/}
+                                    <input type="password" name="NewPass" defaultValue size={25} id="NewPass" oncontextmenu="return false" oncopy="return false" onpaste="return false" oncut="return false" onkeyup="checkNewPass()" />
+                                    {/*201908017*/}<span toggle="#NewPass" className="fa fa-eye-slash toggle-password" style={{float: 'inherit', marginLeft: '-23px'}} />
+                                    <div className="validNewPass" style={{display: 'none'}}>
+                                    <img src="/acbib/img/icon/valid.png" width="16px" style={{borderStyle: 'none', verticalAlign: 'bottom'}} />
+                                    </div>
+                                    <div className="failNewPass" style={{display: 'none'}}>
+                                    <img src="/acbib/img/icon/fail.png" width="16px" style={{borderStyle: 'none', verticalAlign: 'bottom'}} />
                                     </div>
                                 </div>
-                                <div className="notification__content">
-                                    <span className="notification__category">Analytics</span>
-                                    <p>Your website’s active users count increased by
-                                    <span className="text-success text-semibold">28%</span> in the last week. Great job!</p>
-                                </div>
-                                </a>
-                                <a className="dropdown-item" href="#">
-                                <div className="notification__icon-wrapper">
-                                    <div className="notification__icon">
-                                    <i className="material-icons"></i>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Xác nhận mật khẩu mới</td>
+                                <td>
+                                <div>
+                                    <input type="password" name="ReNewPass" defaultValue size={25} id="ReNewPass" oncontextmenu="return false" oncopy="return false" onpaste="return false" oncut="return false" onkeyup="checkReNewPass()" />
+                                    {/*201908017*/}<span toggle="#ReNewPass" className="fa fa-eye-slash toggle-re-password" style={{float: 'inherit', marginLeft: '-23px'}} />
+                                    <div className="validReNewPass" style={{display: 'none'}}>
+                                    <img src="/acbib/img/icon/valid.png" width="16px" style={{borderStyle: 'none', verticalAlign: 'bottom'}} />
+                                    </div>
+                                    <div className="failReNewPass" style={{display: 'none'}}>
+                                    <img src="/acbib/img/icon/fail.png" width="16px" style={{borderStyle: 'none', verticalAlign: 'bottom'}} />
                                     </div>
                                 </div>
-                                <div className="notification__content">
-                                    <span className="notification__category">Sales</span>
-                                    <p>Last week your store’s sales count decreased by
-                                    <span className="text-danger text-semibold">5.52%</span>. It could have been worse!</p>
-                                </div>
-                                </a>
-                                <a className="dropdown-item notification__all text-center" href="#"> View all Notifications </a>
-                            </div>
-                            </li>
-                            <li className="nav-item dropdown">
-                            <a className="nav-link dropdown-toggle text-nowrap px-3" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                                <img className="user-avatar rounded-circle mr-2" src="images/avatars/0.jpg" alt="User Avatar" />
-                                <span className="d-none d-md-inline-block">Sierra Brooks</span>
-                            </a>
-                            <div className="dropdown-menu dropdown-menu-small">
-                                <a className="dropdown-item" href="user-profile-lite.html">
-                                <i className="material-icons"></i> Profile</a>
-                                <a className="dropdown-item" href="components-blog-posts.html">
-                                <i className="material-icons">vertical_split</i> Blog Posts</a>
-                                <a className="dropdown-item" href="add-new-post.html">
-                                <i className="material-icons">note_add</i> Add New Post</a>
-                                <div className="dropdown-divider" />
-                                <a className="dropdown-item text-danger" href="#">
-                                <i className="material-icons text-danger"></i> Logout </a>
-                            </div>
-                            </li>
-                        </ul>
-                        <nav className="nav">
-                            <a href="#" className="nav-link nav-link-icon toggle-sidebar d-md-inline d-lg-none text-center border-left" data-toggle="collapse" data-target=".header-navbar" aria-expanded="false" aria-controls="header-navbar">
-                            <i className="material-icons"></i>
-                            </a>
-                        </nav>
-                        </nav>
-                    </div>
-                    {/* / .main-navbar */}
-                    <div className="alert alert-success alert-dismissible fade show mb-0" role="alert">
-                        <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                        </button>
-                        <i className="fa fa-check mx-2" />
-                        <strong>Success!</strong> Your profile has been updated! </div>
-                    <div className="main-content-container container-fluid px-4">
-                        {/* Page Header */}
-                        <div className="page-header row no-gutters py-4">
-                        <div className="col-12 col-sm-4 text-center text-sm-left mb-0">
-                            <span className="text-uppercase page-subtitle">Overview</span>
-                            <h3 className="page-title">User Profile</h3>
-                        </div>
-                        </div>
-                        {/* End Page Header */}
-                        {/* Default Light Table */}
-                        <div className="row">
-                        <div className="col-lg-4">
-                            <div className="card card-small mb-4 pt-3">
-                            <div className="card-header border-bottom text-center">
-                                <div className="mb-3 mx-auto">
-                                <img className="rounded-circle" src="images/avatars/0.jpg" alt="User Avatar" width={110} /> </div>
-                                <h4 className="mb-0">Sierra Brooks</h4>
-                                <span className="text-muted d-block mb-2">Project Manager</span>
-                                <button type="button" className="mb-2 btn btn-sm btn-pill btn-outline-primary mr-2">
-                                <i className="material-icons mr-1">person_add</i>Follow</button>
-                            </div>
-                            <ul className="list-group list-group-flush">
-                                <li className="list-group-item px-4">
-                                <div className="progress-wrapper">
-                                    <strong className="text-muted d-block mb-2">Workload</strong>
-                                    <div className="progress progress-sm">
-                                    <div className="progress-bar bg-primary" role="progressbar" aria-valuenow={74} aria-valuemin={0} aria-valuemax={100} style={{width: '74%'}}>
-                                        <span className="progress-value">74%</span>
-                                    </div>
-                                    </div>
-                                </div>
-                                </li>
-                                <li className="list-group-item p-4">
-                                <strong className="text-muted d-block mb-2">Description</strong>
-                                <span>Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio eaque, quidem, commodi soluta qui quae minima obcaecati quod dolorum sint alias, possimus illum assumenda eligendi cumque?</span>
-                                </li>
-                            </ul>
-                            </div>
-                        </div>
-                        <div className="col-lg-8">
-                            <div className="card card-small mb-4">
-                            <div className="card-header border-bottom">
-                                <h6 className="m-0">Account Details</h6>
-                            </div>
-                            <ul className="list-group list-group-flush">
-                                <li className="list-group-item p-3">
-                                <div className="row">
-                                    <div className="col">
-                                    <form>
-                                        <div className="form-row">
-                                        <div className="form-group col-md-6">
-                                            <label htmlFor="feFirstName">First Name</label>
-                                            <input type="text" className="form-control" id="feFirstName" placeholder="First Name" defaultValue="Sierra" /> </div>
-                                        <div className="form-group col-md-6">
-                                            <label htmlFor="feLastName">Last Name</label>
-                                            <input type="text" className="form-control" id="feLastName" placeholder="Last Name" defaultValue="Brooks" /> </div>
-                                        </div>
-                                        <div className="form-row">
-                                        <div className="form-group col-md-6">
-                                            <label htmlFor="feEmailAddress">Email</label>
-                                            <input type="email" className="form-control" id="feEmailAddress" placeholder="Email" defaultValue="sierra@example.com" /> </div>
-                                        <div className="form-group col-md-6">
-                                            <label htmlFor="fePassword">Password</label>
-                                            <input type="password" className="form-control" id="fePassword" placeholder="Password" /> </div>
-                                        </div>
-                                        <div className="form-group">
-                                        <label htmlFor="feInputAddress">Address</label>
-                                        <input type="text" className="form-control" id="feInputAddress" placeholder="1234 Main St" /> </div>
-                                        <div className="form-row">
-                                        <div className="form-group col-md-6">
-                                            <label htmlFor="feInputCity">City</label>
-                                            <input type="text" className="form-control" id="feInputCity" /> </div>
-                                        <div className="form-group col-md-4">
-                                            <label htmlFor="feInputState">State</label>
-                                            <select id="feInputState" className="form-control">
-                                            <option selected>Choose...</option>
-                                            <option>...</option>
-                                            </select>
-                                        </div>
-                                        <div className="form-group col-md-2">
-                                            <label htmlFor="inputZip">Zip</label>
-                                            <input type="text" className="form-control" id="inputZip" /> </div>
-                                        </div>
-                                        <div className="form-row">
-                                        <div className="form-group col-md-12">
-                                            <label htmlFor="feDescription">Description</label>
-                                            <textarea className="form-control" name="feDescription" rows={5} defaultValue={"Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio eaque, quidem, commodi soluta qui quae minima obcaecati quod dolorum sint alias, possimus illum assumenda eligendi cumque?"} />
-                                        </div>
-                                        </div>
-                                        <button type="submit" className="btn btn-accent">Update Account</button>
-                                    </form>
-                                    </div>
-                                </div>
-                                </li>
-                            </ul>
-                            </div>
-                        </div>
-                        </div>
-                        {/* End Default Light Table */}
-                    </div>
-                    <footer className="main-footer d-flex p-2 px-3 bg-white border-top">
-                        <ul className="nav">
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">Home</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">Services</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">About</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">Products</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">Blog</a>
-                        </li>
-                        </ul>
-                        <span className="copyright ml-auto my-auto mr-2">Copyright © 2018
-                        <a href="https://designrevision.com" rel="nofollow">DesignRevision</a>
-                        </span>
-                    </footer>
-                    </main>
-                </div>
-                </div>
-                <div className="promo-popup animated">
-                <a href="http://bit.ly/shards-dashboard-pro" className="pp-cta extra-action">
-                    <img src="https://dgc2qnsehk7ta.cloudfront.net/uploads/sd-blog-promo-2.jpg" /> </a>
-                <div className="pp-intro-bar"> Need More Templates?
-                    <span className="close">
-                    <i className="material-icons">close</i>
-                    </span>
-                    <span className="up">
-                    <i className="material-icons">keyboard_arrow_up</i>
-                    </span>
-                </div>
-                <div className="pp-inner-content">
-                    <h2>Shards Dashboard Pro</h2>
-                    <p>A premium &amp; modern Bootstrap 4 admin dashboard template pack.</p>
-                    <a className="pp-cta extra-action" href="http://bit.ly/shards-dashboard-pro">Download</a>
-                </div>
-                </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="caption">Chọn phương pháp xác thực</td>
+                                <td><select name="AuthTyp">
+                                    <option value selected="selected" />
+                                    <option value="SMS">Mật khẩu tĩnh + OTP SMS</option>
+                                </select></td>
+                            </tr>
+                            </tbody></table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colSpan={2} align="center"><input type="hidden" name="dse_nextEventName" defaultValue="ok" id="dse_nextEventName" /> <input name="button" type="button" className="nut1 button-blue" id="button" defaultValue="Đồng ý" onclick="dosubmit('ok');" /> <input name="button2" type="button" className="nut1 button-white" id="button2" defaultValue="Hủy" onclick="dosubmit('cancel');" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><p>
+                            <span className="note-red" style={{textDecoration: 'underline'}}>Lưu ý:</span><br /><span className="copyright">
+                            &nbsp;&nbsp;&nbsp;&nbsp;• Mật khẩu đăng nhập có độ dài từ 6 đến 20 ký tự. Bao gồm tối thiểu “chữ thường + chữ Hoa + chữ số” (ví dụ: ACBOnline123) hoặc “chữ thường + chữ số + ký tự đặc biệt, trừ ký tự \ &lt; &gt; (ví dụ: @cbonline123). Mật khẩu đăng nhập không được giống với mật khẩu đã sử dụng lần gần nhất. Thời gian hiệu lực của mật khẩu tối đa là 12 tháng.<br />
+                            &nbsp;&nbsp;&nbsp;&nbsp;• Để đảm bảo tính an toàn, bảo mật, Quý khách không cung cấp Tên truy cập &amp; Mật khẩu cho bất kỳ ai và dưới bất kỳ hình thức nào (ngoại trừ website/ ứng dụng chính thức của ACB).<br />
+                            </span></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colSpan={2}>&nbsp;</td>
+                    </tr>
+                    </tbody></table>
+                </form>
             </div>
         )
     }

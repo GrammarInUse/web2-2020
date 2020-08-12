@@ -1,12 +1,64 @@
-import React, { Component } from "react";
-import { PureComponent } from "react";
-import { FaCheck, FaTimes } from "react-icons/fa";
-
+import React, { PureComponent } from "react";
+import { api } from "./api";
 class Verify extends PureComponent {
+  constructor() {
+    super();
+    this.state = {
+      listVerify: [],
+    };
+  }
+  getAll = async () => {
+    const data = await api
+      .get("/verify/")
+      .then(({ data }) => data)
+      .catch((err) => {
+        console.log(err + "");
+      });
+    this.setState({
+      listVerify: data,
+    });
+  };
+  componentDidMount() {
+    this.getAll();
+  }
+  showListVerify = () => {
+    return this.state.listVerify.map((item, index) => {
+      return (
+        <tr key={index}>
+          <td>{item.id}</td>
+          <td>{item.name}</td>
+          <td>
+            <img style={{ width: 200, height: 100 }} src={item.frontCart} />
+          </td>
+          <td>
+            <img style={{ width: 200, height: 100 }} src={item.backCart} />
+          </td>
+          <td>
+            <td style={{ border: "none" }}>
+              <button type="button" class="btn btn-primary">
+                Accept
+              </button>
+            </td>
+
+            <td style={{ border: "none" }}>
+              <button type="button" class="btn  btn-danger">
+                Deline
+              </button>
+            </td>
+          </td>
+        </tr>
+      );
+    });
+  };
   render() {
     return (
       <div
-        style={{ marginTop: 150, height: "100vh", backgroundColor: "#ffffdd" }}
+        style={{
+          marginTop: 150,
+          height: "auto",
+          minHeight: "100%",
+          backgroundColor: "#ffffdd",
+        }}
       >
         <div class="panel panel-default">
           <div class="panel-heading">
@@ -23,27 +75,7 @@ class Verify extends PureComponent {
                 <th>Handle</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>Content 1</td>
-                <td>Content 1</td>
-                <td>Content 1</td>
-                <td>Content 1</td>
-                <td style={{ maxWidth: 100 }}>
-                  <td style={{ border: "none" }}>
-                    <button type="button" class="btn btn-primary">
-                      <FaCheck />
-                    </button>
-                  </td>
-
-                  <td style={{ border: "none" }}>
-                    <button type="button" class="btn  btn-danger">
-                      <FaTimes />
-                    </button>
-                  </td>
-                </td>
-              </tr>
-            </tbody>
+            <tbody>{this.showListVerify()}</tbody>
           </table>
         </div>
       </div>
