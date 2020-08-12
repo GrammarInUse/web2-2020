@@ -69,7 +69,7 @@ router.post("/", async (req, res) => {
 
 router.post("/search", async (req, res) => {
   const { keyword } = req.body;
-  const account = await Accounts.findOne({
+  const account = await Accounts.findAll({
     where: {
       [Op.or]: [
         {
@@ -128,7 +128,7 @@ router.post("/search", async (req, res) => {
   }
 });
 
-router.get("/verify/:id", async (req, res) => {
+router.put("/verify/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const account = await Accounts.findByPk(id);
@@ -153,18 +153,24 @@ router.get("/verify/:id", async (req, res) => {
   }
 });
 
-router.get("/verify", async (req,res)=>{
-  try{
-    const listAccount = await Accounts.findAll({
-      where:{
-        isVerify:-1
-      }
-    });
+router.get("/verify", async (req, res) => {
+  try {
+
+    const listAccount = await informationUser.findAll({
+      include:[
+        {
+          model: Accounts,
+          where:{
+            isVerify: -1,
+          },
+        }
+      ]
+    })
 
     return res.status(200).json({
       data: listAccount,
     });
-  }catch(err){
+  } catch (err) {
     throw err;
   }
 });

@@ -37,4 +37,5 @@ InformationUsers.init({
     ModelName: "InformationUsers"
 });
 
+InformationUsers.belongsTo(Accounts,{foreignKey:'accountId'})
 module.exports = InformationUsers;
