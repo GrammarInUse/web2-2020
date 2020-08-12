@@ -2,9 +2,9 @@ const db = require("./db");
 const sequelize = require("sequelize");
 const Model = sequelize.Model;
 
-class Services extends Model{ 
+class ServiceTypes extends Model{ 
     static async initialize(){
-        await Services.create({
+        await ServiceTypes.create({
             id: 1,
             name: "Tài khoản thanh toán"
         })
@@ -13,7 +13,7 @@ class Services extends Model{
             console.log("Successfully Initialized a service: " + err);
         });
 
-        await Services.create({
+        await ServiceTypes.create({
             id: 2,
             name: "Tài khoản tiết kiệm"
         })
@@ -24,7 +24,7 @@ class Services extends Model{
     }
 }
 
-Services.init({
+ServiceTypes.init({
     id: {
         type: sequelize.INTEGER,
         primaryKey: true
@@ -35,7 +35,7 @@ Services.init({
     }
 },{
     sequelize: db,
-    ModelName: "Services"
+    ModelName: "ServiceTypes"
 });
 
-module.exports = Services;
+module.exports = ServiceTypes;

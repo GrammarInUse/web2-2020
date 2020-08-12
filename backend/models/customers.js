@@ -2,7 +2,7 @@ const db = require("./db");
 const sequelize = require("sequelize");
 const Model = sequelize.Model;
 const Accounts = require("./accounts");
-const Services = require("./services");
+const ServiceTypes = require("./service-types");
 
 class Customers extends Model{ }
 
@@ -23,7 +23,7 @@ Customers.init({
         defaultValue: 1,
         references: {
             key: "id",
-            model: Services
+            model: ServiceTypes
         }
     },
     accountId: {
@@ -40,4 +40,6 @@ Customers.init({
     ModelName: "Customers"
 });
 
-module.exports = Customers;
+
+
+module.exports = Customers; 

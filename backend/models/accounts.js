@@ -29,10 +29,6 @@ Accounts.init({
         type: sequelize.TEXT,
         allowNull: true
     },
-    isVerify:{
-        type: sequelize.INTEGER,
-        allowNull: true,
-    },
     accountType: {
         type: sequelize.INTEGER,
         defaultValue: 1,
@@ -45,6 +41,11 @@ Accounts.init({
     isBlocked: {
         type: sequelize.BOOLEAN,
         defaultValue: false,
+        allowNull: false
+    },
+    isVerified: {
+        type: sequelize.INTEGER,
+        defaultValue: 0,
         allowNull: false
     }
 },{

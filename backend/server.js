@@ -23,7 +23,6 @@ const TransactionDetails = require("./models/transaction-details");
 
 const app = express();
 
-const userRoutes = require("./api/routes/users");
 const customerRoutes = require("./api/routes/customers");
 const staffRoutes = require("./api/routes/staffs");
 

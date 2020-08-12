@@ -1,15 +1,32 @@
 const express = require("express");
 const Accounts = require("../../models/accounts");
 const Customers = require("../../models/customers");
+const CustomerInfo = require("../../models/information-user");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const Send = require("../../services/send-email");
+<<<<<<< HEAD
 const checkAuth = require("../../middlewares/checkAuth");
 const { isNullOrUndefined } = require("util");
+const InformationUsers = require("../../models/information-user");
 
 //CUSTOMER API
+router.get("/test", async (req, res) => {
+    const listOfInfos = await CustomerInfo.findAll({
+        include: [{
+            model: Accounts
+        }]
+    });
+    res.status(200).json({
+        data: listOfInfos
+    })
+})
+=======
+
+>>>>>>> parent of 5131fc2... staff_update
+
 router.post("/signup", async (req, res) => {
     const id = Date.now().toString();
     const username = req.body.username;
@@ -41,6 +58,7 @@ router.post("/signup", async (req, res) => {
                 email,
                 password,
                 verifyToken,
+                bankBranchId
             }).then(() => {
                 console.log("Succesfully created a account");
             })
@@ -48,7 +66,7 @@ router.post("/signup", async (req, res) => {
                 console.log("Something went wrong when you create an account!" + err);
             });
 
-            await Customers.create({
+            await InformationUsers.create({
                 fullName,
                 dOB,
                 sex,
@@ -61,11 +79,10 @@ router.post("/signup", async (req, res) => {
             })
             .catch((err) => {
                 res.status(303).json({
-                    message: "There are some errors when you create a customer",
+                    message: "There are some errors when you create a customer information",
                     error: err
                 });
             });
-
             
         }
     })
@@ -89,18 +106,26 @@ router.post("/login", async (req, res) => {
 
     if(tempCustomer.length >= 1){
         const passwordAuth = await bcrypt.compare(password, tempCustomer[0].password);
-        const verifyToken = isNullOrUndefined(tempCustomer.verifyToken);
+        const verifyToken = tempCustomer.verifyToken;
         console.log(verifyToken);
         if(!passwordAuth){
             res.status(200).json({
                 message: "Wrong password!"
             });
-        }else if(passwordAuth && !verifyToken){
+<<<<<<< HEAD
+        }else if(passwordAuth && verifyToken != null){
+=======
+        }else if(passwordAuth && verifyToken !== null){
+>>>>>>> parent of 5131fc2... staff_update
             res.status(200).json({
                 message: "You haven't verified your account! Please check your email!!!"
             });
         }
+<<<<<<< HEAD
         else if(passwordAuth && isNullOrUndefined(verifyToken)){
+=======
+        else if(passwordAuth && verifyToken === null){
+>>>>>>> parent of 5131fc2... staff_update
             const token = jwt.sign({
                 username: tempCustomer[0].username,
                 password: tempCustomer[0].password
@@ -134,6 +159,7 @@ router.get("/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await Customers.findByPk(id);
     const findingAccount = await Accounts.findByPk(id);
+
 
     const temp = {
         fullName: findingCustomer.fullName,
@@ -186,25 +212,6 @@ router.patch("/password/:id", checkAuth, async (req, res) => {
         res.status(390).json({
             message: "Something went wrong when you update a customer: " + id,
             error: err
-        });
-    });
-});
-
-router.delete("/:id", checkAuth, async (req, res) => {
-    const id = req.params.id;
-    await Customers.destroy({
-        where: {
-            id
-        }
-    }).then(() => {
-        res.status(200).json({
-            message: "Successfully deleted a customer id: " + id
-        });
-    })
-    .catch((err) => {
-        console.log("Something went wrong when you delete a customer: " + id);
-        res.status(300).json({
-            message: "Something went wrong when you delete a customer: " + id
         });
     });
 });
