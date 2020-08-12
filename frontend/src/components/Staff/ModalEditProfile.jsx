@@ -10,6 +10,7 @@ class ModalEditProfile extends PureComponent {
       id: staff.id,
       name: staff.name,
       position: staff.position,
+      pasword: staff.pasword,
       salary: staff.salary,
       role: staff.role,
 
@@ -92,7 +93,6 @@ class ModalEditProfile extends PureComponent {
     let staff = await api
       .put(`/test/${this.state.id}`, data)
       .then((res) => {
-        console.log(res.status);
         this.props.onGetAll();
       })
       .catch((err) => {
@@ -122,7 +122,7 @@ class ModalEditProfile extends PureComponent {
   };
   render() {
     let {
-      validate,
+      password,
       id,
       name,
       position,
@@ -155,7 +155,19 @@ class ModalEditProfile extends PureComponent {
                     <span style={{ color: "red" }}>{nameErr}</span>
                   </td>
                 </tr>
-
+                <tr>
+                  <td>
+                    <label>Password</label>
+                  </td>
+                  <td>
+                    <input
+                      type="password"
+                      name="password"
+                      value={password}
+                      onChange={this.onChange}
+                    />
+                  </td>
+                </tr>
                 <tr>
                   <td>
                     <label>Position:</label>
