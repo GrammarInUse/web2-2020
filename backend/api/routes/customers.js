@@ -1,4 +1,5 @@
 const express = require("express");
+const fs = require("fs");
 const Accounts = require("../../models/accounts");
 const Services = require("../../models/services");
 const CustomerInfo = require("../../models/information-user");
@@ -9,7 +10,7 @@ const jwt = require("jsonwebtoken");
 const Send = require("../../services/send-email");
 const checkAuth = require("../../middlewares/checkAuth");
 const { isNullOrUndefined, isNumber } = require("util");
-const Transaction = require("../../models/transactions");
+const Transactions = require("../../models/transactions");
 
 //CUSTOMER API
 router.post("/signup", async (req, res) => {
@@ -50,11 +51,12 @@ router.post("/signup", async (req, res) => {
                 console.log("Something went wrong when you create an account!" + err);
             });
 
+            const serviceId = await Services.getSTT();
             await Services.create({
-                accountId,
-                STT: 1
+                id: serviceId,
+                accountId
             });
-
+            
             await CustomerInfo.create({
                 fullName,
                 dOB,
@@ -96,18 +98,19 @@ router.post("/login", async (req, res) => {
 
     if(tempCustomer.length >= 1){
         const passwordAuth = await bcrypt.compare(password, tempCustomer[0].password);
-        const verifyToken = tempCustomer.verifyToken;
+        const verifyToken = tempCustomer[0].verifyToken;
+        console.log("TOKENNNNN");
         console.log(verifyToken);
         if(!passwordAuth){
             res.status(200).json({
                 message: "Wrong password!"
             });
-        }else if(passwordAuth && verifyToken != null){
+        }else if(passwordAuth && (!isNullOrUndefined(verifyToken) && verifyToken.length !== 0)){
             res.status(200).json({
                 message: "You haven't verified your account! Please check your email!!!"
             });
         }
-        else if(passwordAuth && isNullOrUndefined(verifyToken)){
+        else if(passwordAuth && (isNullOrUndefined(verifyToken) || verifyToken.length === 0)){
             const token = jwt.sign({
                 username: tempCustomer[0].username,
                 password: tempCustomer[0].password
@@ -130,11 +133,6 @@ router.post("/login", async (req, res) => {
             customer: null
         });
     }
-
-    
-
-
-    
 });
 
 router.get("/:id", checkAuth, async (req, res) => {
@@ -157,10 +155,23 @@ router.get("/:id", checkAuth, async (req, res) => {
 
 router.patch("/profile/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
+    const newFullName = req.body.fullName;
+    const newPhone = req.body.phone;
+
     const findingCustomer = await CustomerInfo.findByPk(id);
 
-    findingCustomer.fullName = req.body.fullName;
-    findingCustomer.phone = req.body.phone;
+    if(newFullName && newPhone){
+        findingCustomer.fullName = req.body.fullName;
+        findingCustomer.phone = req.body.phone;
+    }else if(newFullName && !newPhone){
+        findingCustomer.fullName = req.body.fullName;
+    }else if(!newFullName && newPhone){
+        findingCustomer.phone = req.body.phone;
+    }else{
+        res.status(201).json({
+            message: "Nothing changed!!"
+        });
+    }
 
     await findingCustomer.save()
     .then(() => {
@@ -221,22 +232,15 @@ router.get("/signup/:id/:verifyToken", async (req, res) => {
     }
 });
 
-router.post("/chuyentien", async (req, res) => {
-    const sender = await Services.findOne({
-        where: {
-            accountId: req.body.sender,
-            STT: 1
-        }
-    });
-    const receiver = await Services.findOne({
-        where: {
-            accountId: req.body.receiver,
-            STT: 1
-        }
-    });
+router.post("/chuyentien", checkAuth, async (req, res) => {
+    const id = Date.now().toString();
+    const sender = await Services.findByPk(req.body.sender);
+    const receiver = await Services.findByPk(req.body.receiver);
     const coinOfTransfer = parseInt(req.body.cOT);
     const comment = req.body.comment;
     console.log(coinOfTransfer);
+    const time = new Date(Date.now()).toLocaleTimeString();
+    const date = new Date(Date.now()).toLocaleDateString();
 
     if(sender && receiver && isNumber(coinOfTransfer)){
         sender.balance = parseInt(sender.balance) - coinOfTransfer;
@@ -244,21 +248,56 @@ router.post("/chuyentien", async (req, res) => {
         const statusOfSending = await sender.save();
         const statusOfReceiving = await receiver.save();
 
-        
-        res.status(200).json({
-            userMessage: "DONE",
-            sender,
-            receiver,
-            coinOfTransfer,
-            statusOfSending,
-            statusOfReceiving,
-            test
+        const temp = await Transactions.create({
+            id,
+            dOT: Date.now(),
+            status: 1,
+            content: comment, 
+            sender: sender.accountId,
+            receiver: receiver.accountId
+        })
+        .then((data) => {
+            data.status = 2;
+            data.save()
+            .then(() => {
+                res.status(200).json({
+                    userMessage: "DONE",
+                    data
+                });
+            })
+            .catch((err) => {
+                res.status(404).json({
+                    userMessage: "LOI CATCH DATA",
+                    error: err
+                });
+            });
+            
+        })
+        .catch((err) => {
+            data.status = 3;
+            data.save()
+            .then(() => {
+                res.status(200).json({
+                    userMessage: "DONE",
+                    data
+                });
+            })
+            .catch((err) => {
+                res.status(404).json({
+                    userMessage: "LOI CATCH TEMP",
+                    error: err
+                });
+            });
         });
+
+        
     }else{
         res.status(404).json({
             userMessage: "FAILED AT SOMETHING"
         });
     }
 })
+
+
 
 module.exports = router;
