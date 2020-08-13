@@ -40,11 +40,6 @@ Services.init({
             model: Accounts
         },
         primaryKey: true
-    },
-    STT: {
-        type: sequelize.INTEGER,
-        primaryKey: true,
-        defaultValue: 1
     }
 },{
     sequelize: db,

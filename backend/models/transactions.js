@@ -1,5 +1,7 @@
 const db = require("./db");
 const sequelize = require("sequelize");
+const TransactionStatus = require("./transaction-status");
+const Services = require('./services');
 
 const Model = sequelize.Model;
 
@@ -13,6 +15,27 @@ Transactions.init({
     dOT: {
         type: sequelize.DATE,
         allowNull: false
+    },
+    status: {
+        type: sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+        references: {
+            key: "id",
+            model: TransactionStatus
+        }
+    },
+    content: {
+        type: sequelize.TEXT,
+        allowNull: false,
+        defaultValue: "Gửi không có nội dung gì cả!!"
+    },
+    sender: {
+        type: sequelize.TEXT,
+        references: {
+            key: "accountId",
+            model: Services
+        }
     }
 },{
     sequelize: db,

@@ -16,10 +16,10 @@ const Decentralizations = require("./models/Decentralizations");
 const Staffs = require("./models/staffs");
 
 const TransactionStatus = require("./models/transaction-status");
+
+
+
 const Transactions = require("./models/transactions");
-const TransactionDetails = require("./models/transaction-details");
-
-
 
 const app = express();
 

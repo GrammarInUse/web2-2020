@@ -8,7 +8,8 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const Send = require("../../services/send-email");
 const checkAuth = require("../../middlewares/checkAuth");
-const { isNullOrUndefined } = require("util");
+const { isNullOrUndefined, isNumber } = require("util");
+const Transaction = require("../../models/transactions");
 
 //CUSTOMER API
 router.post("/signup", async (req, res) => {
@@ -49,6 +50,11 @@ router.post("/signup", async (req, res) => {
                 console.log("Something went wrong when you create an account!" + err);
             });
 
+            await Services.create({
+                accountId,
+                STT: 1
+            });
+
             await CustomerInfo.create({
                 fullName,
                 dOB,
@@ -66,6 +72,7 @@ router.post("/signup", async (req, res) => {
                     error: err
                 });
             });
+            
             
         }
     })
@@ -214,8 +221,44 @@ router.get("/signup/:id/:verifyToken", async (req, res) => {
     }
 });
 
-router.post("/chuyentien", (req, res) => {
+router.post("/chuyentien", async (req, res) => {
+    const sender = await Services.findOne({
+        where: {
+            accountId: req.body.sender,
+            STT: 1
+        }
+    });
+    const receiver = await Services.findOne({
+        where: {
+            accountId: req.body.receiver,
+            STT: 1
+        }
+    });
+    const coinOfTransfer = parseInt(req.body.cOT);
+    const comment = req.body.comment;
+    console.log(coinOfTransfer);
 
+    if(sender && receiver && isNumber(coinOfTransfer)){
+        sender.balance = parseInt(sender.balance) - coinOfTransfer;
+        receiver.balance = parseInt(receiver.balance) + coinOfTransfer;
+        const statusOfSending = await sender.save();
+        const statusOfReceiving = await receiver.save();
+
+        
+        res.status(200).json({
+            userMessage: "DONE",
+            sender,
+            receiver,
+            coinOfTransfer,
+            statusOfSending,
+            statusOfReceiving,
+            test
+        });
+    }else{
+        res.status(404).json({
+            userMessage: "FAILED AT SOMETHING"
+        });
+    }
 })
 
 module.exports = router;

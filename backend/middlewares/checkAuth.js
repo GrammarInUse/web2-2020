@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
         jwt.verify(bearerHeader, "mySecret", async (err, data) => {
             if(err){
                 return res.status(404).json({
-                    userMessage: "Somethings went wrong when you verify token!",
+                    userMessage: "You haven't logged in... sorry about that!",
                     error: err
                 })
             }
