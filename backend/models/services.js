@@ -4,9 +4,15 @@ const Model = sequelize.Model;
 const Accounts = require("./accounts");
 const ServiceTypes = require("./service-types");
 
-class Customers extends Model{ }
+class Services extends Model{ 
+    async getSTT() {
+        const temp = await Services.findAll();
 
-Customers.init({
+        return temp.length + 1;
+    }
+}
+
+Services.init({
     balance: {
         type: sequelize.BIGINT,
         allowNull: false,
@@ -34,12 +40,17 @@ Customers.init({
             model: Accounts
         },
         primaryKey: true
+    },
+    STT: {
+        type: sequelize.INTEGER,
+        primaryKey: true,
+        defaultValue: 1
     }
 },{
     sequelize: db,
-    ModelName: "Customers"
+    ModelName: "Services"
 });
 
 
 
-module.exports = Customers; 
+module.exports = Services; 

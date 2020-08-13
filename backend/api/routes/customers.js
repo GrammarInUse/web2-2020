@@ -1,32 +1,16 @@
 const express = require("express");
 const Accounts = require("../../models/accounts");
-const Customers = require("../../models/customers");
+const Services = require("../../models/services");
 const CustomerInfo = require("../../models/information-user");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const Send = require("../../services/send-email");
-<<<<<<< HEAD
 const checkAuth = require("../../middlewares/checkAuth");
 const { isNullOrUndefined } = require("util");
-const InformationUsers = require("../../models/information-user");
 
 //CUSTOMER API
-router.get("/test", async (req, res) => {
-    const listOfInfos = await CustomerInfo.findAll({
-        include: [{
-            model: Accounts
-        }]
-    });
-    res.status(200).json({
-        data: listOfInfos
-    })
-})
-=======
-
->>>>>>> parent of 5131fc2... staff_update
-
 router.post("/signup", async (req, res) => {
     const id = Date.now().toString();
     const username = req.body.username;
@@ -57,8 +41,7 @@ router.post("/signup", async (req, res) => {
                 username,
                 email,
                 password,
-                verifyToken,
-                bankBranchId
+                verifyToken
             }).then(() => {
                 console.log("Succesfully created a account");
             })
@@ -66,7 +49,7 @@ router.post("/signup", async (req, res) => {
                 console.log("Something went wrong when you create an account!" + err);
             });
 
-            await InformationUsers.create({
+            await CustomerInfo.create({
                 fullName,
                 dOB,
                 sex,
@@ -112,20 +95,12 @@ router.post("/login", async (req, res) => {
             res.status(200).json({
                 message: "Wrong password!"
             });
-<<<<<<< HEAD
         }else if(passwordAuth && verifyToken != null){
-=======
-        }else if(passwordAuth && verifyToken !== null){
->>>>>>> parent of 5131fc2... staff_update
             res.status(200).json({
                 message: "You haven't verified your account! Please check your email!!!"
             });
         }
-<<<<<<< HEAD
         else if(passwordAuth && isNullOrUndefined(verifyToken)){
-=======
-        else if(passwordAuth && verifyToken === null){
->>>>>>> parent of 5131fc2... staff_update
             const token = jwt.sign({
                 username: tempCustomer[0].username,
                 password: tempCustomer[0].password
@@ -157,7 +132,7 @@ router.post("/login", async (req, res) => {
 
 router.get("/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
-    const findingCustomer = await Customers.findByPk(id);
+    const findingCustomer = await CustomerInfo.findByPk(id);
     const findingAccount = await Accounts.findByPk(id);
 
 
@@ -175,7 +150,7 @@ router.get("/:id", checkAuth, async (req, res) => {
 
 router.patch("/profile/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
-    const findingCustomer = await Customers.findByPk(id);
+    const findingCustomer = await CustomerInfo.findByPk(id);
 
     findingCustomer.fullName = req.body.fullName;
     findingCustomer.phone = req.body.phone;
@@ -238,5 +213,9 @@ router.get("/signup/:id/:verifyToken", async (req, res) => {
         });
     }
 });
+
+router.post("/chuyentien", (req, res) => {
+
+})
 
 module.exports = router;

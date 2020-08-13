@@ -2,7 +2,7 @@ const db = require("./db");
 const sequelize = require("sequelize");
 const Model = sequelize.Model;
 const Transactions = require("./transactions");
-const Customers = require("./customers");
+const Services = require("./services");
 const TransactionStatus = require("./transaction-status");
 
 class TransactionDetails extends Model{ }
@@ -21,7 +21,7 @@ TransactionDetails.init({
         primaryKey: true,
         references: {
             key: "accountId", 
-            model: Customers
+            model: Services
         }
     },
     receiver: {
@@ -29,7 +29,7 @@ TransactionDetails.init({
         allowNull: false,
         references: {
             key: "accountId", 
-            model: Customers
+            model: Services
         }
     },
     content: {

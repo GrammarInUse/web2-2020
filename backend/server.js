@@ -7,8 +7,8 @@ const CurrencyUnits = require("./models/currency-unit");
 const AccountTypes = require("./models/account-types");
 const Accounts = require("./models/accounts");
 
+const ServiceTypes = require("./models/service-types");
 const Services = require("./models/services");
-const Customers = require("./models/customers");
 
 const InformationUser = require("./models/information-user");
 
@@ -44,14 +44,13 @@ app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-app.use("/users", userRoutes);
 app.use("/customers", customerRoutes);
 app.use("/staffs", staffRoutes);
 
 app.get("/", async (req, res) => {
     await TransactionStatus.initialize();
     await Decentralizations.initialize();
-    await Services.initialize();
+    await ServiceTypes.initialize();
     await AccountTypes.initialize();
     await CurrencyUnits.initialize();
     res.send({
