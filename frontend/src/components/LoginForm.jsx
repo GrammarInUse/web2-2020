@@ -1,17 +1,45 @@
 import React, { Component } from "react";
 import { PureComponent } from "react";
-
+import {api} from "./api"
+import { Redirect,useHistory } from "react-router-dom";
 export default class LoginForm extends PureComponent {
+  constructor(){
+    super()
+    this.state = {
+      username:"",
+      password:"",
+      
+      
+    };
+  }
+  closeForm=()=>{
+   this.props.onToggleForm(1);
+  }
+  changeHandler = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  submitHandler =async (e) => {
+    e.preventDefault();
+    console.log(this.state)
+    await api.post('/customers/login',this.state).then((res)=>{
+      localStorage.setItem("token",res.data.token)
+      this.closeForm();
+    return <Redirect to="/verify" />;
+    })
+
+ 
+  };
   render() {
     return (
       <div>
-        <div id="id01" className="modal">
+        <div id="id01" >
           <form className="modal-content animate" onSubmit={this.submitHandler}>
             <div className="imgcontainer">
               <span
-                onClick={() =>
-                  (document.getElementById("id01").style.display = "none")
-                }
+               onClick={this.closeForm}
                 className="close"
                 title="Close Modal"
               >
@@ -62,9 +90,7 @@ export default class LoginForm extends PureComponent {
             <div className="container" style={{ backgroundColor: "#f1f1f1" }}>
               <button
                 type="button"
-                onClick={() =>
-                  (document.getElementById("id01").style.display = "none")
-                }
+              onClick={this.closeForm}
                 className="cancelbtn"
               >
                 Cancel

@@ -1,20 +1,47 @@
 import React from "react";
 import { PureComponent } from "react";
+import { api } from "./api";
 
 export default class SignupForm extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      fullName: "",
+      username: null,
+      password: null,
+      email: null,  
+      dOB: null,
+      sex: 1,
+      phone: null,
+    };
+  }
+  closeForm=()=>{
+    this.props.onToggleForm(2);
+   }
+  changeHandler = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  submitSignupHandler = async (e) => {
+    e.preventDefault();
+    console.log(this.state)
+     await api.post('/customers/signup',this.state).then(res=>{console.log(res.data)}).catch(err=>{console.log(err+'')})
+    
+  };
   render() {
     return (
       <div>
-        <div id="id02" className="modal">
+        <div id="id02">
           <form
             className="modal-content animate"
             onSubmit={this.submitSignupHandler}
           >
             <div className="imgcontainer">
               <span
-                onClick={() =>
-                  (document.getElementById("id02").style.display = "none")
-                }
+               onClick={this.closeForm}
                 className="close"
                 title="Close Modal"
               >
@@ -182,9 +209,7 @@ export default class SignupForm extends PureComponent {
               <button
                 className="col-4"
                 type="button"
-                onClick={() =>
-                  (document.getElementById("id02").style.display = "none")
-                }
+                onClick={this.closeForm}
                 className="cancelbtn"
               >
                 Cancel

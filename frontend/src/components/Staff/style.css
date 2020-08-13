@@ -2,7 +2,7 @@
   position: fixed;
   width: 100%;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0, 0.5);
   top: 0;
   left: 0;
   display: flex;
@@ -13,7 +13,7 @@
   position: relative;
   background-color: wheat;
   width: 50%;
-  height: 75%;
+  height: 50%;
 }
 .formEdit tr {
   padding-top: 20px;

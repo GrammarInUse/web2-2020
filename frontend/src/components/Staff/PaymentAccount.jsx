@@ -46,6 +46,7 @@ export default class PaymentAccount extends PureComponent {
             <h3 class="panel-title">Account Details</h3>
           </div>
           <div class="panel-body account-payment">
+           
             <div>
               <label> Account number:</label>
               <label>38102831208</label>

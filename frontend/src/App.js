@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import "./App.css";
 import { Switch, Route } from "react-router-dom";
+import {BrowserRouter as Router} from "react-router-dom";
 
 import NavMenu from "./components/NavMenu";
 import Footer from "./components/Footer";
 import Clients from "./components/Clients";
 import Intros from "./components/Intros";
+import LeftSideBarMenu from "./components/User/LeftSideBarMenu";
 
 import Verify from "./components/Staff/Verify";
 import NotFound from "./components/NotFound";
@@ -83,7 +85,7 @@ class App extends Component {
     this.getSomething();
   }
 
-  getSomething = () => {
+  getSomething = () => {  
     const url = "http://localhost:8080/customers/signup/1593933313090/BDEA14";
     fetch(url, {
       method: "GET",
@@ -103,8 +105,12 @@ class App extends Component {
     return (
       <div className="App">
         <NavMenu fullName={this.state.fullName} />
-
+       
+          
         <Switch>
+        <Route path="/test">
+            <LeftSideBarMenu />
+          </Route>
           <Route path="/profile">
             <Clients
               id={this.state.id}
@@ -134,6 +140,7 @@ class App extends Component {
           </Route>
           <Route component={NotFound} />
         </Switch>
+       
 
         <Footer />
       </div>

@@ -22,7 +22,21 @@ export default class NavMenu extends Component {
       dOB: null,
       sex: 1,
       phone: null,
+      isToggleFormSI:false,
+      isToggleFormSU:false,
     };
+  }
+  onToggleForm=(id)=>{
+    if(id===1){
+      this.setState({
+        isToggleFormSI:!this.state.isToggleFormSI
+      })
+    }
+    else{
+      this.setState({
+        isToggleFormSU:!this.state.isToggleFormSU
+      })
+    }
   }
 
   changeHandler = (e) => {
@@ -131,7 +145,9 @@ export default class NavMenu extends Component {
   }
 
   render() {
+    
     return (
+      
       <header id="header">
         <div className="container-fluid">
           <div id="logo" className="pull-left">
@@ -154,7 +170,7 @@ export default class NavMenu extends Component {
               <li>
                 <Link to="/profile">Profile</Link>
               </li>
-
+              
               <li className="menu-has-children">
                 {this.state.login ? (
                   <Link to="/profile" style={{ width: "auto" }}>
@@ -164,15 +180,15 @@ export default class NavMenu extends Component {
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() =>
-                      (document.getElementById("id01").style.display = "block")
-                    }
+                   onClick={()=>this.onToggleForm(1)}
                     style={{ width: "auto" }}
                   >
                     Login
                   </button>
-                )}
-                <LoginForm />
+                  
+                )
+                }
+                 
               </li>
               {this.state.login ? (
                 <li>
@@ -189,18 +205,19 @@ export default class NavMenu extends Component {
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() =>
-                      (document.getElementById("id02").style.display = "block")
-                    }
+                    onClick={()=>this.onToggleForm(2)}
                   >
                     Sign Up
                   </button>
 
-                  <SignupForm />
+                 
                 </li>
               )}
+                 
             </ul>
           </nav>
+          {this.state.isToggleFormSI? <LoginForm onToggleForm={this.onToggleForm} />:""}
+          {this.state.isToggleFormSU? <SignupForm onToggleForm={this.onToggleForm} />:""}
         </div>
       </header>
     );

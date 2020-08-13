@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { FaEdit, FaLock, FaLockOpen, FaPlus } from "react-icons/fa";
-import { api } from "./api";
-import ModalEditProfile from "./ModalEditProfile";
+import { FaPlus, FaEdit, FaLock, FaLockOpen } from "react-icons/fa";
 import "./style.css";
+import ModalEditProfile from "./ModalEditProfile";
+
+import { api } from "./api";
 
 let staff = {
   id: null,

@@ -1,6 +1,8 @@
 import React, { PureComponent } from "react";
-import { api } from "./api";
+import * as bootstrapValidate from "bootstrap-validate";
+
 import "./style.css";
+import { api } from "./api";
 
 class ModalEditProfile extends PureComponent {
   constructor(props) {
@@ -10,7 +12,6 @@ class ModalEditProfile extends PureComponent {
       id: staff.id,
       name: staff.name,
       position: staff.position,
-      pasword: staff.pasword,
       salary: staff.salary,
       role: staff.role,
 
@@ -50,11 +51,9 @@ class ModalEditProfile extends PureComponent {
     let nameErr = "";
     let posErr = "";
     let salErr = "";
-    const { name, position, salary } = this.state;
-    let isName = re.test(this.removeAscent(name));
-    let isPos = re.test(this.removeAscent(position));
-    let isSal = sa.test(salary);
-
+    let isName = re.test(this.removeAscent(this.state.name));
+    let isPos = re.test(this.removeAscent(this.state.position));
+    let isSal = sa.test(this.state.salary);
     if (!isName) {
       nameErr = "please enter name only characters !";
     }
@@ -63,15 +62,6 @@ class ModalEditProfile extends PureComponent {
     }
     if (!isSal) {
       salErr = "please enter position only number";
-    }
-    if (!name) {
-      nameErr = "Name is not valid";
-    }
-    if (salary === "") {
-      salErr = "Salary is not valid";
-    }
-    if (!position) {
-      posErr = "Position is not valid";
     }
     if (nameErr !== "" || posErr !== "" || salErr !== "") {
       this.setState({ nameErr, posErr, salErr });
@@ -93,6 +83,7 @@ class ModalEditProfile extends PureComponent {
     let staff = await api
       .put(`/test/${this.state.id}`, data)
       .then((res) => {
+        console.log(res.status);
         this.props.onGetAll();
       })
       .catch((err) => {
@@ -122,7 +113,7 @@ class ModalEditProfile extends PureComponent {
   };
   render() {
     let {
-      password,
+      validate,
       id,
       name,
       position,
@@ -155,19 +146,7 @@ class ModalEditProfile extends PureComponent {
                     <span style={{ color: "red" }}>{nameErr}</span>
                   </td>
                 </tr>
-                <tr>
-                  <td>
-                    <label>Password</label>
-                  </td>
-                  <td>
-                    <input
-                      type="password"
-                      name="password"
-                      value={password}
-                      onChange={this.onChange}
-                    />
-                  </td>
-                </tr>
+
                 <tr>
                   <td>
                     <label>Position:</label>
@@ -216,7 +195,11 @@ class ModalEditProfile extends PureComponent {
                 </tr>
               </tbody>
 
-              <button type="submit" className="btn btn-sm btn-success">
+              <button
+                type="submit"
+                className="btn btn-sm btn-success"
+                disabled={validate === false ? true : false}
+              >
                 {id !== null ? "UPDATE" : "ADD"}
               </button>
             </form>
