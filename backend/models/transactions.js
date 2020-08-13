@@ -6,7 +6,6 @@ const Services = require('./services');
 const Model = sequelize.Model;
 
 class Transactions extends Model{ }
-
 Transactions.init({
     id: {
         type: sequelize.TEXT,
@@ -32,6 +31,15 @@ Transactions.init({
     },
     sender: {
         type: sequelize.TEXT,
+        unique: true,
+        references: {
+            key: "accountId",
+            model: Services
+        }
+    },
+    receiver: {
+        type: sequelize.TEXT,
+        unique: true,
         references: {
             key: "accountId",
             model: Services
