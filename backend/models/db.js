@@ -1,6 +1,6 @@
 const sequelize = require("sequelize");
 
-const connectionString = process.env.DATABASE_URL || "postgres://postgres:Taolatao0@localhost:5432/InternetBanking";
+const connectionString = process.env.DATABASE_URL || "postgres://postgres:1@localhost:5432/sbanking";
 
 const db = new sequelize(connectionString);
 
