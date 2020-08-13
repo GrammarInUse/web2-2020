@@ -5,21 +5,14 @@ const bodyParser = require("body-parser");
 const CurrencyUnits = require("./models/currency-unit");
 
 const AccountTypes = require("./models/account-types");
-const Accounts = require("./models/accounts");
 
 const ServiceTypes = require("./models/service-types");
-const Services = require("./models/services");
-
-const InformationUser = require("./models/information-user");
 
 const Decentralizations = require("./models/Decentralizations");
-const Staffs = require("./models/staffs");
+
 
 const TransactionStatus = require("./models/transaction-status");
 
-
-
-const Transactions = require("./models/transactions");
 
 const app = express();
 
