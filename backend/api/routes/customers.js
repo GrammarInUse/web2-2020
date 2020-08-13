@@ -27,6 +27,28 @@ router.post("/signup", async (req, res) => {
     const phone = req.body.phone;
     const accountId = id;
 
+    //Check username and password >= 7 letters
+    if(username.length < 7){
+        return res.status(305).json({
+            userMessage: "Username: The number of letters have to be greater than 7!"
+        })
+    }
+    if(req.body.password.length < 7){
+        return res.status(305).json({
+            userMessage: "Password: The number of letters have to be greater than 7!"
+        })
+    }
+    if(phone.length !== 10){
+        return res.status(305).json({
+            userMessage: "Phone number "
+        })
+    }
+    if(email.length < 16){
+        return res.status(305).json({
+            userMessage: "Email is unavailable!"
+        })
+    }
+
     await Accounts.findAll({
         where: {
             username
@@ -64,12 +86,12 @@ router.post("/signup", async (req, res) => {
                 phone,
                 accountId
             }).then(() => {
-                res.status(202).json({
+                return res.status(202).json({
                     message: "Succesfully created a customer"
                 });
             })
             .catch((err) => {
-                res.status(303).json({
+                return res.status(303).json({
                     message: "There are some errors when you create a customer information",
                     error: err
                 });
@@ -87,7 +109,16 @@ router.post("/signup", async (req, res) => {
             username
         }
     });
-    await Send(tempUser);
+
+
+    const url = "http://localhost:8080/customers/signup/" + tempUser.id + "/" + tempUser.verifyToken;
+    const mailOptions = {
+        from:"hlb0932055041@gmail.com",
+        to: tempUser.email,
+        subject: "Xác thực tài khoản S-Ebanking",
+        text: 'Liên kết vào link sau để kích hoạt tài khoản: ' + url
+    }
+    await Send(mailOptions);
 });
 
 router.post("/login", async (req, res) => {
