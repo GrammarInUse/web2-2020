@@ -33,17 +33,14 @@ class App extends Component {
     console.log("STORE COLLECTOR!!!");
         try{
             const store = JSON.parse(localStorage.getItem("login"));
-            console.log(store);
-        
+            //console.log(store);
             if(store && store.login){
                 this.setState({
                     login: true,
                     token: store.token,
                     id: store.currentUser
                 });
-
                 const url = "http://localhost:8080/customers/" + store.currentUser;
-
                 fetch(url, {
                     method: "GET",
                     headers: {
@@ -67,9 +64,6 @@ class App extends Component {
                 .catch((error) => {
                     console.log("Something went wrong when you fetch a customer: " + error);
                 });
-
-
-
             }else{
                 console.log("FAILED");
             }
@@ -105,7 +99,7 @@ class App extends Component {
         <Services />
         <Team />
         <Contact />
-        <Footer /> 
+        {/* <Footer />  */}
       </div>
     );
   }

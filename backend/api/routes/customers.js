@@ -156,10 +156,23 @@ router.get("/:id", checkAuth, async (req, res) => {
 
 router.patch("/profile/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
+    const newFullName = req.body.fullName;
+    const newPhone = req.body.phone;
+
     const findingCustomer = await CustomerInfo.findByPk(id);
 
-    findingCustomer.fullName = req.body.fullName;
-    findingCustomer.phone = req.body.phone;
+    if(newFullName && newPhone){
+        findingCustomer.fullName = req.body.fullName;
+        findingCustomer.phone = req.body.phone;
+    }else if(newFullName && !newPhone){
+        findingCustomer.fullName = req.body.fullName;
+    }else if(!newFullName && newPhone){
+        findingCustomer.phone = req.body.phone;
+    }else{
+        res.status(201).json({
+            message: "Nothing changed!!"
+        });
+    }
 
     await findingCustomer.save()
     .then(() => {

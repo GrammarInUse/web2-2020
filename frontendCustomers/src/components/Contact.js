@@ -35,7 +35,7 @@ export default class Contact extends Component{
                 <div className="form">
                     <div id="sendmessage">Your message has been sent. Thank you!</div>
                     <div id="errormessage" />
-                    <form action method="post" role="form" className="contactForm">
+                    <form method="post" role="form" className="contactForm">
                     <div className="form-row">
                         <div className="form-group col-md-6">
                         <input type="text" name="name" className="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />

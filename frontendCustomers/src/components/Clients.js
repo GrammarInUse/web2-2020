@@ -33,7 +33,7 @@ export default class Clients extends Component {
     submitHandler = (e) => {
         e.preventDefault();
         const token = JSON.parse(localStorage.getItem("login")).token;
-        const url = "https://s-ebanking-api.herokuapp.com/customers/profile/" + this.props.id;
+        const url = "http://localhost:8080/customers/profile/" + this.props.id;
         fetch(url, {
             method: "PATCH",
             headers: {
@@ -66,7 +66,7 @@ export default class Clients extends Component {
         e.preventDefault();
         if(this.state.password === this.state.comfirmPassword){
             const token = JSON.parse(localStorage.getItem("login")).token;
-            const url = "https://s-ebanking-api.herokuapp.com/customers/password/" + this.props.id;
+            const url = "http://localhost:8080/customers/password/" + this.props.id;
             fetch(url, {
                 method: "PATCH",
                 headers: {
@@ -95,8 +95,9 @@ export default class Clients extends Component {
         }else{
             this.setState({
                 message: "2 passwords aren't match!! PLz check it again!!!"
-            });
-            alert(this.state.message);
+            }, () => {
+                alert(this.state.message);
+            });     
         }
     }
 
