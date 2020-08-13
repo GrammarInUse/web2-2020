@@ -11,6 +11,7 @@ let staff = {
   position: "",
   salary: 0,
   role: 1,
+  email: "",
   isLock: false,
 };
 
@@ -23,6 +24,7 @@ class StaffManager extends Component {
       staffs: [],
     };
   }
+
   getAll = async () => {
     let staffs = await api.get("/test/").then(({ data }) => data);
 
@@ -73,6 +75,7 @@ class StaffManager extends Component {
           <tr id="listStaff">
             <td>{item.id}</td>
             <td>{item.name}</td>
+            <td>{item.email}</td>
             <td>{item.position}</td>
             <td>{item.salary}</td>
             <td>{role}</td>
@@ -154,6 +157,7 @@ class StaffManager extends Component {
               <tr>
                 <th> ID </th>
                 <th> Name </th>
+                <th>Email</th>
                 <th>Position</th>
                 <th>Salary</th>
                 <th>Role</th>

@@ -14,8 +14,7 @@ class ModalEditProfile extends PureComponent {
       position: staff.position,
       salary: staff.salary,
       role: staff.role,
-
-      validate: true,
+      email: staff.email,
 
       nameErr: "",
       posErr: "",
@@ -29,6 +28,7 @@ class ModalEditProfile extends PureComponent {
       position: "",
       salary: 0,
       role: 1,
+      email: "",
     });
     this.props.onToggleModal();
   };
@@ -46,14 +46,18 @@ class ModalEditProfile extends PureComponent {
     return str;
   };
   isvalid = () => {
+    let { name, position, salary } = this.state;
     const re = /^[A-Za-z]*$/;
     const sa = /^\d+$/;
+    //const em = /^[a-z][a-z0-9_\.]{5,32}@[a-z0-9]{2,}(\.[a-z0-9]{2,4}){1,2}$/;
     let nameErr = "";
     let posErr = "";
     let salErr = "";
-    let isName = re.test(this.removeAscent(this.state.name));
-    let isPos = re.test(this.removeAscent(this.state.position));
-    let isSal = sa.test(this.state.salary);
+    let emailErr = "";
+    let isName = re.test(this.removeAscent(name));
+    let isPos = re.test(this.removeAscent(position));
+    let isSal = sa.test(salary);
+
     if (!isName) {
       nameErr = "please enter name only characters !";
     }
@@ -63,6 +67,13 @@ class ModalEditProfile extends PureComponent {
     if (!isSal) {
       salErr = "please enter position only number";
     }
+    if (!name) {
+      nameErr = "name cannot emty ";
+    }
+    if (!position) {
+      posErr = "position cannot emty";
+    }
+
     if (nameErr !== "" || posErr !== "" || salErr !== "") {
       this.setState({ nameErr, posErr, salErr });
       return false;
@@ -70,8 +81,8 @@ class ModalEditProfile extends PureComponent {
     return true;
   };
   createStaff = async () => {
-    let { name, position, salary, role } = this.state;
-    let data = { name, position, salary, role, isLock: false };
+    let { name, position, email, salary, role } = this.state;
+    let data = { name, position, email, salary, role, isLock: false };
     let staff = await api.post("/test/", data).then((res) => {
       this.props.onGetAll();
     });
@@ -102,6 +113,7 @@ class ModalEditProfile extends PureComponent {
   };
   onSubmit = (e) => {
     e.preventDefault();
+    console.log(this.state);
     if (this.isvalid()) {
       if (this.state.id === null) {
         this.createStaff();
@@ -119,6 +131,7 @@ class ModalEditProfile extends PureComponent {
       position,
       salary,
       role,
+      email,
       nameErr,
       posErr,
       salErr,
@@ -144,6 +157,20 @@ class ModalEditProfile extends PureComponent {
                       onChange={this.onChange}
                     />
                     <span style={{ color: "red" }}>{nameErr}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label>Email:</label>
+                  </td>
+                  <td>
+                    <input
+                      id="name"
+                      type="email"
+                      name="email"
+                      value={email}
+                      onChange={this.onChange}
+                    />
                   </td>
                 </tr>
 

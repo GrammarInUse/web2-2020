@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import "./App.css";
 import { Switch, Route } from "react-router-dom";
-import {BrowserRouter as Router} from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 
 import NavMenu from "./components/NavMenu";
 import Footer from "./components/Footer";
@@ -14,6 +14,7 @@ import NotFound from "./components/NotFound";
 import StaffManager from "./components/Staff/StaffManager";
 import PaymentAccount from "./components/Staff/PaymentAccount";
 import Rate from "./components/Staff/Rate";
+import FindUser from "./components/Staff/FindUser";
 
 class App extends Component {
   constructor(props) {
@@ -85,7 +86,7 @@ class App extends Component {
     this.getSomething();
   }
 
-  getSomething = () => {  
+  getSomething = () => {
     const url = "http://localhost:8080/customers/signup/1593933313090/BDEA14";
     fetch(url, {
       method: "GET",
@@ -105,10 +106,9 @@ class App extends Component {
     return (
       <div className="App">
         <NavMenu fullName={this.state.fullName} />
-       
-          
+
         <Switch>
-        <Route path="/test">
+          <Route path="/test">
             <LeftSideBarMenu />
           </Route>
           <Route path="/profile">
@@ -138,9 +138,11 @@ class App extends Component {
           <Route path="/rate">
             <Rate />
           </Route>
+          <Route path="/find-user">
+            <FindUser />
+          </Route>
           <Route component={NotFound} />
         </Switch>
-       
 
         <Footer />
       </div>
