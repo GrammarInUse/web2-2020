@@ -8,6 +8,7 @@ const crypto = require("crypto");
 const db = require("../../models/db");
 const { Op } = require("sequelize");
 const { isNull } = require("util");
+const Send = require("../../services/send-email");
 
 router.get("/", async (req, res) => {
   const CustomerList = await Staffs.findAll();
@@ -83,7 +84,7 @@ router.put("/verify", async (req, res) => {
   const { id, handle } = req.query;
   try {
     const account = await Accounts.findByPk(id);
-    if (handle) {
+    if (handle ===  true) {
       if (account) {
         account.isVerified = 1;
         await account.save();
@@ -98,7 +99,13 @@ router.put("/verify", async (req, res) => {
         });
       }
     } else {
-      return;
+      const mailOptions = {
+        from:"hlb0932055041@gmail.com",
+        to: account.email,
+        subject: "Nontifications of Images of identity card",
+        text:"Your Images of identity card is invalid!",
+      }
+      Send(mailOptions);
     }
   } catch (err) {
     res.status(400).json({
@@ -111,10 +118,12 @@ router.put("/verify", async (req, res) => {
 router.get("/listAccount", async (req, res) => {
   try {
     const listAccount = await informationUser.findAll({
+      attributes: ["fullName","dOB","sex","phone"],
       include: [
         {
           model: Accounts,
-          where: {
+          attributes:["id","isBlocked","isVerified"],
+          where: {       
             isVerified: 0,
             accountType: 1,
           },
@@ -122,10 +131,11 @@ router.get("/listAccount", async (req, res) => {
       ],
     });
 
+    console.log(listAccount)
     if (listAccount.length > 0) {
       return res.status(200).json({
         result: "Ok",
-        data: { listAccount },
+        data: listAccount ,
       });
     } else {
       return res.status(200).json({
