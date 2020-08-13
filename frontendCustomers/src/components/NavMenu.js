@@ -46,6 +46,8 @@ export default class NavMenu extends Component {
                 //console.warn(result);
                 this.setState({
                     status: result.message,
+                }, () => {
+                    alert(this.state.status);
                 });
                 if(result.token){
                     localStorage.setItem("login", JSON.stringify({
@@ -62,6 +64,7 @@ export default class NavMenu extends Component {
         .catch((err) => {
             console.log("Something went wrong when you fetch something!" + err);
         });
+        
     }
 
     submitSignupHandler = (e) => {

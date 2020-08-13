@@ -51,9 +51,10 @@ router.post("/signup", async (req, res) => {
                 console.log("Something went wrong when you create an account!" + err);
             });
 
+            const serviceId = await Services.getSTT();
             await Services.create({
-                accountId,
-                STT: 1
+                id: serviceId,
+                accountId
             });
             
             await CustomerInfo.create({
@@ -63,9 +64,6 @@ router.post("/signup", async (req, res) => {
                 phone,
                 accountId
             }).then(() => {
-                fs.mkdir("./public/PhotosOfId" + id, () => {
-                    console.log("Tao new folder thanh cong");
-                });
                 res.status(202).json({
                     message: "Succesfully created a customer"
                 });
@@ -100,18 +98,19 @@ router.post("/login", async (req, res) => {
 
     if(tempCustomer.length >= 1){
         const passwordAuth = await bcrypt.compare(password, tempCustomer[0].password);
-        const verifyToken = tempCustomer.verifyToken;
+        const verifyToken = tempCustomer[0].verifyToken;
+        console.log("TOKENNNNN");
         console.log(verifyToken);
         if(!passwordAuth){
             res.status(200).json({
                 message: "Wrong password!"
             });
-        }else if(passwordAuth && !isNullOrUndefined(verifyToken)){
+        }else if(passwordAuth && (!isNullOrUndefined(verifyToken) && verifyToken.length !== 0)){
             res.status(200).json({
                 message: "You haven't verified your account! Please check your email!!!"
             });
         }
-        else if(passwordAuth && isNullOrUndefined(verifyToken)){
+        else if(passwordAuth && (isNullOrUndefined(verifyToken) || verifyToken.length === 0)){
             const token = jwt.sign({
                 username: tempCustomer[0].username,
                 password: tempCustomer[0].password

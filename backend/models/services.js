@@ -5,7 +5,7 @@ const Accounts = require("./accounts");
 const ServiceTypes = require("./service-types");
 
 class Services extends Model{ 
-    async getSTT() {
+    static async getSTT() {
         const temp = await Services.findAll();
 
         return temp.length + 1;
@@ -13,6 +13,10 @@ class Services extends Model{
 }
 
 Services.init({
+    id: {
+        type: sequelize.TEXT,
+        primaryKey: true
+    },
     balance: {
         type: sequelize.BIGINT,
         allowNull: false,
@@ -38,8 +42,7 @@ Services.init({
         references: {
             key: "id",
             model: Accounts
-        },
-        primaryKey: true
+        }
     }
 },{
     sequelize: db,
