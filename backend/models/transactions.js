@@ -31,7 +31,6 @@ Transactions.init({
     },
     sender: {
         type: sequelize.TEXT,
-        unique: true,
         references: {
             key: "accountId",
             model: Services
@@ -39,7 +38,6 @@ Transactions.init({
     },
     receiver: {
         type: sequelize.TEXT,
-        unique: true,
         references: {
             key: "accountId",
             model: Services
