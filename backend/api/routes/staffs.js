@@ -17,133 +17,88 @@ router.get("/", async (req, res) => {
   });
 });
 
-router.post("/", async (req, res) => {
-  const id = Date.now();
-  const username = req.body.username;
+router.post("/addStaff", async (req, res) => {
+  const id = Date.now().toString();
   const email = req.body.email;
   const password = await bcrypt.hash(req.body.password, 10);
-  const verifyToken = crypto.randomBytes(3).toString("hex").toUpperCase();
+  const accountType = 2;
+  let username = new Date().getFullYear().toString().substring(2);
+  const count = (await Accounts.count()) + 1;
+
+  console.log(count)
+  if (count < 10) {
+    username += "00" + count;
+  } else if (count < 100) {
+    username += "0" + count;
+  } else {
+    username += count;
+  }
 
   await Accounts.create({
     id,
     username,
     email,
     password,
-    verifyToken,
-    bankBranchId,
+    accountType,
   })
-    .then(() => {
-      console.log("Successfully created an account!");
+    .then((account) => {
+      res.status(201).json({
+        result: "ok",
+        data: { account },
+        message: "Successfully created an account!",
+      });
     })
     .catch((err) => {
-      console.log("Something went wrong when you create an account!");
+      res.status(400).json({
+        result: "failed",
+        data: {},
+        message: `Something went wrong when you create an account! ${err}`,
+      });
     });
 
-  const fullName = req.body.fullName;
-  const dOB = req.body.dOB;
-  const sex = req.body.sex;
-  const phone = req.body.phone;
   const accountId = id;
-  const type = req.body.type;
+  const fullname = req.body.name;
+  const position = req.body.position;
+  const salary = req.body.salary;
+  let decentralizationId = req.body.role === true ? 1 : 2;
 
   await Staffs.create({
-    fullName,
-    dOB,
-    sex,
-    phone,
     accountId,
-    type,
+    fullname,
+    position,
+    salary,
+    decentralizationId,
   })
-    .then(() => {
-      res.status(202).json({
-        message: "Succesfully created a customer",
-      });
-    })
-    .catch((err) => {
-      res.status(303).json({
-        message: "There are some errors when you create a staff",
-        error: err,
-      });
-    });
-});
-
-router.post("/search", async (req, res) => {
-  const { keyword } = req.body;
-  const account = await Accounts.findAll({
-    where: {
-      [Op.or]: [
-        {
-          email: {
-            [Op.like]: keyword,
-          },
-        },
-        {
-          username: {
-            [Op.like]: keyword,
-          },
-        },
-        { id: keyword },
-      ],
-    },
-  })
-    .then((item) => {
-      if (!isNull(item)) {
-        return item.get();
-      } else {
-        return null;
+    .then((staff) => {
+      if (staff !== null) {
+        console.log("Successfully!")
       }
     })
     .catch((err) => {
-      res.status(303).json({
-        message: "There are some errors when you find an Accounts",
-        error: err,
-      });
+      console.log(`Something went wrong when you create an staff! ${err}`);
     });
-
-  if (!isNull(account)) {
-    await informationUser
-      .findOne({
-        where: {
-          accountId: account.id,
-        },
-      })
-      .then((curCustomer) => {
-        if (!isNull(curCustomer)) {
-          res.status(200).json({
-            message: "Succesfully search a customer",
-            data: curCustomer,
-          });
-        } else {
-          res.status(404).json({
-            message: "Information of customer is no longer exists",
-          });
-        }
-      })
-      .catch((err) => {
-        res.status(303).json({
-          message: "There are some errors when you find a customers",
-          error: err,
-        });
-      });
-  }
 });
 
-router.put("/verify/:id", async (req, res) => {
-  const { id } = req.params;
+router.put("/verify", async (req, res) => {
+  const { id, handle } = req.query;
   try {
     const account = await Accounts.findByPk(id);
-    if (account) {
-      account.verifyToken = null;
-      await account.save();
+    if (handle) {
+      if (account) {
+        account.isVerified = 1;
+        await account.save();
 
-      res.status(200).json({
-        message: "VerifyToken of Account is successfully!",
-        data: account,
-      });
+        res.status(200).json({
+          message: "VerifyToken of Account is successfully!",
+          data: account,
+        });
+      } else {
+        res.status(404).json({
+          message: "Account not exists!",
+        });
+      }
     } else {
-      res.status(404).json({
-        message: "Account not exists!",
-      });
+      return;
     }
   } catch (err) {
     res.status(400).json({
@@ -153,23 +108,31 @@ router.put("/verify/:id", async (req, res) => {
   }
 });
 
-router.get("/verify", async (req, res) => {
+router.get("/listAccount", async (req, res) => {
   try {
-
     const listAccount = await informationUser.findAll({
-      include:[
+      include: [
         {
           model: Accounts,
-          where:{
-            isVerify: -1,
+          where: {
+            isVerified: 0,
+            accountType: 1,
           },
-        }
-      ]
-    })
-
-    return res.status(200).json({
-      data: listAccount,
+        },
+      ],
     });
+
+    if (listAccount.length > 0) {
+      return res.status(200).json({
+        result: "Ok",
+        data: { listAccount },
+      });
+    } else {
+      return res.status(200).json({
+        result: "ok",
+        data: {},
+      });
+    }
   } catch (err) {
     throw err;
   }

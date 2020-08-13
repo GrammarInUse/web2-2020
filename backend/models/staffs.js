@@ -17,10 +17,21 @@ Staffs.init({
         },
         primaryKey: true
     },
+    fullname:{
+        type: sequelize.STRING,
+        allowNull: false,
+    },
+    position:{
+        type: sequelize.TEXT,
+        allowNull: false,
+    },
+    salary:{
+        type: sequelize.BIGINT,
+        allowNull:false
+    },
     decentralizationId: {
         type: sequelize.INTEGER,
         allowNull: false,
-        defaultValue: 1,
         references: {
             key: "id",
             model: Decentralizations
@@ -30,5 +41,7 @@ Staffs.init({
     sequelize: db,
     ModelName: "Staffs"
 });
+
+Staffs.belongsTo(Decentralizations,{foreignKey: "decentralizationId"});
 
 module.exports = Staffs;
