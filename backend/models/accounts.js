@@ -2,6 +2,7 @@ const db = require("./db");
 const sequelize = require("sequelize");
 
 const AccountTypes = require("./account-types");
+const InformationUsers = require("./information-user");
 const Model = sequelize.Model;
 
 class Accounts extends Model{ }
@@ -52,5 +53,7 @@ Accounts.init({
     sequelize: db,
     ModelName: "Accounts"
 });
+
+Accounts.belongsTo(InformationUsers,{foreignKey: "id"});
 
 module.exports = Accounts;
