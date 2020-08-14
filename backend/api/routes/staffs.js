@@ -11,7 +11,7 @@ const Send = require("../../services/send-email");
 const Transactions = require("../../models/transactions");
 const generator = require("generate-password");
 
-router.get("/", async (req, res) => {
+router.get("/listStaff", async (req, res) => {
   try {
     const listStaff = await Staffs.findAll();
 
@@ -157,8 +157,8 @@ router.post("/:id/updateStaff/:staffID", async (req, res) => {
 });
 
 router.post("/:id/blockAccount/:staffID/:handle", async (req, res) => {
-  const { id, staffID} = req.params;
-  const handle = req.params.handle === 'true' ? true : false;
+  const { id, staffID } = req.params;
+  const handle = req.params.handle === "true" ? true : false;
   try {
     const role = await Staffs.findByPk(id);
 
@@ -199,9 +199,10 @@ router.post("/:id/blockAccount/:staffID/:handle", async (req, res) => {
     throw err;
   }
 });
+
 router.put("/:id/verify/:customID/:handle", async (req, res) => {
-  const { id, customID} = req.params;
-  const handle = req.params.handle === 'true' ? true : false;
+  const { id, customID } = req.params;
+  const handle = req.params.handle === "true" ? true : false;
   try {
     const role = await Staffs.findByPk(id);
 
@@ -262,23 +263,22 @@ router.put("/:id/verify/:customID/:handle", async (req, res) => {
   }
 });
 
-router.get("/listAccount", async (req, res) => {
+router.get("/verify", async (req, res) => {
   try {
-    const listAccount = await informationUser.findAll({
-      attributes: ["fullName", "dOB", "sex", "phone"],
+    const listAccount = await Accounts.findAll({
+      attributes: ["id", "isBlocked", "isVerified"],
+      where: {
+        isVerified: 0,
+        accountType: 1,
+      },
       include: [
         {
-          model: Accounts,
-          attributes: ["id", "isBlocked", "isVerified"],
-          where: {
-            isVerified: 0,
-            accountType: 1,
-          },
+          model: informationUser,
+          attributes: ["fullName", "dOB", "sex", "phone"],
         },
       ],
     });
 
-    console.log(listAccount);
     if (listAccount.length > 0) {
       return res.status(200).json({
         result: "Ok",
@@ -286,7 +286,7 @@ router.get("/listAccount", async (req, res) => {
       });
     } else {
       return res.status(200).json({
-        result: "ok",
+        result: "Ok",
         data: {},
       });
     }
@@ -295,7 +295,7 @@ router.get("/listAccount", async (req, res) => {
   }
 });
 
-router.get("/transaction", async (req, res) => {
+router.get("/spend-account", async (req, res) => {
   const { start, end } = req.body;
 
   const curStart = new Date(start).toISOString();
@@ -326,6 +326,37 @@ router.get("/transaction", async (req, res) => {
     }
   } catch (err) {
     console.log(err);
+    throw err;
+  }
+});
+
+router.get("/find-user", async (req, res) => {
+  try {
+    const listAccount = await Accounts.findAll({
+      attributes: ["id", "username", "email","accountType" ,"isBlocked", "isVerified"],
+      where: {
+        accountType: 1,
+      },
+      include: [
+        {
+          model: informationUser,
+          attributes: ["fullName", "dOB", "sex", "phone", "accountId"],
+        },
+      ],
+    });
+
+    if (listAccount.length > 0) {
+      return res.status(200).json({
+        result: "Ok",
+        data: listAccount,
+      });
+    } else {
+      return res.status(200).json({
+        result: "Ok",
+        data: {},
+      });
+    }
+  } catch (err) {
     throw err;
   }
 });
