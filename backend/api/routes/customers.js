@@ -169,6 +169,8 @@ router.post("/login", async (req, res) => {
 router.get("/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await CustomerInfo.findByPk(id);
+    console.log("++++++++++++++++++++");
+    console.log(findingCustomer);
     const findingAccount = await Accounts.findByPk(id);
 
 
@@ -266,7 +268,7 @@ router.get("/signup/:id/:verifyToken", async (req, res) => {
 router.post("/chuyentien", checkAuth, async (req, res) => {
     const id = Date.now().toString();
     const idOfSender = req.body.sender;
-    console.log(idOfSender);
+    const coinOfTransferRaw = req.body.cOT;
     const sender = await Services.findAll({
         where: {
             accountId: idOfSender
@@ -281,7 +283,14 @@ router.post("/chuyentien", checkAuth, async (req, res) => {
         }
     });
     console.log(receiver);
-    const coinOfTransfer = parseInt(req.body.cOT);
+
+    if(isNaN(coinOfTransferRaw)){
+        return res.status(404).json({
+            userMessage: "Tien sai dinh dang"
+        });
+    }
+
+    const coinOfTransfer = parseInt(coinOfTransferRaw);
     console.log(coinOfTransfer);
     const comment = req.body.comment;
     console.log(comment);

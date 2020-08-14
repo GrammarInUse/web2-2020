@@ -4,13 +4,14 @@ export default class Transaction extends Component {
     constructor(props){
         super(props);
         this.state ={
-            id:"",
-            cOT:"1",
-            sender:"1597397768284",
-            receiver:"1597397752122",
-            comment:"",
-            status:"123",
-            password: ""
+            id : "",
+            cOT : "1",
+            sender : "",
+            receiver : "",
+            comment : "",
+            status : "123",
+            password : "s",
+            NameOfReceiver : ""
         }
     }
     changeHandler = (e) => {
@@ -25,50 +26,95 @@ export default class Transaction extends Component {
             const token = store.token;
             const url = "http://localhost:8080/customers/chuyentien";
             const optionFetch ={
-            method: "POST",
-            headers:{
-                "Accept":"application/json",
-                "Content-type":"application/json",
-                "Authorization":token
-            },
-            body: JSON.stringify(this.state)
-        }
-        fetch(url,optionFetch).then((response) =>{
-            response.json().then((result)=>{
-                this.setState({
-                    status : result.userMessage
-                }, () => {
-                    alert(this.state.status)
-                });
-                
+                method: "POST",
+                headers:{
+                    "Accept":"application/json",
+                    "Content-type":"application/json",
+                    "Authorization":token
+                },
+                body: JSON.stringify(this.state)
+            }
+            fetch(url,optionFetch).then((response) =>{
+                response.json().then((result)=>{
+                    this.setState({
+                        status : result.userMessage
+                    }, () => {
+                        alert(this.state.status);
+                        window.location.reload();
+                    });
+                })
+            }).catch((err)=>{
+                alert (err)
             })
-        }).catch((err)=>{
-            alert (err)
-        })
         }
-        else 
-            console.log("abc");
-        
+        else console.log("abc");
+    }
+    checkHandler = (e) =>{
+        e.preventDefault();
+        this.storeCollector();
+        const a = document.getElementById("Amount")
+        const store = JSON.parse(localStorage.getItem("login"))
+        const token = store.token
+        const url = "http://localhost:8080/customers/" + this.state.receiver;
+        const optFetchs = {
+            method: "GET",
+            headers:{
+                "Accept" : "application/json",
+                "Content-type" : "application/json",
+                "Authorization" : token
+            }
+        }
+        fetch(url,optFetchs)
+        .then((response) =>{
+            if(response){
+                response.json()
+                .then((result)=>{
+                    this.setState({
+                        NameOfReceiver : result.customer.fullName
+                    }, () => {
+                        a.value=this.state.NameOfReceiver
+                    })
+                })
+                .catch((err) => {
+                    console.log("RESULT FETCH RECEIVER: ");
+                    console.error(err);
+                })
+            }
+        })
+        .catch((err) => {
+            console.log("FETCH CHECK RECEIVER");
+            console.error(err);
+        })
+    }
+
+    storeCollector = (e) => {
+        console.log("STORE COLLECTOR!!!");
+        try{
+            const store = JSON.parse(localStorage.getItem("login"));
+            //console.log(store);
+            if(store && store.login){
+                this.setState({
+                    sender: store.currentUser
+                });
+            }else{
+                console.log("FAILED");
+            }
+        }catch(error){
+            console.log("Something went wrong when you retrieve store from local storage!" + error);
+        }
+    }
+
+    componentDidMount() {
+        this.storeCollector();
     }
     render() {
+        console.log(this.state);
         return (
             <div className="container emp-profile">
                 <form onSubmit={this.submitHandler}>
                     <div className="row">
                         <div>
                         <table className="table-form">
-                            {/*<tr>
-                                    <td height="20" align="right"
-                                        style="padding-left: 25px; padding-right: 25px;">
-                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                                        <tr>
-                                            <td width="50%" align="left">&nbsp;</td>
-                                            <td width="50%" align="right"><a href="#" class="trogiup">Tr&#7907; giúp</a></td>
-                                        </tr>
-                                    </table>
-                                    <a href="#" class="trogiup"></a></td>
-                                </tr>
-                                */}
                             <tbody>
                             <tr>
                                 <td className="white_tieude">
@@ -81,9 +127,15 @@ export default class Transaction extends Component {
                                     <tbody>
                                     <tr>
                                         <td className="caption">Tài Khoản TH</td>
-                                        <td><input type="text" name="receiver" defaultValue size={30} id="" onkeypress="return isNumberKey(event);" onChange={this.changeHandler} maxLength={18} /></td>
-                                        <input onClick={this.displayEditFormHandler} type="button" className="profile-edit-btn" name="btnAddMore" value="Check" />
-                                        <td><input disabled type="text" name="NameOfReceiver" defaultValue size={30} id="Amount" onkeypress="return isNumberKey(event);" onChange={this.changeHandler} maxLength={18} /></td>
+                                        <td>
+                                            <input type="text" name="receiver" onChange={this.changeHandler} />
+                                        </td>
+                                        <td>
+                                            <input onClick={this.checkHandler} type="button" className="profile-edit-btn" name="btnAddMore" value="Check" />
+                                        </td>
+                                        <td>
+                                            <input disabled type="text" name="NameOfReceiver" id="Amount" onChange={this.changeHandler} />
+                                        </td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -94,11 +146,11 @@ export default class Transaction extends Component {
                                 <table>
                                     <tbody><tr>
                                         <td className="caption">Số tiền</td>
-                                        <td><input type="text" name="cOT" defaultValue size={30} id="Amount" onkeypress="return isNumberKey(event);" onChange={this.changeHandler} maxLength={18} /></td>
+                                        <td><input type="text" name="cOT" onChange={this.changeHandler} maxLength={18} /></td>
                                     </tr>
                                     <tr>
                                         <td>Nội dung gửi</td>
-                                        <td><textarea rows="4" cols="50" type="text" name="status" defaultValue id="AmountFeeWord" onChange={this.changeHandler} /></td>
+                                        <td><textarea rows="4" cols="50" type="text" name="comment" onChange={this.changeHandler} /></td>
                                     </tr>
             
                     
@@ -111,7 +163,7 @@ export default class Transaction extends Component {
                                     <table>
                                     <tbody><tr>
                                 <td className="caption">Nhập lại MK</td>
-                                <td><input type="text" name="password" defaultValue size={30} id="" onkeypress="return isNumberKey(event);" onChange={this.changeHandler} maxLength={18} /></td>
+                                <td><input type="password" name="password" defaultValue size={30} onChange={this.changeHandler} /></td>
                             </tr>
                                     </tbody></table>
                                 </div>
@@ -119,7 +171,7 @@ export default class Transaction extends Component {
                             </tr>
                             <tr>
                                 <td className="center">
-                                <input type="hidden" name="dse_nextEventName" defaultValue id="dse_nextEventName" /> <input name="button" type="submit" className="nut1 button-blue" id="button" defaultValue="Đồng ý" onclick="dosubmit('ok');" /> <input name="button2" type="button" className="nut1 button-white" id="button2" defaultValue="Hủy" onclick="dosubmit('cancel');" /></td>
+                                <input name="button" type="submit" className="nut1 button-blue" id="button" defaultValue="Đồng ý" /> <input name="button2" type="button" className="nut1 button-white" id="button2" defaultValue="Hủy" /></td>
                             </tr>
                             <tr>
                                 <td colSpan={2}>

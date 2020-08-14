@@ -82,26 +82,35 @@ class App extends Component {
       <div className="App">
         <HamburberButton />
         <NavMenu />
-        <Transaction />
+        
         <Router>
 
           <Switch>
+          
+            <Route path="/transform">
+              <Transaction />
+            </Route>
             <Route path="/profile">
               <Clients id={this.state.id} fullName={this.state.fullName} email={this.state.email} phone={this.state.phone} login={this.state.login}/>
             </Route>
             <Route path="/home">
               <Intros />
+              <Aboutus />
+              <Services />
+              <Team />
+              <Contact />
             </Route>
             <Route path="/">
               <Intros />
+              <Aboutus />
+              <Services />
+              <Team />
+              <Contact />
             </Route>
           </Switch>
         </Router>
-        <Aboutus />
-        <Services />
-        <Team />
-        <Contact />
-        {/* <Footer />  */}
+        
+        <Footer /> 
       </div>
     );
   }

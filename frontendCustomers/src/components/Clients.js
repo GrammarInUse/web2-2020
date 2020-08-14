@@ -143,16 +143,7 @@ export default class Clients extends Component {
                     <div className="row">
                         <div className="col-md-4">
                             <div className="profile-work">
-                                <p>WORK LINK</p>
-                                <a href="#">Website Link</a><br />
-                                <a href="#">Bootsnipp Profile</a><br />
-                                <a href="#">Bootply Profile</a>
-                                <p>SKILLS</p>
-                                <a href="#">Web Designer</a><br />
-                                <a href="#">Web Developer</a><br />
-                                <a href="#">WordPress</a><br />
-                                <a href="#">WooCommerce</a><br />
-                                <a href="#">Nodejs, React</a><br />
+                                <a href="/transform" className="btn btn-primary">Transform</a>
                             </div>
                         </div>
                         <div className="col-md-8">
