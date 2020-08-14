@@ -14,6 +14,7 @@ import Team from './components/Team';
 import HamburberButton from './components/HamburberButton';
 import Contact from './components/Contact';
 import Transaction from './components/Transaction';
+import History from './components/History';
 
 
 class App extends Component {
@@ -82,7 +83,12 @@ class App extends Component {
       <div className="App">
         <HamburberButton />
         <NavMenu />
+<<<<<<< HEAD
         
+=======
+        <History />
+        <Transaction />
+>>>>>>> 05032e341cc36eed5829d2bd6d4545c9c507c8e4
         <Router>
 
           <Switch>
