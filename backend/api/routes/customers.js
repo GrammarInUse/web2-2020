@@ -111,7 +111,7 @@ router.post("/signup", async (req, res) => {
     });
 
 
-    const url = "http://localhost:8080/customers/signup/" + tempUser.id + "/" + tempUser.verifyToken;
+    const url = "http://localhost:8080/customers/signup/" + tempUser.get().id + "/" + tempUser.get().verifyToken;
     const mailOptions = {
         from:"hlb0932055041@gmail.com",
         to: tempUser.email,
