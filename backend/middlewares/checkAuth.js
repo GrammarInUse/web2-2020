@@ -5,6 +5,8 @@ module.exports = (req, res, next) => {
         const bearerHeader = req.headers['authorization'];
         console.log(bearerHeader);
         jwt.verify(bearerHeader, "mySecret", async (err, data) => {
+            //console.log("DATAAAAAAAAAAAAA:");
+            //console.log(data);
             if(err){
                 return res.status(404).json({
                     userMessage: "You haven't logged in... sorry about that!",
@@ -17,8 +19,12 @@ module.exports = (req, res, next) => {
                     username
                 }
             });
-            if(currentUser.length>=1 && currentUser[0].password === data.password){
+            if(currentUser.length>=1 && currentUser[0].password === data.password && currentUser[0].username === data.username){
                 next();
+            }else{
+                res.status(401).json({
+                    message: "You haven't logged in... sorry about that!!!"
+                });
             }
         });
     }
