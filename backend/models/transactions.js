@@ -29,6 +29,10 @@ Transactions.init({
         allowNull: false,
         defaultValue: "Gửi không có nội dung gì cả!!"
     },
+    deposit: {
+        type: sequelize.BIGINT,
+        allowNull: false
+    },  
     sender: {
         type: sequelize.TEXT,
         references: {
