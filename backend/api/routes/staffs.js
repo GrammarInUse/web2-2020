@@ -265,16 +265,16 @@ router.put("/:id/verify/:customID/:handle", async (req, res) => {
 
 router.get("/verify", async (req, res) => {
   try {
-    const listAccount = await Accounts.findAll({
-      attributes: ["id", "isBlocked", "isVerified"],
-      where: {
-        isVerified: 0,
-        accountType: 1,
-      },
+    const listAccount = await informationUser.findAll({
+      attributes: ["fullName"],
       include: [
         {
-          model: informationUser,
-          attributes: ["fullName", "dOB", "sex", "phone"],
+          model: Accounts,
+          attributes: ["id", "isBlocked", "isVerified"],
+          where: {
+            isVerified: 0,
+            accountType: 1,
+          },
         },
       ],
     });
@@ -332,15 +332,15 @@ router.get("/spend-account", async (req, res) => {
 
 router.get("/find-user", async (req, res) => {
   try {
-    const listAccount = await Accounts.findAll({
-      attributes: ["id", "username", "email","accountType" ,"isBlocked", "isVerified"],
-      where: {
-        accountType: 1,
-      },
+    const listAccount = await informationUser.findAll({
+      attributes: ["fullName", "dOB", "sex", "phone", "accountId"],
       include: [
         {
-          model: informationUser,
-          attributes: ["fullName", "dOB", "sex", "phone", "accountId"],
+          model: Accounts,
+          attributes: ["id", "username", "email","accountType" ,"isBlocked", "isVerified"],
+          where: {
+            accountType: 1,
+          },
         },
       ],
     });
@@ -360,4 +360,5 @@ router.get("/find-user", async (req, res) => {
     throw err;
   }
 });
+
 module.exports = router;
