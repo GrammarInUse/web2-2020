@@ -7,106 +7,252 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const db = require("../../models/db");
 const { Op } = require("sequelize");
-const { isNull } = require("util");
 const Send = require("../../services/send-email");
 const Transactions = require("../../models/transactions");
+const generator = require("generate-password");
 
 router.get("/", async (req, res) => {
-  const CustomerList = await Staffs.findAll();
+  try {
+    const listStaff = await Staffs.findAll();
 
-  res.status(300).json({
-    listOfCustomers: CustomerList,
-  });
-});
-
-router.post("/addStaff", async (req, res) => {
-  const id = Date.now().toString();
-  const email = req.body.email;
-  const password = await bcrypt.hash(req.body.password, 10);
-  const accountType = 2;
-  let username = new Date().getFullYear().toString().substring(2);
-  const count = (await Accounts.count()) + 1;
-
-  console.log(count);
-  if (count < 10) {
-    username += "00" + count;
-  } else if (count < 100) {
-    username += "0" + count;
-  } else {
-    username += count;
-  }
-
-  await Accounts.create({
-    id,
-    username,
-    email,
-    password,
-    accountType,
-  })
-    .then((account) => {
-      res.status(201).json({
+    if (listStaff.length > 0) {
+      res.status(200).json({
         result: "ok",
-        data: { account },
-        message: "Successfully created an account!",
+        data: listStaff,
       });
-    })
-    .catch((err) => {
-      res.status(400).json({
+    } else {
+      res.status(200).json({
         result: "failed",
         data: {},
-        message: `Something went wrong when you create an account! ${err}`,
       });
-    });
-
-  const accountId = id;
-  const fullname = req.body.name;
-  const position = req.body.position;
-  const salary = req.body.salary;
-  let decentralizationId = req.body.role === true ? 1 : 2;
-
-  await Staffs.create({
-    accountId,
-    fullname,
-    position,
-    salary,
-    decentralizationId,
-  })
-    .then((staff) => {
-      if (staff !== null) {
-        console.log("Successfully!");
-      }
-    })
-    .catch((err) => {
-      console.log(`Something went wrong when you create an staff! ${err}`);
-    });
+    }
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 });
 
-router.put("/verify", async (req, res) => {
-  const { id, handle } = req.query;
+router.put("/:id/addStaff", async (req, res) => {
+  const id = req.params.id;
   try {
-    const account = await Accounts.findByPk(id);
-    if (handle === true) {
-      if (account) {
-        account.isVerified = 1;
-        await account.save();
+    const role = await Staffs.findByPk(id);
+    if (role.decentralizationId === 2) {
+      const id = Date.now().toString();
+      const email = req.body.email;
+      const generatePassword = generator.generate({
+        length: 10,
+        numbers: true,
+        uppercase: false,
+      });
+      const accountType = 2;
+      let username = new Date().getFullYear().toString().substring(2);
+      const count = (await Accounts.count()) + 1;
 
-        res.status(200).json({
-          message: "VerifyToken of Account is successfully!",
-          data: account,
-        });
+      if (count < 10) {
+        username += "00" + count;
+      } else if (count < 100) {
+        username += "0" + count;
       } else {
-        res.status(404).json({
-          message: "Account not exists!",
+        username += count;
+      }
+
+      const password = await bcrypt.hash(generatePassword, 10);
+
+      await Accounts.create({
+        id,
+        username,
+        email,
+        password,
+        accountType,
+      })
+        .then((account) => {
+          res.status(201).json({
+            result: "ok",
+            data: { account },
+            message: "Successfully created an account!",
+          });
+        })
+        .catch((err) => {
+          res.status(400).json({
+            result: "failed",
+            data: {},
+            message: `Something went wrong when you create an account! ${err}`,
+          });
         });
+
+      const accountId = id;
+      const fullname = req.body.name;
+      const position = req.body.position;
+      const salary = req.body.salary;
+      let decentralizationId = req.body.role === true ? 1 : 2;
+
+      await Staffs.create({
+        accountId,
+        fullname,
+        position,
+        salary,
+        decentralizationId,
+      })
+        .then((staff) => {
+          if (staff !== null) {
+            console.log("Successfully!");
+          }
+        })
+        .catch((err) => {
+          console.log(`Something went wrong when you create an staff! ${err}`);
+        });
+    } else {
+      res.status(400).json({
+        result: "failed",
+        message: "This's beyond your authority!",
+      });
+      return;
+    }
+  } catch (err) {
+    throw err;
+  }
+});
+
+router.post("/:id/updateStaff/:staffID", async (req, res) => {
+  const id = req.params.id;
+  try {
+    const role = await Staffs.findByPk(id);
+
+    if (role.decentralizationId === 2) {
+      const { name, position, salary, role } = req.body;
+      await Staffs.findByPk(req.params.staffID)
+        .then(async (staff) => {
+          staff.fullname = name;
+          staff.position = position;
+          staff.salary = salary;
+          if (role === true) {
+            staff.decentralizationId = 1;
+          } else {
+            staff.decentralizationId = 2;
+          }
+
+          await staff.save();
+
+          res.status(200).json({
+            result: "ok",
+            data: staff,
+          });
+        })
+        .catch((err) => {
+          res.status(400).json({
+            result: "failed",
+            error: err,
+          });
+        });
+    } else {
+      res.status(400).json({
+        result: "failed",
+        message: "This's beyond your authority!",
+      });
+      return;
+    }
+  } catch (err) {
+    throw err;
+  }
+});
+
+router.post("/:id/blockAccount/:staffID/:handle", async (req, res) => {
+  const { id, staffID} = req.params;
+  const handle = req.params.handle === 'true' ? true : false;
+  try {
+    const role = await Staffs.findByPk(id);
+
+    if (role.decentralizationId === 2) {
+      const account = await Accounts.findByPk(staffID);
+
+      if (handle) {
+        if (account !== null) {
+          account.isBlocked = true;
+
+          await account.save();
+
+          res.status(200).json({
+            result: "ok",
+            message: "Account is blocked successfully!",
+          });
+        }
+      } else {
+        if (account !== null) {
+          account.isBlocked = false;
+
+          await account.save();
+
+          res.status(200).json({
+            result: "ok",
+            message: "Account is unblocked successfully!",
+          });
+        }
       }
     } else {
-      const mailOptions = {
-        from: "hlb0932055041@gmail.com",
-        to: account.email,
-        subject: "Nontifications of Images of identity card",
-        text: "Your Images of identity card is invalid!",
-      };
-      Send(mailOptions);
+      res.status(400).json({
+        result: "failed",
+        message: "This's beyond your authority!",
+      });
+      return;
+    }
+  } catch (err) {
+    throw err;
+  }
+});
+router.put("/:id/verify/:customID/:handle", async (req, res) => {
+  const { id, customID} = req.params;
+  const handle = req.params.handle === 'true' ? true : false;
+  try {
+    const role = await Staffs.findByPk(id);
+
+    if (role.decentralizationId === 2) {
+      const account = await Accounts.findByPk(customID);
+      if (handle) {
+        if (account) {
+          account.isVerified = 1;
+          await account.save();
+
+          res.status(200).json({
+            result: "ok",
+            message: "VerifyToken of Account is successfully!",
+            data: account,
+          });
+        } else {
+          res.status(404).json({
+            result: "failed",
+            message: "Account not exists!",
+          });
+        }
+      } else {
+        if (account) {
+          account.isVerified = -1;
+          await account.save();
+
+          const mailOptions = {
+            from: "hlb0932055041@gmail.com",
+            to: account.email,
+            subject: "Nontifications of Images of identity card",
+            text: "Your Images of identity card is invalid!",
+          };
+          Send(mailOptions);
+
+          res.status(200).json({
+            result: "failed",
+            message: "VerifyToken of Account is not legally!",
+          });
+        } else {
+          res.status(404).json({
+            result: "failed",
+            message: "Account not exists!",
+          });
+        }
+      }
+    } else {
+      res.status(400).json({
+        result: "failed",
+        message: "This's beyond your authority!",
+      });
+      return;
     }
   } catch (err) {
     res.status(400).json({
@@ -152,15 +298,15 @@ router.get("/listAccount", async (req, res) => {
 router.get("/transaction", async (req, res) => {
   const { start, end } = req.body;
 
-  const curStart = new Date(start).toISOString()
+  const curStart = new Date(start).toISOString();
   const curEnd = new Date(end).toISOString();
 
-  console.log(curStart)
+  console.log(curStart);
   try {
     const listTransaction = await Transactions.findAll({
       where: {
         dOT: {
-          [Op.between]: [curStart,curEnd],
+          [Op.between]: [curStart, curEnd],
         },
       },
     });
@@ -179,7 +325,7 @@ router.get("/transaction", async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err)
+    console.log(err);
     throw err;
   }
 });
