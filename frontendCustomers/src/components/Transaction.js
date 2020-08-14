@@ -6,7 +6,7 @@ export default class Transaction extends Component {
         this.state ={
             id:"",
             cOT:"1",
-            sender:"",
+            sender:"1597394565675",
             receiver:"1760371",
             comment:"",
             status:"123"
@@ -19,9 +19,11 @@ export default class Transaction extends Component {
     }
     submitHandler = (e) => {
         e.preventDefault();
-        const token = JSON.parse(localStorage.getItem("login")).token;
-        const url = "http://localhost:8080/customers/chuyentien";
-        const optionFetch ={
+        const store = JSON.parse(localStorage.getItem("login"));
+        if(store && store.login){
+            const token = store.token;
+            const url = "http://localhost:8080/customers/chuyentien";
+            const optionFetch ={
             method: "POST",
             header:{
                 "Accept":"application/json",
@@ -42,12 +44,15 @@ export default class Transaction extends Component {
         }).catch((err)=>{
             alert (err)
         })
+        }
+        else 
+            console.log("abc");
+        
     }
     render() {
-        console.log(this.state.status)
         return (
             <div className="container emp-profile">
-                <form>
+                <form onSubmit={this.submitHandler}>
                     <div className="row">
                         <div>
                         <table className="table-form">
@@ -113,7 +118,7 @@ export default class Transaction extends Component {
                             </tr>
                             <tr>
                                 <td className="center">
-                                <input type="hidden" name="dse_nextEventName" defaultValue id="dse_nextEventName" /> <input name="button" type="button" className="nut1 button-blue" id="button" defaultValue="Đồng ý" onclick="dosubmit('ok');" /> <input name="button2" type="button" className="nut1 button-white" id="button2" defaultValue="Hủy" onclick="dosubmit('cancel');" /></td>
+                                <input type="hidden" name="dse_nextEventName" defaultValue id="dse_nextEventName" /> <input name="button" type="submit" className="nut1 button-blue" id="button" defaultValue="Đồng ý" onclick="dosubmit('ok');" /> <input name="button2" type="button" className="nut1 button-white" id="button2" defaultValue="Hủy" onclick="dosubmit('cancel');" /></td>
                             </tr>
                             <tr>
                                 <td colSpan={2}>
