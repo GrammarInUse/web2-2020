@@ -11,8 +11,35 @@ const Send = require("../../services/send-email");
 const checkAuth = require("../../middlewares/checkAuth");
 const { isNullOrUndefined, isNumber } = require("util");
 const Transactions = require("../../models/transactions");
+const InformationUsers = require("../../models/information-user");
 
 //CUSTOMER API
+router.post("/verifyCode", async (req, res) => {
+    const tempCode = crypto.randomBytes(6).toString('hex').toUpperCase();
+    const id = req.body.id;
+    const tempAccount = await Accounts.findByPk(id);
+    tempAccount.verifyCode = tempCode;
+    tempAccount.save()
+    .then(async () => {
+        const mailOptions = {
+            from:"hlb0932055041@gmail.com",
+            to: tempAccount.email,
+            subject: "Mã xác thực S-Ebanking",
+            text: 'Mã xác thực của bạn là: ' + tempCode
+        }
+        await Send(mailOptions);
+        return res.status(200).json({
+            userMessage: "Nhận mã xác thực trong email! Vui lòng kiểm tra và xác thực việc chuyển khoản!",
+        })
+    })
+    .catch((err) => {
+        return res.status(201).json({
+            userMessage: "Có lỗi trong lúc giao dịch, vui lòng thử lại sau!"
+        })
+    });
+
+})
+
 router.post("/signup", async (req, res) => {
     const id = Date.now().toString();
     const username = req.body.username;
@@ -169,8 +196,6 @@ router.post("/login", async (req, res) => {
 router.get("/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await CustomerInfo.findByPk(id);
-    console.log("++++++++++++++++++++");
-    console.log(findingCustomer);
     const findingAccount = await Accounts.findByPk(id);
 
 
@@ -269,21 +294,19 @@ router.post("/chuyentien", checkAuth, async (req, res) => {
     const id = Date.now().toString();
     const idOfSender = req.body.sender;
     const coinOfTransferRaw = req.body.cOT;
+    const verifyCode = req.body.verifyCode;
+    console.log(verifyCode);
     const sender = await Services.findAll({
         where: {
             accountId: idOfSender
         }
     });
-    console.log(sender);
     const accountOfSender = await Accounts.findByPk(idOfSender);
-    console.log(accountOfSender || "DELL THAY");
     const receiver = await Services.findAll({
         where: {
             accountId: req.body.receiver
         }
     });
-    console.log(receiver);
-
     if(isNaN(coinOfTransferRaw)){
         return res.status(404).json({
             userMessage: "Tien sai dinh dang"
@@ -291,11 +314,8 @@ router.post("/chuyentien", checkAuth, async (req, res) => {
     }
 
     const coinOfTransfer = parseInt(coinOfTransferRaw);
-    console.log(coinOfTransfer);
     const comment = req.body.comment;
-    console.log(comment);
     const passwordCheck = await bcrypt.compare(req.body.password, accountOfSender.password);
-    console.log(passwordCheck);
     if(!passwordCheck){
         return res.status(404).json({
             userMessage: "The password doesn't match!!!"
@@ -305,7 +325,7 @@ router.post("/chuyentien", checkAuth, async (req, res) => {
     const time = new Date(Date.now()).toLocaleString();
     const date = new Date(Date.now()).toLocaleDateString();
 
-    if(sender.length>=1 && receiver.length>=1 && isNumber(coinOfTransfer)){
+    if(sender.length>=1 && receiver.length>=1 && isNumber(coinOfTransfer) && verifyCode === accountOfSender.verifyCode){
         sender[0].balance = parseInt(sender[0].balance) - coinOfTransfer;
         receiver[0].balance = parseInt(receiver[0].balance) + coinOfTransfer;
         const statusOfSending = await sender[0].save();
@@ -360,11 +380,56 @@ router.post("/chuyentien", checkAuth, async (req, res) => {
         
     }else{
         res.status(404).json({
-            userMessage: "FAILED AT SOMETHING"
-        });
+            userMessage: "Mã xác thực không đúng, vui lòng thực hiện lại giao dịch!"
+        })
     }
 })
 
+router.get("/history/:id", checkAuth, async (req, res) => {
+    const id = req.params.id;
+    const tempTrans = await Transactions.findAll({
+        where: {
+            sender: id
+        }
+    });
+    const listOfTrans = [];
+    const data = {
+
+    }
+
+    if(tempTrans.length >= 1){
+        tempTrans.map((element) => {
+            let temp = element.get();
+            data.id = temp.id;
+            data.date = temp.dOT.toLocaleDateString();
+            data.time = temp.dOT.toLocaleTimeString();
+            data.receiverId = temp.receiver;
+            data.receiver = temp.receiver;
+            data.deposit = temp.deposit;
+            console.log(temp.status);
+            if(temp.status === 1){
+                data.status = "Sending...";
+            }else if(temp.status === 2){
+                data.status = "Sent"
+            }else if(temp.status === 3){
+                data.status = "Cancelled";
+            }else{
+                data.status = "Loading...";
+            }
+            data.content = temp.content;
+            listOfTrans.push(data);
+        })
+
+        return res.status(200).json({
+            userMessage: "SUCCESSFULLY FETCH ACTIVITY",
+            listOfTrans
+        })
+    }else{
+        return res.status(404).json({
+            userMessage: "FAILED TO FETCH ACTIVITY"
+        })
+    }
+})
 
 
 module.exports = router;

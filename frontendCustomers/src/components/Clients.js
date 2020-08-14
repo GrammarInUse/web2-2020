@@ -143,7 +143,9 @@ export default class Clients extends Component {
                     <div className="row">
                         <div className="col-md-4">
                             <div className="profile-work">
-                                <a href="/transform" className="btn btn-primary">Transform</a>
+                                <a href="/transform" className="btn btn-primary">Transfers</a>
+                                <br /> 
+                                <a href="/activity-log" className="btn btn-primary">Activity Log</a>
                             </div>
                         </div>
                         <div className="col-md-8">

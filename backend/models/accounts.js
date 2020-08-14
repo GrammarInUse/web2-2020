@@ -47,6 +47,10 @@ Accounts.init({
         type: sequelize.INTEGER,
         defaultValue: 0,
         allowNull: false
+    },
+    verifyCode: {
+        type: sequelize.TEXT,
+        allowNull: true
     }
 },{
     sequelize: db,

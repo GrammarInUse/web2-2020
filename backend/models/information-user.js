@@ -4,7 +4,11 @@ const Model = sequelize.Model;
 
 const Accounts = require("./accounts");
 
-class InformationUsers extends Model{ }
+class InformationUsers extends Model{
+    static async getName(id){
+        return id + "SANG";
+    }
+}
 
 InformationUsers.init({
     fullName: {

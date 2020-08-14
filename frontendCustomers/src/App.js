@@ -76,25 +76,25 @@ class App extends Component {
 
   componentDidMount(){
     this.storeCurrentUserCollector();
+
+    setTimeout(() => {
+      localStorage.removeItem("login");
+      window.location.reload();
+    }, 20000)
   }
 
   render(){
     return (
       <div className="App">
         <HamburberButton />
-        <NavMenu />
-<<<<<<< HEAD
-        
-=======
-        <History />
-        <Transaction />
->>>>>>> 05032e341cc36eed5829d2bd6d4545c9c507c8e4
+        <NavMenu />      
         <Router>
-
           <Switch>
-          
             <Route path="/transform">
               <Transaction />
+            </Route>
+            <Route path="/activity-log">
+              <History />
             </Route>
             <Route path="/profile">
               <Clients id={this.state.id} fullName={this.state.fullName} email={this.state.email} phone={this.state.phone} login={this.state.login}/>
@@ -115,7 +115,6 @@ class App extends Component {
             </Route>
           </Switch>
         </Router>
-        
         <Footer /> 
       </div>
     );
