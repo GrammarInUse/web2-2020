@@ -10,7 +10,8 @@ export default class Transaction extends Component {
             receiver:"1597397211824",
             comment:"",
             status:"123",
-            password:""
+            password: "",
+            NameOfReceiver:""
         }
     }
     changeHandler = (e) => {
@@ -50,6 +51,29 @@ export default class Transaction extends Component {
             console.log("abc");
         
     }
+    checkHandler = (e) =>{
+        e.preventDefault();
+        const a = document.getElementById("Amount")
+        const store = JSON.parse(localStorage.getItem("login"))
+        const token = store.token
+        const url = "http://localhost:8080/customers/" + this.state.receiver;
+        const opFench={
+            method: "GET",
+            headers:{
+                "Accept":"application/json",
+                "Content-type":"application/json"
+            }
+        }
+        fetch(url,opFench).then((response) =>{
+            response.json().then((result)=>{
+                this.setState({
+                    NameOfReceiver : result.customer.fullName
+                }, () => {
+                    a.innerHTML=this.state.NameOfReceiver
+                })
+            })
+        })
+    }
     render() {
         return (
             <div className="container emp-profile">
@@ -82,7 +106,7 @@ export default class Transaction extends Component {
                                     <tr>
                                         <td className="caption">Tài Khoản TH</td>
                                         <td><input type="text" name="receiver" defaultValue size={30} id="" onkeypress="return isNumberKey(event);" onChange={this.changeHandler} maxLength={18} /></td>
-                                        <input onClick={this.displayEditFormHandler} type="button" className="profile-edit-btn" name="btnAddMore" value="Check" />
+                                        <input onClick={this.checkHandler} type="button" className="profile-edit-btn" name="btnAddMore" value="Check" />
                                         <td><input disabled type="text" name="NameOfReceiver" defaultValue size={30} id="Amount" onkeypress="return isNumberKey(event);" onChange={this.changeHandler} maxLength={18} /></td>
                                     </tr>
                                     </tbody>
@@ -111,7 +135,7 @@ export default class Transaction extends Component {
                                     <table>
                                     <tbody><tr>
                                 <td className="caption">Nhập lại MK</td>
-                                <td><input type="text" name="receiver" defaultValue size={30} id="" onkeypress="return isNumberKey(event);" onChange={this.changeHandler} maxLength={18} /></td>
+                                <td><input type="text" name="password" defaultValue size={30} id="" onkeypress="return isNumberKey(event);" onChange={this.changeHandler} maxLength={18} /></td>
                             </tr>
                                     </tbody></table>
                                 </div>

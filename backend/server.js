@@ -13,6 +13,7 @@ const Staffs = require("./models/staffs");
 const TransactionStatus = require("./models/transaction-status");
 const Transactions = require("./models/transactions");
 
+
 const app = express();
 
 const customerRoutes = require("./api/routes/customers");
@@ -66,7 +67,8 @@ app.use((error, req, res, next) => {
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
-    console.log(`You are listening at port: ${port}`);
+    var test = null;
+    console.log(`${test} have type is ${typeof(test)} You are listening at port: ${port}`);
 });
 
 /**

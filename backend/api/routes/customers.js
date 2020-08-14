@@ -111,7 +111,7 @@ router.post("/signup", async (req, res) => {
     });
 
 
-    const url = "http://localhost:8080/customers/signup/" + tempUser.id + "/" + tempUser.verifyToken;
+    const url = "http://localhost:8080/customers/signup/" + tempUser.get().id + "/" + tempUser.get().verifyToken;
     const mailOptions = {
         from:"hlb0932055041@gmail.com",
         to: tempUser.email,
@@ -265,13 +265,16 @@ router.get("/signup/:id/:verifyToken", async (req, res) => {
 
 router.post("/chuyentien", checkAuth, async (req, res) => {
     const id = Date.now().toString();
+    const idOfSender = req.body.sender;
+    console.log(idOfSender);
     const sender = await Services.findAll({
         where: {
-            accountId: req.body.sender
+            accountId: idOfSender
         }
     });
     console.log(sender);
-    const accountOfSender = await Accounts.findByPk(req.body.sender);
+    const accountOfSender = await Accounts.findByPk(idOfSender);
+    console.log(accountOfSender || "DELL THAY");
     const receiver = await Services.findAll({
         where: {
             accountId: req.body.receiver
