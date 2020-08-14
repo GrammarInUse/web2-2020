@@ -223,13 +223,7 @@ export default class NavMenu extends Component {
                                         onSubmit={this.submitSignupHandler}
                                     >
                                         <div className="imgcontainer">
-                                        <span
-                                        onClick={this.closeForm}
-                                            className="close"
-                                            title="Close Modal"
-                                        >
-                                            ×
-                                        </span>
+                                        <span onClick={() => document.getElementById('id02').style.display='none'} className="close" title="Close Modal">×</span>
                                         <img
                                             src="img/clients/client-1.png"
                                             alt="Avatar"
@@ -358,14 +352,7 @@ export default class NavMenu extends Component {
                                         className="container row"
                                         style={{ backgroundColor: "#f1f1f1" }}
                                         >
-                                        <button
-                                            className="col-4"
-                                            type="button"
-                                            onClick={this.closeForm}
-                                            className="cancelbtn"
-                                        >
-                                            Cancel
-                                        </button>
+                                        <button type="button" onClick={() => document.getElementById('id02').style.display='none'} className="cancelbtn">Cancel</button>
                                         <span className="psw col-8">
                                             Forgot{" "}
                                             <a style={{ color: "black" }} href="#">
