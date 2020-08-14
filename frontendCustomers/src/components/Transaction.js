@@ -6,10 +6,11 @@ export default class Transaction extends Component {
         this.state ={
             id:"",
             cOT:"1",
-            sender:"1597394565675",
-            receiver:"1760371",
+            sender:"1597397139260",
+            receiver:"1597397211824",
             comment:"",
-            status:"123"
+            status:"123",
+            password:""
         }
     }
     changeHandler = (e) => {
@@ -25,7 +26,7 @@ export default class Transaction extends Component {
             const url = "http://localhost:8080/customers/chuyentien";
             const optionFetch ={
             method: "POST",
-            header:{
+            headers:{
                 "Accept":"application/json",
                 "Content-type":"application/json",
                 "Authorization":token
