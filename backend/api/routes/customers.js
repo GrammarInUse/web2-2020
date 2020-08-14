@@ -111,7 +111,7 @@ router.post("/signup", async (req, res) => {
     });
 
 
-    const url = "http://localhost:8080/customers/signup/" + tempUser.id + "/" + tempUser.verifyToken;
+    const url = "http://localhost:8080/customers/signup/" + tempUser.get().id + "/" + tempUser.get().verifyToken;
     const mailOptions = {
         from:"hlb0932055041@gmail.com",
         to: tempUser.email,
@@ -265,27 +265,51 @@ router.get("/signup/:id/:verifyToken", async (req, res) => {
 
 router.post("/chuyentien", checkAuth, async (req, res) => {
     const id = Date.now().toString();
-    const sender = await Services.findByPk(req.body.sender);
-    const receiver = await Services.findByPk(req.body.receiver);
+    const idOfSender = req.body.sender;
+    console.log(idOfSender);
+    const sender = await Services.findAll({
+        where: {
+            accountId: idOfSender
+        }
+    });
+    console.log(sender);
+    const accountOfSender = await Accounts.findByPk(idOfSender);
+    console.log(accountOfSender || "DELL THAY");
+    const receiver = await Services.findAll({
+        where: {
+            accountId: req.body.receiver
+        }
+    });
+    console.log(receiver);
     const coinOfTransfer = parseInt(req.body.cOT);
-    const comment = req.body.comment;
     console.log(coinOfTransfer);
-    const time = new Date(Date.now()).toLocaleTimeString();
+    const comment = req.body.comment;
+    console.log(comment);
+    const passwordCheck = await bcrypt.compare(req.body.password, accountOfSender.password);
+    console.log(passwordCheck);
+    if(!passwordCheck){
+        return res.status(404).json({
+            userMessage: "The password doesn't match!!!"
+        });
+    }
+
+    const time = new Date(Date.now()).toLocaleString();
     const date = new Date(Date.now()).toLocaleDateString();
 
-    if(sender && receiver && isNumber(coinOfTransfer)){
-        sender.balance = parseInt(sender.balance) - coinOfTransfer;
-        receiver.balance = parseInt(receiver.balance) + coinOfTransfer;
-        const statusOfSending = await sender.save();
-        const statusOfReceiving = await receiver.save();
+    if(sender.length>=1 && receiver.length>=1 && isNumber(coinOfTransfer)){
+        sender[0].balance = parseInt(sender[0].balance) - coinOfTransfer;
+        receiver[0].balance = parseInt(receiver[0].balance) + coinOfTransfer;
+        const statusOfSending = await sender[0].save();
+        const statusOfReceiving = await receiver[0].save();
 
         const temp = await Transactions.create({
             id,
-            dOT: Date.now(),
+            dOT: time,
             status: 1,
             content: comment, 
-            sender: sender.accountId,
-            receiver: receiver.accountId
+            deposit: coinOfTransfer,
+            sender: sender[0].accountId,
+            receiver: receiver[0].accountId
         })
         .then((data) => {
             data.status = 2;
@@ -305,20 +329,23 @@ router.post("/chuyentien", checkAuth, async (req, res) => {
             
         })
         .catch((err) => {
-            data.status = 3;
-            data.save()
-            .then(() => {
-                res.status(200).json({
-                    userMessage: "DONE",
-                    data
-                });
+            res.status(404).json({
+                error: err
             })
-            .catch((err) => {
-                res.status(404).json({
-                    userMessage: "LOI CATCH TEMP",
-                    error: err
-                });
-            });
+            // data.status = 3;
+            // data.save()
+            // .then(() => {
+            //     res.status(200).json({
+            //         userMessage: "DONE",
+            //         data
+            //     });
+            // })
+            // .catch((err) => {
+            //     res.status(404).json({
+            //         userMessage: "LOI CATCH TEMP",
+            //         error: err
+            //     });
+            // });
         });
 
         

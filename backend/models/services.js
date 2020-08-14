@@ -39,6 +39,7 @@ Services.init({
     accountId: {
         type: sequelize.TEXT,
         allowNull: false,
+        unique: true,
         references: {
             key: "id",
             model: Accounts
