@@ -13,6 +13,7 @@ import Services from './components/Services';
 import Team from './components/Team';
 import HamburberButton from './components/HamburberButton';
 import Contact from './components/Contact';
+import Transaction from './components/Transaction';
 
 
 class App extends Component {
@@ -81,8 +82,9 @@ class App extends Component {
       <div className="App">
         <HamburberButton />
         <NavMenu />
-
+        <Transaction />
         <Router>
+
           <Switch>
             <Route path="/profile">
               <Clients id={this.state.id} fullName={this.state.fullName} email={this.state.email} phone={this.state.phone} login={this.state.login}/>
