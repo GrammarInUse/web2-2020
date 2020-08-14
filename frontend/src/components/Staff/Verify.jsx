@@ -81,7 +81,7 @@ class Verify extends PureComponent {
       data = { isVerified: -1 };
     }
     api
-      .put(`./verify/${id}`, data)
+      .put(`./verifyHandle/${id}`, data)
       .then((res) => {})
       .catch((err) => {
         alert(err + "");

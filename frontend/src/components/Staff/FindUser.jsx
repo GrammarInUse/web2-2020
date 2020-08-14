@@ -11,7 +11,7 @@ export default class FindUser extends Component {
   }
   getAll = async () => {
     api
-      .get("/user/")
+      .get("/find-user/")
       .then(({ data }) => {
         this.setState({
           listUser: data,
