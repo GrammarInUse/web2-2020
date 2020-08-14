@@ -26,7 +26,7 @@ class StaffManager extends Component {
   }
 
   getAll = async () => {
-    let staffs = await api.get("/test/").then(({ data }) => data);
+    let staffs = await api.get("/listStaff/").then(({ data }) => data);
 
     this.setState({
       staffs,
@@ -37,7 +37,7 @@ class StaffManager extends Component {
     const staff = this.state.staffs[index];
     let { staffs } = this.state;
     api
-      .put(`test/${id}`, { isLock: !staff.isLock })
+      .put(`blockAccount/${id}`, { isLock: !staff.isLock })
       .then((res) => {
         console.log(res.data);
       })

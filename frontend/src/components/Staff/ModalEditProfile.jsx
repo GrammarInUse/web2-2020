@@ -83,7 +83,7 @@ class ModalEditProfile extends PureComponent {
   createStaff = async () => {
     let { name, position, email, salary, role } = this.state;
     let data = { name, position, email, salary, role, isLock: false };
-    let staff = await api.post("/test/", data).then((res) => {
+    let staff = await api.post("/addStaff/", data).then((res) => {
       this.props.onGetAll();
     });
     return staff;
@@ -92,7 +92,7 @@ class ModalEditProfile extends PureComponent {
     let { name, position, salary, role } = this.state;
     let data = { name, position, salary, role };
     let staff = await api
-      .put(`/test/${this.state.id}`, data)
+      .put(`/editStaff/${this.state.id}`, data)
       .then((res) => {
         console.log(res.status);
         this.props.onGetAll();
