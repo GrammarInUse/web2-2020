@@ -15,6 +15,7 @@ import HamburberButton from './components/HamburberButton';
 import Contact from './components/Contact';
 import Transaction from './components/Transaction';
 import History from './components/History';
+import Verify from './components/Verify';
 
 
 class App extends Component {
@@ -80,7 +81,7 @@ class App extends Component {
     setTimeout(() => {
       localStorage.removeItem("login");
       window.location.reload();
-    }, 20000)
+    }, 60000)
   }
 
   render(){
@@ -95,6 +96,9 @@ class App extends Component {
             </Route>
             <Route path="/activity-log">
               <History />
+            </Route>
+            <Route path="/">
+              <Verify />
             </Route>
             <Route path="/profile">
               <Clients id={this.state.id} fullName={this.state.fullName} email={this.state.email} phone={this.state.phone} login={this.state.login}/>
