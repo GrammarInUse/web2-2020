@@ -4,12 +4,67 @@ const Staffs = require("../../models/staffs");
 const informationUser = require("../../models/information-user");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const crypto = require("crypto");
-const db = require("../../models/db");
 const { Op } = require("sequelize");
 const Send = require("../../services/send-email");
 const Transactions = require("../../models/transactions");
 const generator = require("generate-password");
+const jwt = require("jsonwebtoken");
+const checkAuth = require("../../middlewares/checkAuth");
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+router.post("/login",checkAuth.loginAccountLimiter, async (req, res) => {
+  try {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    const tempStaff = await Accounts.findOne({
+      where: {
+        username: username,
+      },
+    });
+    if (tempStaff) {
+      const passwordAuth = await bcrypt.compare(password, tempStaff.password);
+
+      if (!passwordAuth) {
+        res.status(200).json({
+          message: "Wrong password!",
+        });
+      } else if (passwordAuth) {
+        if (tempStaff.accountType === 2) {
+          jwt.sign(
+            { id: tempStaff.id },
+            process.env.SECRET_KEY,
+            { expiresIn: "1h" },
+            (err, token) => {
+              if (err) {
+                console.log(err);
+              } else {
+                res.status(200).json({
+                  result: "ok",
+                  data: { tempStaff, token },
+                });
+              }
+            }
+          );
+        }else{
+          return res.status(400).json({
+            result:"failed",
+            message:"Sorry You are not an admin!"
+          })
+        }
+      }
+    } else {
+      res.status(401).json({
+        error: "Login failed! Check authentication credentials",
+        data: {},
+      });
+    }
+  } catch (error) {
+    res.status(400).json({ error });
+  }
+});
 
 router.get("/listStaff", async (req, res) => {
   try {
@@ -32,228 +87,215 @@ router.get("/listStaff", async (req, res) => {
   }
 });
 
-router.put("/:id/addStaff", async (req, res) => {
-  const id = req.params.id;
+router.post("/addStaff",checkAuth.checkAuthStaff, async (req, res) => {
+  const { decentralizationId } = req.user;
+  if (decentralizationId !== 2) {
+    return res.status(400).json({
+      result: "failed",
+      error: "Sorry You are unauthorized to make a manager",
+    });
+  }
   try {
-    const role = await Staffs.findByPk(id);
-    if (role.decentralizationId === 2) {
-      const id = Date.now().toString();
-      const email = req.body.email;
-      const generatePassword = generator.generate({
-        length: 10,
-        numbers: true,
-        uppercase: false,
-      });
-      const accountType = 2;
-      let username = new Date().getFullYear().toString().substring(2);
-      const count = (await Accounts.count()) + 1;
+    const id = Date.now().toString();
+    const email = req.body.email;
+    const generatePassword = generator.generate({
+      length: 10,
+      numbers: true,
+      uppercase: false,
+    });
+    const accountType = 2;
+    let username = new Date().getFullYear().toString().substring(2);
+    const count = (await Accounts.count()) + 1;
 
-      if (count < 10) {
-        username += "00" + count;
-      } else if (count < 100) {
-        username += "0" + count;
-      } else {
-        username += count;
-      }
+    if (count < 10) {
+      username += "00" + count;
+    } else if (count < 100) {
+      username += "0" + count;
+    } else {
+      username += count;
+    }
 
-      const password = await bcrypt.hash(generatePassword, 10);
+    const password = await bcrypt.hash(generatePassword, 10);
 
-      await Accounts.create({
-        id,
-        username,
-        email,
-        password,
-        accountType,
+    await Accounts.create({
+      id,
+      username,
+      email,
+      password,
+      accountType,
+    })
+      .then((account) => {
+        res.status(201).json({
+          result: "ok",
+          data: { account },
+          message: "Successfully created an account!",
+        });
       })
-        .then((account) => {
-          res.status(201).json({
-            result: "ok",
-            data: { account },
-            message: "Successfully created an account!",
-          });
-        })
-        .catch((err) => {
-          res.status(400).json({
-            result: "failed",
-            data: {},
-            message: `Something went wrong when you create an account! ${err}`,
-          });
+      .catch((err) => {
+        res.status(400).json({
+          result: "failed",
+          data: {},
+          message: `Something went wrong when you create an account! ${err}`,
         });
+      });
 
-      const accountId = id;
-      const fullname = req.body.name;
-      const position = req.body.position;
-      const salary = req.body.salary;
-      let decentralizationId = req.body.role === true ? 1 : 2;
+    const accountId = id;
+    const fullname = req.body.name;
+    const position = req.body.position;
+    const salary = req.body.salary;
+    let decentralizationId = req.body.role === true ? 1 : 2;
 
-      await Staffs.create({
-        accountId,
-        fullname,
-        position,
-        salary,
-        decentralizationId,
+    await Staffs.create({
+      accountId,
+      fullname,
+      position,
+      salary,
+      decentralizationId,
+    })
+      .then((staff) => {
+        if (staff !== null) {
+          console.log("Successfully!");
+        }
       })
-        .then((staff) => {
-          if (staff !== null) {
-            console.log("Successfully!");
-          }
-        })
-        .catch((err) => {
-          console.log(`Something went wrong when you create an staff! ${err}`);
-        });
-    } else {
-      res.status(400).json({
-        result: "failed",
-        message: "This's beyond your authority!",
+      .catch((err) => {
+        console.log(`Something went wrong when you create an staff! ${err}`);
       });
-      return;
-    }
   } catch (err) {
     throw err;
   }
 });
 
-router.post("/:id/updateStaff/:staffID", async (req, res) => {
-  const id = req.params.id;
+router.put("/editStaff/:id", checkAuth.checkAuthStaff, async (req, res) => {
+  const { decentralizationId } = req.user;
+  if (decentralizationId !== 2) {
+    return res.status(400).json({
+      result: "failed",
+      error: "Sorry You are unauthorized to make a staff a manager",
+    });
+  }
   try {
-    const role = await Staffs.findByPk(id);
+    const { name, position, salary, role } = req.body;
+    await Staffs.findByPk(req.params.id)
+      .then(async (staff) => {
+        staff.fullname = name;
+        staff.position = position;
+        staff.salary = salary;
+        if (role === true) {
+          staff.decentralizationId = 1;
+        } else {
+          staff.decentralizationId = 2;
+        }
 
-    if (role.decentralizationId === 2) {
-      const { name, position, salary, role } = req.body;
-      await Staffs.findByPk(req.params.staffID)
-        .then(async (staff) => {
-          staff.fullname = name;
-          staff.position = position;
-          staff.salary = salary;
-          if (role === true) {
-            staff.decentralizationId = 1;
-          } else {
-            staff.decentralizationId = 2;
-          }
+        await staff.save();
 
-          await staff.save();
-
-          res.status(200).json({
-            result: "ok",
-            data: staff,
-          });
-        })
-        .catch((err) => {
-          res.status(400).json({
-            result: "failed",
-            error: err,
-          });
+        res.status(200).json({
+          result: "ok",
+          data: staff,
         });
-    } else {
-      res.status(400).json({
-        result: "failed",
-        message: "This's beyond your authority!",
+      })
+      .catch((err) => {
+        res.status(400).json({
+          result: "failed",
+          error: err,
+        });
       });
-      return;
-    }
   } catch (err) {
     throw err;
   }
 });
 
-router.post("/:id/blockAccount/:staffID/:handle", async (req, res) => {
-  const { id, staffID } = req.params;
-  const handle = req.params.handle === "true" ? true : false;
+router.put("/blockAccount/:id", checkAuth.checkAuthStaff, async (req, res) => {
+  const { decentralizationId } = req.user;
+  if (decentralizationId !== 2) {
+    return res.status(400).json({
+      result: "failed",
+      error: "Sorry You are unauthorized to make a manager",
+    });
+  }
   try {
-    const role = await Staffs.findByPk(id);
+    const handle = req.body.data;
+    const id = req.params.id;
+    const account = await Accounts.findByPk(id);
 
-    if (role.decentralizationId === 2) {
-      const account = await Accounts.findByPk(staffID);
+    if (handle) {
+      if (account !== null) {
+        account.isBlocked = true;
 
-      if (handle) {
-        if (account !== null) {
-          account.isBlocked = true;
+        await account.save();
 
-          await account.save();
-
-          res.status(200).json({
-            result: "ok",
-            message: "Account is blocked successfully!",
-          });
-        }
-      } else {
-        if (account !== null) {
-          account.isBlocked = false;
-
-          await account.save();
-
-          res.status(200).json({
-            result: "ok",
-            message: "Account is unblocked successfully!",
-          });
-        }
+        res.status(200).json({
+          result: "ok",
+          message: "Account is blocked successfully!",
+        });
       }
     } else {
-      res.status(400).json({
-        result: "failed",
-        message: "This's beyond your authority!",
-      });
-      return;
+      if (account !== null) {
+        account.isBlocked = false;
+
+        await account.save();
+
+        res.status(200).json({
+          result: "ok",
+          message: "Account not exists!",
+        });
+      }
     }
   } catch (err) {
     throw err;
   }
 });
 
-router.put("/:id/verify/:customID/:handle", async (req, res) => {
-  const { id, customID } = req.params;
-  const handle = req.params.handle === "true" ? true : false;
+router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
+  const { decentralizationId } = req.user;
+  if (decentralizationId !== 2) {
+    return res.status(400).json({
+      result: "failed",
+      error: "Sorry You are unauthorized to make a manager",
+    });
+  }
   try {
-    const role = await Staffs.findByPk(id);
+    const id = req.params.id;
+    const handle = req.body.data;
+    const account = await Accounts.findByPk(id);
+    if (handle) {
+      if (account) {
+        account.isVerified = 1;
+        await account.save();
 
-    if (role.decentralizationId === 2) {
-      const account = await Accounts.findByPk(customID);
-      if (handle) {
-        if (account) {
-          account.isVerified = 1;
-          await account.save();
-
-          res.status(200).json({
-            result: "ok",
-            message: "VerifyToken of Account is successfully!",
-            data: account,
-          });
-        } else {
-          res.status(404).json({
-            result: "failed",
-            message: "Account not exists!",
-          });
-        }
+        res.status(200).json({
+          result: "ok",
+          message: "VerifyToken of Account is successfully!",
+          data: account,
+        });
       } else {
-        if (account) {
-          account.isVerified = -1;
-          await account.save();
-
-          const mailOptions = {
-            from: "hlb0932055041@gmail.com",
-            to: account.email,
-            subject: "Nontifications of Images of identity card",
-            text: "Your Images of identity card is invalid!",
-          };
-          Send(mailOptions);
-
-          res.status(200).json({
-            result: "failed",
-            message: "VerifyToken of Account is not legally!",
-          });
-        } else {
-          res.status(404).json({
-            result: "failed",
-            message: "Account not exists!",
-          });
-        }
+        res.status(404).json({
+          result: "failed",
+          message: "Account not exists!",
+        });
       }
     } else {
-      res.status(400).json({
-        result: "failed",
-        message: "This's beyond your authority!",
-      });
-      return;
+      if (account) {
+        account.isVerified = -1;
+        await account.save();
+
+        const mailOptions = {
+          from: "hlb0932055041@gmail.com",
+          to: account.email,
+          subject: "Nontifications of Images of identity card",
+          text: "Your Images of identity card is invalid!",
+        };
+        Send(mailOptions);
+
+        res.status(200).json({
+          result: "failed",
+          message: "VerifyToken of Account is not legally!",
+        });
+      } else {
+        res.status(404).json({
+          result: "failed",
+          message: "Account not exists!",
+        });
+      }
     }
   } catch (err) {
     res.status(400).json({
@@ -263,9 +305,9 @@ router.put("/:id/verify/:customID/:handle", async (req, res) => {
   }
 });
 
-router.get("/verify", async (req, res) => {
+router.put("/listCustomer", async (req, res) => {
   try {
-    const listAccount = await informationUser.findAll({
+    const listCustomer = await informationUser.findAll({
       attributes: ["fullName"],
       include: [
         {
@@ -279,10 +321,10 @@ router.get("/verify", async (req, res) => {
       ],
     });
 
-    if (listAccount.length > 0) {
+    if (listCustomer.length > 0) {
       return res.status(200).json({
         result: "Ok",
-        data: listAccount,
+        data: listCustomer,
       });
     } else {
       return res.status(200).json({
@@ -337,7 +379,14 @@ router.get("/find-user", async (req, res) => {
       include: [
         {
           model: Accounts,
-          attributes: ["id", "username", "email","accountType" ,"isBlocked", "isVerified"],
+          attributes: [
+            "id",
+            "username",
+            "email",
+            "accountType",
+            "isBlocked",
+            "isVerified",
+          ],
           where: {
             accountType: 1,
           },

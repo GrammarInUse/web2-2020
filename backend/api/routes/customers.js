@@ -193,7 +193,7 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.get("/:id", checkAuth, async (req, res) => {
+router.get("/:id", checkAuth.checkAuthCustomer, async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await CustomerInfo.findByPk(id);
     const findingAccount = await Accounts.findByPk(id);
@@ -211,7 +211,7 @@ router.get("/:id", checkAuth, async (req, res) => {
     });
 });
 
-router.patch("/profile/:id", checkAuth, async (req, res) => {
+router.patch("/profile/:id", checkAuth.checkAuthCustomer, async (req, res) => {
     const id = req.params.id;
     const newFullName = req.body.fullName;
     const newPhone = req.body.phone;
@@ -246,7 +246,7 @@ router.patch("/profile/:id", checkAuth, async (req, res) => {
     });
 });
 
-router.patch("/password/:id", checkAuth, async (req, res) => {
+router.patch("/password/:id", checkAuth.checkAuthCustomer, async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await Accounts.findByPk(id);
     const newPassword = await bcrypt.hash(req.body.password, 10);
@@ -290,7 +290,7 @@ router.get("/signup/:id/:verifyToken", async (req, res) => {
     }
 });
 
-router.post("/chuyentien", checkAuth, async (req, res) => {
+router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
     const id = Date.now().toString();
     const idOfSender = req.body.sender;
     const coinOfTransferRaw = req.body.cOT;
@@ -385,7 +385,7 @@ router.post("/chuyentien", checkAuth, async (req, res) => {
     }
 })
 
-router.get("/history/:id", checkAuth, async (req, res) => {
+router.get("/history/:id", checkAuth.checkAuthCustomer, async (req, res) => {
     const id = req.params.id;
     const tempTrans = await Transactions.findAll({
         where: {

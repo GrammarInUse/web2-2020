@@ -1,6 +1,10 @@
 const express = require("express");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
+const helmet = require('helmet');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const CurrencyUnits = require("./models/currency-unit");
 const AccountTypes = require("./models/account-types");
@@ -33,6 +37,7 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(helmet());
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -65,7 +70,7 @@ app.use((error, req, res, next) => {
     });
 });
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT;
 app.listen(port, () => {
     var test = null;
     console.log(`${test} have type is ${typeof(test)} You are listening at port: ${port}`);
