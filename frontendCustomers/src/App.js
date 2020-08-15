@@ -97,7 +97,7 @@ class App extends Component {
             <Route path="/activity-log">
               <History />
             </Route>
-            <Route path="/">
+            <Route path="/verify-id">
               <Verify />
             </Route>
             <Route path="/profile">
