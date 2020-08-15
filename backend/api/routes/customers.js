@@ -383,7 +383,7 @@ router.post("/chuyentien", checkAuth, async (req, res) => {
             userMessage: "Mã xác thực không đúng, vui lòng thực hiện lại giao dịch!"
         })
     }
-})
+});
 
 router.get("/history/:id", checkAuth, async (req, res) => {
     const id = req.params.id;
@@ -429,7 +429,16 @@ router.get("/history/:id", checkAuth, async (req, res) => {
             userMessage: "FAILED TO FETCH ACTIVITY"
         })
     }
-})
+});
 
+router.post("/upload", (req, res) => {
+    req.on("data", (data, err) => {
+        if(err){
+            return res.status(404).json({
+                userMessage: "FAILED"
+            });
+        }
+    })
+});
 
 module.exports = router;

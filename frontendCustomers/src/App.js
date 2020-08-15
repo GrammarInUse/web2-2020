@@ -15,6 +15,7 @@ import HamburberButton from './components/HamburberButton';
 import Contact from './components/Contact';
 import Transaction from './components/Transaction';
 import History from './components/History';
+import Upload from './components/Upload';
 
 
 class App extends Component {
@@ -80,7 +81,7 @@ class App extends Component {
     setTimeout(() => {
       localStorage.removeItem("login");
       window.location.reload();
-    }, 20000)
+    }, 5 * 60 * 1000)
   }
 
   render(){
@@ -88,6 +89,7 @@ class App extends Component {
       <div className="App">
         <HamburberButton />
         <NavMenu />      
+        <Upload />
         <Router>
           <Switch>
             <Route path="/transform">
