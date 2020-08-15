@@ -43,5 +43,6 @@ Staffs.init({
 });
 
 Staffs.belongsTo(Decentralizations,{foreignKey: "decentralizationId"});
+Staffs.belongsTo(Accounts,{foreignKey: "accountId"});
 
 module.exports = Staffs;

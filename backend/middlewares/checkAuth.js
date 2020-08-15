@@ -1,37 +1,84 @@
 const Accounts = require("../models/accounts");
-const jwt = require("jsonwebtoken")
-module.exports = (req, res, next) => {
-    try{
-        const bearerHeader = req.headers['authorization'];
-        console.log(bearerHeader);
-        jwt.verify(bearerHeader, "mySecret", async (err, data) => {
-            //console.log("DATAAAAAAAAAAAAA:");
-            //console.log(data);
-            if(err){
-                return res.status(404).json({
-                    userMessage: "You haven't logged in... sorry about that!",
-                    error: err
-                })
-            }
-            const username = data.username;
-            const currentUser = await Accounts.findAll({
-                where: {
-                    username
-                }
-            });
-            if(currentUser.length>=1 && currentUser[0].password === data.password && currentUser[0].username === data.username){
-                next();
-            }else{
-                res.status(401).json({
-                    message: "You haven't logged in... sorry about that!!!"
-                });
-            }
+const jwt = require("jsonwebtoken");
+const Staffs = require("../models/staffs");
+const dotenv = require('dotenv');
+const rateLimit = require('express-rate-limit');
+
+dotenv.config();
+
+const apiKey = process.env.SECRET_KEY;
+
+
+const checkAuthCustomer = (req, res, next) => {
+  try {
+    const bearerHeader = req.headers["authorization"];
+    console.log(bearerHeader);
+    jwt.verify(bearerHeader,apiKey , async (err, data) => {
+      //console.log("DATAAAAAAAAAAAAA:");
+      //console.log(data);
+      if (err) {
+        return res.status(404).json({
+          userMessage: "You haven't logged in... sorry about that!",
+          error: err,
         });
-    }
-    catch(error){
-        console.log("Something went wrong when you verify token! " + error);
+      }
+      const username = data.username;
+      const currentUser = await Accounts.findAll({
+        where: {
+          username,
+        },
+      });
+      if (
+        currentUser.length >= 1 &&
+        currentUser[0].password === data.password &&
+        currentUser[0].username === data.username
+      ) {
+        next();
+      } else {
         res.status(401).json({
-            message: "You haven't logged in... sorry about that!"
+          message: "You haven't logged in... sorry about that!!!",
         });
+      }
+    });
+  } catch (error) {
+    console.log("Something went wrong when you verify token! " + error);
+    res.status(401).json({
+      message: "You haven't logged in... sorry about that!",
+    });
+  }
+};
+
+const checkAuthStaff = async (req, res, next) => {
+  const token = req.headers["authorization"].split(' ')[1];
+  if (!token) {
+    return res.status(400).json({ error: "Token not provided" });
+  }
+  try {
+    const decoded = jwt.verify(token.toString(), apiKey);
+
+    const staff = await Staffs.findByPk(decoded.id);
+    if (staff) {
+      req.user = {
+        id: staff.accountId,
+        decentralizationId: staff.decentralizationId,
+      };
+      next();
     }
-}
+  } catch (error) {
+    res.status(401).json({ error: "Authentication Failed ! " + error });
+  }
+};
+
+const loginAccountLimiter = rateLimit({
+  // 1 hour window
+    windowMs: 60 * 60 * 1000, 
+  // start blocking after 5 requests
+    max: 5, 
+    message: "Too many accounts login from this IP, please try again after an hour"
+  });
+
+module.exports = {
+  checkAuthCustomer,
+  checkAuthStaff,
+  loginAccountLimiter
+};

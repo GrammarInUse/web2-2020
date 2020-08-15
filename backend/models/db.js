@@ -1,7 +1,9 @@
 const sequelize = require("sequelize");
+const dotenv = require('dotenv');
 
+dotenv.config();
 
-const connectionString = process.env.DATABASE_URL || "postgres://postgres:Taolatao0@localhost:5432/InternetBanking";
+const connectionString = process.env.DATABASE_URL;
 
 const db = new sequelize(connectionString);
 
