@@ -3,6 +3,9 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const helmet = require('helmet');
 const dotenv = require('dotenv');
+const UploadFile = require("express-fileupload");
+const cors = require("cors");
+
 
 dotenv.config();
 
@@ -19,6 +22,7 @@ const Transactions = require("./models/transactions");
 
 
 const app = express();
+app.use(cors());
 
 const customerRoutes = require("./api/routes/customers");
 const staffRoutes = require("./api/routes/staffs");

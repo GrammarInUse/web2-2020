@@ -1,5 +1,9 @@
 const express = require("express");
 const fs = require("fs");
+const path = require("path");
+const sharp = require("sharp");
+const moveFile = require("move-file");
+
 const Accounts = require("../../models/accounts");
 const Services = require("../../models/services");
 const CustomerInfo = require("../../models/information-user");
@@ -39,6 +43,80 @@ router.post("/verifyCode", async (req, res) => {
     });
 
 })
+
+router.post("/getImages", async (req, res) => {
+    const currentUser = req.body.currentUser;
+
+    const tempPath = path.join(__dirname, "../../public/images/PhotosOfId" + currentUser, "frontSideIdentify.jpg");
+    console.log(tempPath);
+
+    const temp = fs.readFileSync(tempPath);
+    const k = await sharp({
+        create: {
+            width: 300,
+            height: 300,
+            channels: 4,
+            background: { r: 255, g: 0, b: 0, alpha: 0.5 }
+        },
+        buffer: temp
+    })
+    .png()
+    .toBuffer();
+
+    console.log(k);
+
+    // const a = await sharp(temp)
+    // .resize(300, 300)
+    // console.log(a);
+
+    res.status(200).json({
+        userMessage: "DONE",
+        data: temp
+    })
+})
+
+router.post("/upload/:id", async (req, res) => {   
+    const currentUser = req.params.id;
+    console.log(currentUser);
+    let promise = () => new Promise((resolve, rejects) => {
+        let temp = [];
+        req.on("data", (data, err) => {
+            if(err){
+                return rejects(err);
+            }else{
+                console.log(data);
+                temp.push(data);
+                console.log("I am here");
+            }
+        });
+
+        return resolve(temp);
+    });
+    const tempArr = await promise();
+    console.log("HERE");
+    console.log(tempArr[0]);
+    console.log(req.headers.currentUser);
+
+    // sharp(tempArr[0]).metadata()
+    // .then((value, err) => {
+    //     if(err) console.log(err);
+    //     else{
+    //         console.log(value);
+    //     }
+    // });
+
+    fs.writeFile('./public/images/PhotosOfId' + currentUser + '/frontSideIdentify.jpg', tempArr[0], function(err, written){
+        if(err) console.log(err);
+        else {
+            console.log("Successfully written");
+            console.log(written);
+        }
+     });
+
+    res.status(200).json({
+        userMessage: "Successfully written"
+    })
+});
 
 router.post("/signup", async (req, res) => {
     const id = Date.now().toString();
@@ -94,6 +172,9 @@ router.post("/signup", async (req, res) => {
                 password,
                 verifyToken
             }).then(() => {
+                fs.mkdir("./public/PhotosOfId" + id, () => {
+                    console.log("SUCCESSFULLY CREATED FOLDER FOR USER:")
+                })
                 console.log("Succesfully created a account");
             })
             .catch((err) => {
@@ -431,14 +512,6 @@ router.get("/history/:id", checkAuth.checkAuthCustomer, async (req, res) => {
     }
 });
 
-router.post("/upload", (req, res) => {
-    req.on("data", (data, err) => {
-        if(err){
-            return res.status(404).json({
-                userMessage: "FAILED"
-            });
-        }
-    })
-});
+
 
 module.exports = router;
