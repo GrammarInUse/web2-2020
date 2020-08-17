@@ -68,7 +68,17 @@ router.post("/login",checkAuth.loginAccountLimiter, async (req, res) => {
 
 router.get("/listStaff", async (req, res) => {
   try {
-    const listStaff = await Staffs.findAll();
+    const listStaff = await Staffs.findAll({
+      include:[
+        {
+          model: Accounts,
+          attributes: ["email"],
+          where: {
+            accountType: 2
+          }
+        }
+      ]
+    });
 
     if (listStaff.length > 0) {
       res.status(200).json({
@@ -213,7 +223,7 @@ router.put("/blockAccount/:id", checkAuth.checkAuthStaff, async (req, res) => {
     });
   }
   try {
-    const handle = req.body.data;
+    const handle = req.body.data === 'true' ? true : false;
     const id = req.params.id;
     const account = await Accounts.findByPk(id);
 
@@ -236,11 +246,15 @@ router.put("/blockAccount/:id", checkAuth.checkAuthStaff, async (req, res) => {
 
         res.status(200).json({
           result: "ok",
-          message: "Account not exists!",
+          message: "Account is unblocked successfully!",
         });
       }
     }
   } catch (err) {
+    res.status(400).json({
+      result: "failed",
+      message: err,
+    });
     throw err;
   }
 });
@@ -257,7 +271,7 @@ router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
     const id = req.params.id;
     const handle = req.body.data;
     const account = await Accounts.findByPk(id);
-    if (handle) {
+    if (handle === 1) {
       if (account) {
         account.isVerified = 1;
         await account.save();
@@ -287,8 +301,8 @@ router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
         Send(mailOptions);
 
         res.status(200).json({
-          result: "failed",
-          message: "VerifyToken of Account is not legally!",
+          result: "ok",
+          message: "Your Images of identity card is invalid!",
         });
       } else {
         res.status(404).json({
