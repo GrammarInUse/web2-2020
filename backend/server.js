@@ -19,6 +19,7 @@ const Decentralizations = require("./models/Decentralizations");
 const Staffs = require("./models/staffs");
 const TransactionStatus = require("./models/transaction-status");
 const Transactions = require("./models/transactions");
+const IdentityCard = require("./models/identity-card");
 
 
 const app = express();

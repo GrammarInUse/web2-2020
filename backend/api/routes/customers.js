@@ -51,24 +51,6 @@ router.post("/getImages", async (req, res) => {
     console.log(tempPath);
 
     const temp = fs.readFileSync(tempPath);
-    const k = await sharp({
-        create: {
-            width: 300,
-            height: 300,
-            channels: 4,
-            background: { r: 255, g: 0, b: 0, alpha: 0.5 }
-        },
-        buffer: temp
-    })
-    .png()
-    .toBuffer();
-
-    console.log(k);
-
-    // const a = await sharp(temp)
-    // .resize(300, 300)
-    // console.log(a);
-
     res.status(200).json({
         userMessage: "DONE",
         data: temp
