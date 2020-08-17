@@ -146,6 +146,8 @@ export default class Clients extends Component {
                                 <a href="/transform" className="btn btn-primary">Transfers</a>
                                 <br /> 
                                 <a href="/activity-log" className="btn btn-primary">Activity Log</a>
+                                <br />
+                                <a href="/verify-id" className="btn btn-primary">Identity Card</a>
                             </div>
                         </div>
                         <div className="col-md-8">
