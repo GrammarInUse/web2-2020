@@ -15,12 +15,7 @@ import HamburberButton from './components/HamburberButton';
 import Contact from './components/Contact';
 import Transaction from './components/Transaction';
 import History from './components/History';
-<<<<<<< HEAD
-import Upload from './components/Upload';
-=======
 import Verify from './components/Verify';
->>>>>>> 1994330855fdc5d950bdc488fdd7e838bc5fb447
-
 
 class App extends Component {
   constructor(props) {
@@ -85,11 +80,7 @@ class App extends Component {
     setTimeout(() => {
       localStorage.removeItem("login");
       window.location.reload();
-<<<<<<< HEAD
     }, 5 * 60 * 1000)
-=======
-    }, 60000)
->>>>>>> 1994330855fdc5d950bdc488fdd7e838bc5fb447
   }
 
   render(){
@@ -97,7 +88,7 @@ class App extends Component {
       <div className="App">
         <HamburberButton />
         <NavMenu />      
-        <Upload />
+        <Verify />
         <Router>
           <Switch>
             <Route path="/transform">

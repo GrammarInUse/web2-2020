@@ -1,9 +1,6 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const sharp = require("sharp");
-const moveFile = require("move-file");
-
 const Accounts = require("../../models/accounts");
 const Services = require("../../models/services");
 const CustomerInfo = require("../../models/information-user");
@@ -46,8 +43,10 @@ router.post("/verifyCode", async (req, res) => {
 
 router.post("/getImages", async (req, res) => {
     const currentUser = req.body.currentUser;
+    const nameOfPhoto = req.body.nameOfPhoto;
+    console.log(nameOfPhoto);
 
-    const tempPath = path.join(__dirname, "../../public/images/PhotosOfId" + currentUser, "frontSideIdentify.jpg");
+    const tempPath = path.join(__dirname, "../../public/images/PhotosOfId" + currentUser, nameOfPhoto + ".jpg");
     console.log(tempPath);
 
     const temp = fs.readFileSync(tempPath);
@@ -57,45 +56,52 @@ router.post("/getImages", async (req, res) => {
     })
 })
 
-router.post("/upload/:id", async (req, res) => {   
+router.post("/upload/:nameOfPhoto/:id", async (req, res) => {   
     const currentUser = req.params.id;
+    const nameOfPhoto = req.params.nameOfPhoto;
+    console.log("STEP 1");
     console.log(currentUser);
+    console.log(nameOfPhoto);
+
     let promise = () => new Promise((resolve, rejects) => {
         let temp = [];
         req.on("data", (data, err) => {
             if(err){
                 return rejects(err);
             }else{
+                console.log("----------I am here---------");
                 console.log(data);
                 temp.push(data);
-                console.log("I am here");
+                console.log("----------------------------");
             }
         });
-
         return resolve(temp);
     });
-    const tempArr = await promise();
-    console.log("HERE");
-    console.log(tempArr[0]);
-    console.log(req.headers.currentUser);
-
-    // sharp(tempArr[0]).metadata()
-    // .then((value, err) => {
-    //     if(err) console.log(err);
-    //     else{
-    //         console.log(value);
-    //     }
-    // });
-
-    fs.writeFile('./public/images/PhotosOfId' + currentUser + '/frontSideIdentify.jpg', tempArr[0], function(err, written){
-        if(err) console.log(err);
-        else {
-            console.log("Successfully written");
-            console.log(written);
-        }
-     });
-
-    res.status(200).json({
+    let moveFile = (file) => new Promise((resolve, rejects) => {
+        fs.writeFile('./public/images/PhotosOfId' + currentUser + '/' + nameOfPhoto + '.jpg', file, (err, info) => {
+            if(err) return rejects(err);
+            else{
+                return resolve(info);
+            }
+        });
+    });
+    console.log("STEP 2");
+    await promise()
+    .then(async (data) => {
+        console.log("STEP 3");     
+        console.log(data[0]);
+        moveFile(data[0])
+        .then(() => {
+            console.log("FINAL STEP: ");
+        })
+        .catch((err) => {
+            console.error(err);
+        });     
+    })
+    .catch((err) => {
+        console.error(err);
+    });
+    return res.status(200).json({
         userMessage: "Successfully written"
     })
 });
