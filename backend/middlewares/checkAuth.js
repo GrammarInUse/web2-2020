@@ -3,10 +3,11 @@ const jwt = require("jsonwebtoken");
 const Staffs = require("../models/staffs");
 const dotenv = require('dotenv');
 const rateLimit = require('express-rate-limit');
+const { SECRET_KEY } = require("../configs/config");
 
 dotenv.config();
 
-const apiKey = process.env.SECRET_KEY;
+const apiKey = SECRET_KEY;
 
 
 const checkAuthCustomer = (req, res, next) => {

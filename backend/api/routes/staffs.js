@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const Accounts = require("../../models/accounts");
 const Staffs = require("../../models/staffs");
@@ -9,9 +10,6 @@ const Send = require("../../services/send-email");
 const generator = require("generate-password");
 const jwt = require("jsonwebtoken");
 const checkAuth = require("../../middlewares/checkAuth");
-const dotenv = require("dotenv");
-
-dotenv.config();
 
 router.post("/login", checkAuth.loginAccountLimiter, async (req, res) => {
   try {
