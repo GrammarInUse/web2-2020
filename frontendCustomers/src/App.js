@@ -17,7 +17,6 @@ import Transaction from './components/Transaction';
 import History from './components/History';
 import Verify from './components/Verify';
 
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -81,7 +80,7 @@ class App extends Component {
     setTimeout(() => {
       localStorage.removeItem("login");
       window.location.reload();
-    }, 60000)
+    }, 5 * 60 * 1000)
   }
 
   render(){
@@ -89,6 +88,7 @@ class App extends Component {
       <div className="App">
         <HamburberButton />
         <NavMenu />      
+        <Verify />
         <Router>
           <Switch>
             <Route path="/transform">

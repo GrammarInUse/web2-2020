@@ -1,4 +1,5 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import Upload from './Upload';
 
 export default class Verify extends Component {
     constructor(props){
@@ -15,44 +16,18 @@ export default class Verify extends Component {
                 <form>
                     <div className="row">
                         <div className="col-md-4">
-                            <div className="profile-img">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog" alt="Avatar" />
-                                <div className="file btn btn-lg btn-primary">
-                                Change Photo
-                                <input type="file" name="file" />
-                                </div>
-                            </div>
+                            <Upload nameOfPhoto="frontSideIdentify" />
                         </div>
-                        <div>
-                        <table className="table-form">
-                            <tbody>
-                            <tr>
-                                <td className="white_tieude">
-                                    Chứng minh dân dân mặt trước
-                                </td>
-                            </tr>
-                            </tbody></table>
+                        <div className="col-md-4">
+                            Chứng minh nhân dân mặt trước
                         </div>
                     </div>
                     <div className="row">
                         <div className="col-md-4">
-                                <div className="profile-img">
-                                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog" alt="Avatar" />
-                                    <div className="file btn btn-lg btn-primary">
-                                    Change Photo
-                                    <input type="file" name="file" />
-                                </div>
-                            </div>
+                            <Upload nameOfPhoto="backSideIdentify" />
                         </div>
-                        <div>
-                        <table className="table-form">
-                            <tbody>
-                            <tr>
-                                <td className="white_tieude">
-                                    Chứng minh dân dân mặt sau
-                                </td>
-                            </tr>
-                            </tbody></table>
+                        <div className="col-md-4">
+                            Chứng minh nhân dân mặt sau
                         </div>
                     </div>
                     <div className="form">
