@@ -6,15 +6,14 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
 const Send = require("../../services/send-email");
-const Transactions = require("../../models/transactions");
 const generator = require("generate-password");
 const jwt = require("jsonwebtoken");
 const checkAuth = require("../../middlewares/checkAuth");
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 
 dotenv.config();
 
-router.post("/login",checkAuth.loginAccountLimiter, async (req, res) => {
+router.post("/login", checkAuth.loginAccountLimiter, async (req, res) => {
   try {
     const username = req.body.username;
     const password = req.body.password;
@@ -48,11 +47,11 @@ router.post("/login",checkAuth.loginAccountLimiter, async (req, res) => {
               }
             }
           );
-        }else{
+        } else {
           return res.status(400).json({
-            result:"failed",
-            message:"Sorry You are not an admin!"
-          })
+            result: "failed",
+            message: "Sorry You are not an admin!",
+          });
         }
       }
     } else {
@@ -69,15 +68,15 @@ router.post("/login",checkAuth.loginAccountLimiter, async (req, res) => {
 router.get("/listStaff", async (req, res) => {
   try {
     const listStaff = await Staffs.findAll({
-      include:[
+      include: [
         {
           model: Accounts,
           attributes: ["email"],
           where: {
-            accountType: 2
-          }
-        }
-      ]
+            accountType: 2,
+          },
+        },
+      ],
     });
 
     if (listStaff.length > 0) {
@@ -97,7 +96,7 @@ router.get("/listStaff", async (req, res) => {
   }
 });
 
-router.post("/addStaff",checkAuth.checkAuthStaff, async (req, res) => {
+router.post("/addStaff", checkAuth.checkAuthStaff, async (req, res) => {
   const { decentralizationId } = req.user;
   if (decentralizationId !== 2) {
     return res.status(400).json({
@@ -135,6 +134,15 @@ router.post("/addStaff",checkAuth.checkAuthStaff, async (req, res) => {
       accountType,
     })
       .then((account) => {
+        const mailOptions = {
+          from: "hlb0932055041@gmail.com",
+          to: account.email,
+          subject: "Your username and password!",
+          text: `Your account:
+            username: ${account.username}
+            password: ${generatePassword}
+          `,
+        };
         res.status(201).json({
           result: "ok",
           data: { account },
@@ -223,7 +231,7 @@ router.put("/blockAccount/:id", checkAuth.checkAuthStaff, async (req, res) => {
     });
   }
   try {
-    const handle = req.body.data === 'true' ? true : false;
+    const handle = req.body.data === "true" ? true : false;
     const id = req.params.id;
     const account = await Accounts.findByPk(id);
 
@@ -319,7 +327,7 @@ router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
   }
 });
 
-router.put("/listCustomer", async (req, res) => {
+router.get("/listCustomer", async (req, res) => {
   try {
     const listCustomer = await informationUser.findAll({
       attributes: ["fullName"],
@@ -351,42 +359,49 @@ router.put("/listCustomer", async (req, res) => {
   }
 });
 
-router.get("/spend-account", async (req, res) => {
-  const { start, end } = req.body;
+// router.get("/spend-account", async (req, res) => {
+//   const { start, end } = req.body;
 
-  const curStart = new Date(start).toISOString();
-  const curEnd = new Date(end).toISOString();
+//   const curStart = new Date(start).toISOString();
+//   const curEnd = new Date(end).toISOString();
 
-  console.log(curStart);
-  try {
-    const listTransaction = await Transactions.findAll({
-      where: {
-        dOT: {
-          [Op.between]: [curStart, curEnd],
-        },
-      },
+//   console.log(curStart);
+//   try {
+//     const listTransaction = await Transactions.findAll({
+//       where: {
+//         dOT: {
+//           [Op.between]: [curStart, curEnd],
+//         },
+//       },
+//     });
+
+//     if (listTransaction.length > 0) {
+//       res.status(200).json({
+//         result: "ok",
+//         data: listTransaction,
+//         message: "Finding history of transactions is Successfully!",
+//       });
+//     } else {
+//       res.status(200).json({
+//         result: "failed",
+//         data: {},
+//         message: "history of transactions is empty!",
+//       });
+//     }
+//   } catch (err) {
+//     console.log(err);
+//     throw err;
+//   }
+// });
+
+router.get("/find-user",checkAuth.checkAuthStaff, async (req, res) => {
+  const { decentralizationId } = req.user;
+  if (decentralizationId !== 2) {
+    return res.status(400).json({
+      result: "failed",
+      error: "Sorry You are unauthorized to make a manager",
     });
-
-    if (listTransaction.length > 0) {
-      res.status(200).json({
-        result: "ok",
-        data: listTransaction,
-        message: "Finding history of transactions is Successfully!",
-      });
-    } else {
-      res.status(200).json({
-        result: "failed",
-        data: {},
-        message: "history of transactions is empty!",
-      });
-    }
-  } catch (err) {
-    console.log(err);
-    throw err;
   }
-});
-
-router.get("/find-user", async (req, res) => {
   try {
     const listAccount = await informationUser.findAll({
       attributes: ["fullName", "dOB", "sex", "phone", "accountId"],
@@ -422,6 +437,6 @@ router.get("/find-user", async (req, res) => {
   } catch (err) {
     throw err;
   }
-});
+}); 
 
 module.exports = router;

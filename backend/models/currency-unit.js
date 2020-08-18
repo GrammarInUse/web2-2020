@@ -6,7 +6,6 @@ const db = require("./db");
 class CurrencyUnits extends Model{
     static async initialize() {
         await CurrencyUnits.create({
-            id: 1,
             name: "VND"
         })
         .then(console.log("Successfully Initialized a currency unit"))
@@ -15,7 +14,6 @@ class CurrencyUnits extends Model{
         });
 
         await CurrencyUnits.create({
-            id: 2,
             name: "$"
         })
         .then(console.log("Successfully Initialized a currency unit"))
@@ -28,6 +26,7 @@ class CurrencyUnits extends Model{
 CurrencyUnits.init({
     id: {
         type: sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true
     },
     name: {
