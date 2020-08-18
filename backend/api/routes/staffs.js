@@ -10,58 +10,61 @@ const Send = require("../../services/send-email");
 const generator = require("generate-password");
 const jwt = require("jsonwebtoken");
 const checkAuth = require("../../middlewares/checkAuth");
+const ServiceTypes = require("../../models/service-types");
+const { SECRET_KEY } = require("../../configs/config");
 
-router.post("/login", checkAuth.loginAccountLimiter, async (req, res) => {
-  try {
-    const username = req.body.username;
-    const password = req.body.password;
+router.post("/login",checkAuth.loginAccountLimiter,async (req, res) => {
+    try {
+      const username = req.body.username;
+      const password = req.body.password;
 
-    const tempStaff = await Accounts.findOne({
-      where: {
-        username: username,
-      },
-    });
-    if (tempStaff) {
-      const passwordAuth = await bcrypt.compare(password, tempStaff.password);
-
-      if (!passwordAuth) {
-        res.status(200).json({
-          message: "Wrong password!",
-        });
-      } else if (passwordAuth) {
-        if (tempStaff.accountType === 2) {
-          jwt.sign(
-            { id: tempStaff.id },
-            process.env.SECRET_KEY,
-            { expiresIn: "1h" },
-            (err, token) => {
-              if (err) {
-                console.log(err);
-              } else {
-                res.status(200).json({
-                  result: "ok",
-                  data: { tempStaff, token },
-                });
-              }
-            }
-          );
-        } else {
-          return res.status(400).json({
-            result: "failed",
-            message: "Sorry You are not an admin!",
-          });
-        }
-      }
-    } else {
-      res.status(401).json({
-        error: "Login failed! Check authentication credentials",
-        data: {},
+      const tempStaff = await Accounts.findOne({
+        where: {
+          username: username,
+        },
       });
+      if (tempStaff) {
+        const passwordAuth = await bcrypt.compare(password, tempStaff.password);
+
+        if (!passwordAuth) {
+          res.status(200).json({
+            message: "Wrong password!",
+          });
+        } else if (passwordAuth) {
+          if (tempStaff.accountType === 2) {
+            jwt.sign(
+              { id: tempStaff.id },
+              SECRET_KEY,
+              { expiresIn: "1h" },
+              (err, token) => {
+                if (err) {
+                  console.log(err);
+                } else {
+                  res.status(200).json({
+                    result: "ok",
+                    data: { tempStaff, token },
+                  });
+                }
+              }
+            );
+          } else {
+            return res.status(400).json({
+              result: "failed",
+              message: "Sorry You are not an admin!",
+            });
+          }
+        }
+      } else {
+        res.status(401).json({
+          error: "Login failed! Check authentication credentials",
+          data: {},
+        });
+      }
+    } catch (error) {
+      res.status(400).json({ error });
     }
-  } catch (error) {
-    res.status(400).json({ error });
   }
-});
+);
 
 router.get("/listStaff", async (req, res) => {
   try {
@@ -275,8 +278,9 @@ router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
   }
   try {
     const id = req.params.id;
-    const handle = req.body.data;
+    const handle = +req.body.data;
     const account = await Accounts.findByPk(id);
+
     if (handle === 1) {
       if (account) {
         account.isVerified = 1;
@@ -285,7 +289,6 @@ router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
         res.status(200).json({
           result: "ok",
           message: "VerifyToken of Account is successfully!",
-          data: account,
         });
       } else {
         res.status(404).json({
@@ -392,7 +395,7 @@ router.get("/listCustomer", async (req, res) => {
 //   }
 // });
 
-router.get("/find-user",checkAuth.checkAuthStaff, async (req, res) => {
+router.get("/find-user", checkAuth.checkAuthStaff, async (req, res) => {
   const { decentralizationId } = req.user;
   if (decentralizationId !== 2) {
     return res.status(400).json({
@@ -435,6 +438,59 @@ router.get("/find-user",checkAuth.checkAuthStaff, async (req, res) => {
   } catch (err) {
     throw err;
   }
-}); 
+});
 
+router.get("/rate", async (req, res) => {
+  try {
+    const listTypesOfService = await ServiceTypes.findAll();
+
+    if (listTypesOfService.length > 0) {
+      return res.status(200).json({
+        result: "ok",
+        data: listTypesOfService,
+      });
+    }
+
+    res.status(400).json({
+      result: "failed",
+      data: listTypesOfService,
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+});
+
+router.put("/editRate/:id", checkAuth.checkAuthStaff, async (req, res) => {
+  const { decentralizationId } = req.user;
+  if (decentralizationId !== 2) {
+    return res.status(400).json({
+      result: "failed",
+      error: "Sorry You are unauthorized to make a manager",
+    });
+  }
+  console.log(req.user);
+  try {
+    const name = req.body.name;
+    const value = req.body.value;
+    const maturity = req.body.maturity;
+    const id = req.params.id;
+    const TypeOfService = await ServiceTypes.findByPk(id);
+
+    if (TypeOfService !== null) {
+      TypeOfService.name = name;
+      TypeOfService.value = value;
+      TypeOfService.maturity = maturity;
+
+      await TypeOfService.save();
+
+      return res.status(200).json({
+        result: "ok",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+});
 module.exports = router;

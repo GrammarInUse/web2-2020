@@ -1,11 +1,10 @@
 const Accounts = require("../models/accounts");
+require('dotenv').config();
 const jwt = require("jsonwebtoken");
 const Staffs = require("../models/staffs");
-const dotenv = require('dotenv');
 const rateLimit = require('express-rate-limit');
 const { SECRET_KEY } = require("../configs/config");
 
-dotenv.config();
 
 const apiKey = SECRET_KEY;
 
@@ -50,12 +49,12 @@ const checkAuthCustomer = (req, res, next) => {
 };
 
 const checkAuthStaff = async (req, res, next) => {
-  const token = req.headers["authorization"].split(' ')[1];
+  const token = req.headers["authorization"];
   if (!token) {
     return res.status(400).json({ error: "Token not provided" });
   }
   try {
-    const decoded = jwt.verify(token.toString(), apiKey);
+    const decoded = jwt.verify(token.split(' ')[1].toString(), apiKey);
 
     const staff = await Staffs.findByPk(decoded.id);
     if (staff) {
