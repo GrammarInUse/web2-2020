@@ -28,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const customerRoutes = require("./api/routes/customers");
 const staffRoutes = require("./api/routes/staffs");
+const { PORT } = require("./configs/config");
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -129,7 +130,7 @@ app.use((error, req, res, next) => {
     });
 });
 
-const port = process.env.PORT;
+const port = PORT;
 app.listen(port, () => {
     var test = null;
     console.log(`${test} have type is ${typeof(test)} You are listening at port: ${port}`);

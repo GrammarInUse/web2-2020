@@ -1,5 +1,6 @@
 const sequelize = require("sequelize");
 const dotenv = require('dotenv');
+const { DATABASE_URL } = require("../configs/config");
 
 const Op = sequelize.Op;
 
@@ -9,7 +10,7 @@ const operatorsAliases = {
 
 dotenv.config();
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = DATABASE_URL;
 
 const db = new sequelize(connectionString, { operatorsAliases });
 

@@ -1,4 +1,6 @@
 const nodeMailer = require("nodemailer");
+const { USER_EMAIL, PASSWORD_EMAIL } = require("../configs/config");
+require('dotenv').config();
 
 async function Send(mailOptions){
     let transporter = nodeMailer.createTransport({
@@ -6,8 +8,8 @@ async function Send(mailOptions){
         port: 587,
         secure: false,
         auth: {
-            user: 'hlb0932055041@gmail.com',
-            pass: 'Taolatao0' 
+            user: USER_EMAIL,
+            pass: PASSWORD_EMAIL 
         }
     });
 

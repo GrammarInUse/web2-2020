@@ -14,7 +14,6 @@ const { isNullOrUndefined, isNumber } = require("util");
 const Transactions = require("../../models/transactions");
 const InformationUsers = require("../../models/information-user");
 const IdentifyCard = require("../../models/identity-card");
-const sharp = require("sharp");
 const qs = require("querystring");
 
 //CUSTOMER API
@@ -26,7 +25,7 @@ router.post("/verifyCode", async (req, res) => {
     tempAccount.save()
     .then(async () => {
         const mailOptions = {
-            from:"hlb0932055041@gmail.com",
+            from:USER_EMAIL,
             to: tempAccount.email,
             subject: "Mã xác thực S-Ebanking",
             text: 'Mã xác thực của bạn là: ' + tempCode
@@ -184,7 +183,7 @@ router.post("/signup", async (req, res) => {
 
     const url = "http://localhost:8080/customers/signup/" + tempUser.get().id + "/" + tempUser.get().verifyToken;
     const mailOptions = {
-        from:"hlb0932055041@gmail.com",
+        from:USER_EMAIL,
         to: tempUser.email,
         subject: "Xác thực tài khoản S-Ebanking",
         text: 'Liên kết vào link sau để kích hoạt tài khoản: ' + url

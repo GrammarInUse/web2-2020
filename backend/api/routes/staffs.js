@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const Accounts = require("../../models/accounts");
 const Staffs = require("../../models/staffs");
@@ -6,78 +7,77 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
 const Send = require("../../services/send-email");
-const Transactions = require("../../models/transactions");
 const generator = require("generate-password");
 const jwt = require("jsonwebtoken");
 const checkAuth = require("../../middlewares/checkAuth");
-const dotenv = require('dotenv');
+const ServiceTypes = require("../../models/service-types");
+const { SECRET_KEY } = require("../../configs/config");
 
-dotenv.config();
+router.post("/login",checkAuth.loginAccountLimiter,async (req, res) => {
+    try {
+      const username = req.body.username;
+      const password = req.body.password;
 
-router.post("/login",checkAuth.loginAccountLimiter, async (req, res) => {
-  try {
-    const username = req.body.username;
-    const password = req.body.password;
-
-    const tempStaff = await Accounts.findOne({
-      where: {
-        username: username,
-      },
-    });
-    if (tempStaff) {
-      const passwordAuth = await bcrypt.compare(password, tempStaff.password);
-
-      if (!passwordAuth) {
-        res.status(200).json({
-          message: "Wrong password!",
-        });
-      } else if (passwordAuth) {
-        if (tempStaff.accountType === 2) {
-          jwt.sign(
-            { id: tempStaff.id },
-            process.env.SECRET_KEY,
-            { expiresIn: "1h" },
-            (err, token) => {
-              if (err) {
-                console.log(err);
-              } else {
-                res.status(200).json({
-                  result: "ok",
-                  data: { tempStaff, token },
-                });
-              }
-            }
-          );
-        }else{
-          return res.status(400).json({
-            result:"failed",
-            message:"Sorry You are not an admin!"
-          })
-        }
-      }
-    } else {
-      res.status(401).json({
-        error: "Login failed! Check authentication credentials",
-        data: {},
+      const tempStaff = await Accounts.findOne({
+        where: {
+          username: username,
+        },
       });
+      if (tempStaff) {
+        const passwordAuth = await bcrypt.compare(password, tempStaff.password);
+
+        if (!passwordAuth) {
+          res.status(200).json({
+            message: "Wrong password!",
+          });
+        } else if (passwordAuth) {
+          if (tempStaff.accountType === 2) {
+            jwt.sign(
+              { id: tempStaff.id },
+              SECRET_KEY,
+              { expiresIn: "1h" },
+              (err, token) => {
+                if (err) {
+                  console.log(err);
+                } else {
+                  res.status(200).json({
+                    result: "ok",
+                    data: { tempStaff, token },
+                  });
+                }
+              }
+            );
+          } else {
+            return res.status(400).json({
+              result: "failed",
+              message: "Sorry You are not an admin!",
+            });
+          }
+        }
+      } else {
+        res.status(401).json({
+          error: "Login failed! Check authentication credentials",
+          data: {},
+        });
+      }
+    } catch (error) {
+      res.status(400).json({ error });
     }
-  } catch (error) {
-    res.status(400).json({ error });
   }
-});
+);
 
 router.get("/listStaff", async (req, res) => {
   try {
     const listStaff = await Staffs.findAll({
-      include:[
+      include: [
         {
           model: Accounts,
           attributes: ["email"],
           where: {
-            accountType: 2
-          }
-        }
-      ]
+            accountType: 2,
+          },
+        },
+      ],
     });
 
     if (listStaff.length > 0) {
@@ -97,7 +97,7 @@ router.get("/listStaff", async (req, res) => {
   }
 });
 
-router.post("/addStaff",checkAuth.checkAuthStaff, async (req, res) => {
+router.post("/addStaff", checkAuth.checkAuthStaff, async (req, res) => {
   const { decentralizationId } = req.user;
   if (decentralizationId !== 2) {
     return res.status(400).json({
@@ -135,6 +135,15 @@ router.post("/addStaff",checkAuth.checkAuthStaff, async (req, res) => {
       accountType,
     })
       .then((account) => {
+        const mailOptions = {
+          from: "hlb0932055041@gmail.com",
+          to: account.email,
+          subject: "Your username and password!",
+          text: `Your account:
+            username: ${account.username}
+            password: ${generatePassword}
+          `,
+        };
         res.status(201).json({
           result: "ok",
           data: { account },
@@ -223,7 +232,7 @@ router.put("/blockAccount/:id", checkAuth.checkAuthStaff, async (req, res) => {
     });
   }
   try {
-    const handle = req.body.data === 'true' ? true : false;
+    const handle = req.body.data === "true" ? true : false;
     const id = req.params.id;
     const account = await Accounts.findByPk(id);
 
@@ -269,8 +278,9 @@ router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
   }
   try {
     const id = req.params.id;
-    const handle = req.body.data;
+    const handle = +req.body.data;
     const account = await Accounts.findByPk(id);
+
     if (handle === 1) {
       if (account) {
         account.isVerified = 1;
@@ -279,7 +289,6 @@ router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
         res.status(200).json({
           result: "ok",
           message: "VerifyToken of Account is successfully!",
-          data: account,
         });
       } else {
         res.status(404).json({
@@ -319,7 +328,7 @@ router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
   }
 });
 
-router.put("/listCustomer", async (req, res) => {
+router.get("/listCustomer", async (req, res) => {
   try {
     const listCustomer = await informationUser.findAll({
       attributes: ["fullName"],
@@ -351,42 +360,49 @@ router.put("/listCustomer", async (req, res) => {
   }
 });
 
-router.get("/spend-account", async (req, res) => {
-  const { start, end } = req.body;
+// router.get("/spend-account", async (req, res) => {
+//   const { start, end } = req.body;
 
-  const curStart = new Date(start).toISOString();
-  const curEnd = new Date(end).toISOString();
+//   const curStart = new Date(start).toISOString();
+//   const curEnd = new Date(end).toISOString();
 
-  console.log(curStart);
-  try {
-    const listTransaction = await Transactions.findAll({
-      where: {
-        dOT: {
-          [Op.between]: [curStart, curEnd],
-        },
-      },
+//   console.log(curStart);
+//   try {
+//     const listTransaction = await Transactions.findAll({
+//       where: {
+//         dOT: {
+//           [Op.between]: [curStart, curEnd],
+//         },
+//       },
+//     });
+
+//     if (listTransaction.length > 0) {
+//       res.status(200).json({
+//         result: "ok",
+//         data: listTransaction,
+//         message: "Finding history of transactions is Successfully!",
+//       });
+//     } else {
+//       res.status(200).json({
+//         result: "failed",
+//         data: {},
+//         message: "history of transactions is empty!",
+//       });
+//     }
+//   } catch (err) {
+//     console.log(err);
+//     throw err;
+//   }
+// });
+
+router.get("/find-user", checkAuth.checkAuthStaff, async (req, res) => {
+  const { decentralizationId } = req.user;
+  if (decentralizationId !== 2) {
+    return res.status(400).json({
+      result: "failed",
+      error: "Sorry You are unauthorized to make a manager",
     });
-
-    if (listTransaction.length > 0) {
-      res.status(200).json({
-        result: "ok",
-        data: listTransaction,
-        message: "Finding history of transactions is Successfully!",
-      });
-    } else {
-      res.status(200).json({
-        result: "failed",
-        data: {},
-        message: "history of transactions is empty!",
-      });
-    }
-  } catch (err) {
-    console.log(err);
-    throw err;
   }
-});
-
-router.get("/find-user", async (req, res) => {
   try {
     const listAccount = await informationUser.findAll({
       attributes: ["fullName", "dOB", "sex", "phone", "accountId"],
@@ -424,4 +440,57 @@ router.get("/find-user", async (req, res) => {
   }
 });
 
+router.get("/rate", async (req, res) => {
+  try {
+    const listTypesOfService = await ServiceTypes.findAll();
+
+    if (listTypesOfService.length > 0) {
+      return res.status(200).json({
+        result: "ok",
+        data: listTypesOfService,
+      });
+    }
+
+    res.status(400).json({
+      result: "failed",
+      data: listTypesOfService,
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+});
+
+router.put("/editRate/:id", checkAuth.checkAuthStaff, async (req, res) => {
+  const { decentralizationId } = req.user;
+  if (decentralizationId !== 2) {
+    return res.status(400).json({
+      result: "failed",
+      error: "Sorry You are unauthorized to make a manager",
+    });
+  }
+  console.log(req.user);
+  try {
+    const name = req.body.name;
+    const value = req.body.value;
+    const maturity = req.body.maturity;
+    const id = req.params.id;
+    const TypeOfService = await ServiceTypes.findByPk(id);
+
+    if (TypeOfService !== null) {
+      TypeOfService.name = name;
+      TypeOfService.value = value;
+      TypeOfService.maturity = maturity;
+
+      await TypeOfService.save();
+
+      return res.status(200).json({
+        result: "ok",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+});
 module.exports = router;
