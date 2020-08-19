@@ -5,7 +5,8 @@ export default class History extends Component {
         super(props);
         this.state ={
             userMessage: "",
-            listOfTransactions : []
+            listOfTransactions : [],
+            currentUser: ""
         }
     }
 
@@ -13,40 +14,44 @@ export default class History extends Component {
         this.storeCollector();
         const store = JSON.parse(localStorage.getItem("login"));
         console.log("STORE");
-        console.log(store.currentUser);
-        const token = store.token;
-        const url = "http://localhost:8080/customers/history/" + store.currentUser;
-        const fetchOpts = {
-            method: "GET",
-            headers:{
-                "Accept" : "application/json",
-                "Content-type" : "application/json",
-                "Authorization" : token
+        if(store && store.login){
+            this.setState({
+                currentUser: store.currentUser
+            });
+            const token = store.token;
+            const url = "http://localhost:8080/customers/history/" + store.currentUser;
+            const fetchOpts = {
+                method: "GET",
+                headers:{
+                    "Accept" : "application/json",
+                    "Content-type" : "application/json",
+                    "Authorization" : token
+                }
             }
-        }
-        fetch(url,fetchOpts)
-        .then((response) =>{
-            if(response){
-                console.log(response);
-                response.json()
-                .then((result)=>{
-                    this.setState({
-                        listOfTransactions: result.listOfTrans,
-                        userMessage: result.userMessage
-                    }, () => {
-                        //DO SOMETHING
+            fetch(url,fetchOpts)
+            .then((response) =>{
+                if(response){
+                    console.log(response);
+                    response.json()
+                    .then((result)=>{
+                        this.setState({
+                            listOfTransactions: result.listOfTrans,
+                            userMessage: result.userMessage
+                        }, () => {
+                            //DO SOMETHING
+                        })
                     })
-                })
-                .catch((err) => {
-                    console.log("ERROR FETCH TRANSITIONS: ");
-                    console.error(err);
-                })
-            }
-        })
-        .catch((err) => {
-            console.log("FETCH TRANSITIONS ERROR: ");
-            console.error(err);
-        })
+                    .catch((err) => {
+                        console.log("ERROR FETCH TRANSITIONS: ");
+                        console.error(err);
+                    })
+                }
+            })
+            .catch((err) => {
+                console.log("FETCH TRANSITIONS ERROR: ");
+                console.error(err);
+            })
+        }
     }
     storeCollector = (e) => {
         console.log("STORE COLLECTOR!!!");
@@ -69,8 +74,9 @@ export default class History extends Component {
     }
     
     render() {
-        console.log(this.state);
+        console.log(this.state.currentUser);
         return (
+            this.state.currentUser?
             <div className="container emp-profile">
                 <form onSubmit={this.submitHandler}>
                     <table style={{border: "1px solid black"}} align="center" className="table-style-double" cellSpacing={1} cellPadding={0} id="table">
@@ -85,7 +91,7 @@ export default class History extends Component {
                                 <th style={{width: "30%"}} className="table-style-double" align="center">Nội dung gửi </th>
                             </tr>
                             {
-                                this.state.listOfTransactions.map((element) => {
+                                this.state.listOfTransactions ? this.state.listOfTransactions.map((element) => {
                                     return (
                                         <tr style={{borderBottom: "1px solid black"}} key={element.id} className="table-style-double odd">
                                             <td className="table-style-double" align="center">{element.id}</td>
@@ -97,12 +103,12 @@ export default class History extends Component {
                                             <td className="table-style-double" align="center">{element.content}</td>
                                         </tr>
                                     )
-                                })
+                                }): <tr></tr>
                             }
                         </tbody>
                     </table>
                 </form>          
-            </div>
+            </div>:<div>Sorry you have not logged in ...</div>
         )
     }
 }
