@@ -12,6 +12,7 @@ const jwt = require("jsonwebtoken");
 const checkAuth = require("../../middlewares/checkAuth");
 const ServiceTypes = require("../../models/service-types");
 const { SECRET_KEY } = require("../../configs/config");
+const IdentityCard = require("../../models/identity-card");
 
 router.post("/login",checkAuth.loginAccountLimiter,async (req, res) => {
     try {
@@ -146,14 +147,12 @@ router.post("/addStaff", checkAuth.checkAuthStaff, async (req, res) => {
         };
         res.status(201).json({
           result: "ok",
-          data: { account },
           message: "Successfully created an account!",
         });
       })
       .catch((err) => {
         res.status(400).json({
           result: "failed",
-          data: {},
           message: `Something went wrong when you create an account! ${err}`,
         });
       });
@@ -209,7 +208,6 @@ router.put("/editStaff/:id", checkAuth.checkAuthStaff, async (req, res) => {
 
         res.status(200).json({
           result: "ok",
-          data: staff,
         });
       })
       .catch((err) => {
@@ -260,10 +258,7 @@ router.put("/blockAccount/:id", checkAuth.checkAuthStaff, async (req, res) => {
       }
     }
   } catch (err) {
-    res.status(400).json({
-      result: "failed",
-      message: err,
-    });
+    console.log(err)
     throw err;
   }
 });
@@ -328,14 +323,15 @@ router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
   }
 });
 
-router.get("/listCustomer", async (req, res) => {
+router.get("/verify", async (req, res) => {
   try {
+    const result = []
     const listCustomer = await informationUser.findAll({
-      attributes: ["fullName"],
+      attributes: ["accountId","fullName"],
       include: [
         {
           model: Accounts,
-          attributes: ["id", "isBlocked", "isVerified"],
+          attributes: ["isBlocked", "isVerified"],
           where: {
             isVerified: 0,
             accountType: 1,
@@ -344,14 +340,44 @@ router.get("/listCustomer", async (req, res) => {
       ],
     });
 
-    if (listCustomer.length > 0) {
+    const listImage = await IdentityCard.findAll({
+      attributes: ["accountId","frontOfIdentify","backOfIdentify"],
+      include: [
+        {
+          model: Accounts,
+          attributes: ["isBlocked", "isVerified"],
+          where: {
+            isVerified: 0,
+            accountType: 1,
+          },
+        },
+      ],
+    });
+
+    listCustomer.forEach(item=>{
+      listImage.forEach(image => {
+        if(item.accountId === image.accountId){
+          const temp = {
+            id:item.accountId,
+            name: item.fullName,
+            frontCart: image.frontOfIdentify,
+            backCart: image.backOfIdentify
+          }
+
+          result.push(temp)
+        }
+      })
+    })
+
+
+    if (result.length > 0) {
       return res.status(200).json({
         result: "Ok",
-        data: listCustomer,
+        data: result
       });
     } else {
-      return res.status(200).json({
-        result: "Ok",
+      return res.status(400).json({
+        result: "failed",
         data: {},
       });
     }
@@ -359,41 +385,6 @@ router.get("/listCustomer", async (req, res) => {
     throw err;
   }
 });
-
-// router.get("/spend-account", async (req, res) => {
-//   const { start, end } = req.body;
-
-//   const curStart = new Date(start).toISOString();
-//   const curEnd = new Date(end).toISOString();
-
-//   console.log(curStart);
-//   try {
-//     const listTransaction = await Transactions.findAll({
-//       where: {
-//         dOT: {
-//           [Op.between]: [curStart, curEnd],
-//         },
-//       },
-//     });
-
-//     if (listTransaction.length > 0) {
-//       res.status(200).json({
-//         result: "ok",
-//         data: listTransaction,
-//         message: "Finding history of transactions is Successfully!",
-//       });
-//     } else {
-//       res.status(200).json({
-//         result: "failed",
-//         data: {},
-//         message: "history of transactions is empty!",
-//       });
-//     }
-//   } catch (err) {
-//     console.log(err);
-//     throw err;
-//   }
-// });
 
 router.get("/find-user", checkAuth.checkAuthStaff, async (req, res) => {
   const { decentralizationId } = req.user;
