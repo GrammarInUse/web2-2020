@@ -5,7 +5,6 @@ const Staffs = require("../../models/staffs");
 const informationUser = require("../../models/information-user");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { Op } = require("sequelize");
 const Send = require("../../services/send-email");
 const generator = require("generate-password");
 const jwt = require("jsonwebtoken");
@@ -14,60 +13,66 @@ const ServiceTypes = require("../../models/service-types");
 const { SECRET_KEY } = require("../../configs/config");
 const IdentityCard = require("../../models/identity-card");
 
-router.post("/login",checkAuth.loginAccountLimiter,async (req, res) => {
-    try {
-      const username = req.body.username;
-      const password = req.body.password;
+router.post("/login", checkAuth.loginAccountLimiter, async (req, res) => {
+  try {
+    const username = req.body.username;
+    const password = req.body.password;
 
-      const tempStaff = await Accounts.findOne({
-        where: {
-          username: username,
-        },
-      });
-      if (tempStaff) {
-        const passwordAuth = await bcrypt.compare(password, tempStaff.password);
+    const tempStaff = await Accounts.findOne({
+      where: {
+        username: username,
+      },
+    });
+    if (tempStaff) {
+      const passwordAuth = await bcrypt.compare(password, tempStaff.password);
 
-        if (!passwordAuth) {
-          res.status(200).json({
-            message: "Wrong password!",
-          });
-        } else if (passwordAuth) {
-          if (tempStaff.accountType === 2) {
-            jwt.sign(
-              { id: tempStaff.id },
-              SECRET_KEY,
-              { expiresIn: "1h" },
-              (err, token) => {
-                if (err) {
-                  console.log(err);
-                } else {
-                  res.status(200).json({
-                    result: "ok",
-                    data: { tempStaff, token },
-                  });
-                }
-              }
-            );
-          } else {
-            return res.status(400).json({
-              result: "failed",
-              message: "Sorry You are not an admin!",
-            });
-          }
-        }
-      } else {
-        res.status(401).json({
-          error: "Login failed! Check authentication credentials",
-          data: {},
+      if (!passwordAuth) {
+        res.status(200).json({
+          message: "Wrong password!",
         });
+      } else if (passwordAuth) {
+        if (tempStaff.accountType === 2) {
+          jwt.sign(
+            { id: tempStaff.id },
+            SECRET_KEY,
+            { expiresIn: "1h" },
+            (err, token) => {
+              if (err) {
+                console.log(err);
+              } else {
+                res.status(200).json({
+                  result: "ok",
+                  data: tempStaff,
+                  accessToken: token
+                });
+              }
+            }
+          );
+        } else {
+          return res.status(400).json({
+            result: "failed",
+            message: "Sorry You are not an admin!",
+          });
+        }
       }
-    } catch (error) {
-      res.status(400).json({ error });
+    } else {
+      res.status(401).json({
+        error: "Login failed! Check authentication credentials",
+      });
     }
+  } catch (error) {
+    res.status(400).json({ error });
   }
-);
+});
 
-router.get("/listStaff", async (req, res) => {
+router.get("/listStaff",checkAuth.checkAuthStaff, async (req, res) => {
+  const { decentralizationId } = req.user;
+  if (decentralizationId !== 2) {
+    return res.status(400).json({
+      result: "failed",
+      error: "Sorry You are unauthorized to make a manager",
+    });
+  }
   try {
     const listStaff = await Staffs.findAll({
       include: [
@@ -89,7 +94,6 @@ router.get("/listStaff", async (req, res) => {
     } else {
       res.status(200).json({
         result: "failed",
-        data: {},
       });
     }
   } catch (err) {
@@ -145,6 +149,9 @@ router.post("/addStaff", checkAuth.checkAuthStaff, async (req, res) => {
             password: ${generatePassword}
           `,
         };
+
+        Send(mailOptions);
+
         res.status(201).json({
           result: "ok",
           message: "Successfully created an account!",
@@ -161,7 +168,7 @@ router.post("/addStaff", checkAuth.checkAuthStaff, async (req, res) => {
     const fullname = req.body.name;
     const position = req.body.position;
     const salary = req.body.salary;
-    let decentralizationId = req.body.role === true ? 1 : 2;
+    let decentralizationId = req.body.role;
 
     await Staffs.create({
       accountId,
@@ -230,35 +237,20 @@ router.put("/blockAccount/:id", checkAuth.checkAuthStaff, async (req, res) => {
     });
   }
   try {
-    const handle = req.body.data === "true" ? true : false;
     const id = req.params.id;
     const account = await Accounts.findByPk(id);
 
-    if (handle) {
-      if (account !== null) {
-        account.isBlocked = true;
+    if (account !== null) {
+      account.isBlocked = !account.isBlocked;
 
-        await account.save();
+      await account.save();
 
-        res.status(200).json({
-          result: "ok",
-          message: "Account is blocked successfully!",
-        });
-      }
-    } else {
-      if (account !== null) {
-        account.isBlocked = false;
-
-        await account.save();
-
-        res.status(200).json({
-          result: "ok",
-          message: "Account is unblocked successfully!",
-        });
-      }
+      res.status(200).json({
+        result: "ok",
+      });
     }
   } catch (err) {
-    console.log(err)
+    console.log(err);
     throw err;
   }
 });
@@ -297,7 +289,7 @@ router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
         await account.save();
 
         const mailOptions = {
-          from: "hlb0932055041@gmail.com",
+          from: USER_EMAIL,
           to: account.email,
           subject: "Nontifications of Images of identity card",
           text: "Your Images of identity card is invalid!",
@@ -325,9 +317,9 @@ router.put("/verifyHandle/:id", checkAuth.checkAuthStaff, async (req, res) => {
 
 router.get("/verify", async (req, res) => {
   try {
-    const result = []
+    const result = [];
     const listCustomer = await informationUser.findAll({
-      attributes: ["accountId","fullName"],
+      attributes: ["accountId", "fullName"],
       include: [
         {
           model: Accounts,
@@ -341,7 +333,7 @@ router.get("/verify", async (req, res) => {
     });
 
     const listImage = await IdentityCard.findAll({
-      attributes: ["accountId","frontOfIdentify","backOfIdentify"],
+      attributes: ["accountId", "frontOfIdentify", "backOfIdentify"],
       include: [
         {
           model: Accounts,
@@ -354,26 +346,25 @@ router.get("/verify", async (req, res) => {
       ],
     });
 
-    listCustomer.forEach(item=>{
-      listImage.forEach(image => {
-        if(item.accountId === image.accountId){
+    listCustomer.forEach((item) => {
+      listImage.forEach((image) => {
+        if (item.accountId === image.accountId) {
           const temp = {
-            id:item.accountId,
+            id: item.accountId,
             name: item.fullName,
             frontCart: image.frontOfIdentify,
-            backCart: image.backOfIdentify
-          }
+            backCart: image.backOfIdentify,
+          };
 
-          result.push(temp)
+          result.push(temp);
         }
-      })
-    })
-
+      });
+    });
 
     if (result.length > 0) {
       return res.status(200).json({
         result: "Ok",
-        data: result
+        data: result,
       });
     } else {
       return res.status(400).json({
@@ -386,14 +377,7 @@ router.get("/verify", async (req, res) => {
   }
 });
 
-router.get("/find-user", checkAuth.checkAuthStaff, async (req, res) => {
-  const { decentralizationId } = req.user;
-  if (decentralizationId !== 2) {
-    return res.status(400).json({
-      result: "failed",
-      error: "Sorry You are unauthorized to make a manager",
-    });
-  }
+router.get("/find-user", async (req, res) => {
   try {
     const listAccount = await informationUser.findAll({
       attributes: ["fullName", "dOB", "sex", "phone", "accountId"],
@@ -422,8 +406,7 @@ router.get("/find-user", checkAuth.checkAuthStaff, async (req, res) => {
       });
     } else {
       return res.status(200).json({
-        result: "Ok",
-        data: {},
+        result: "failed",
       });
     }
   } catch (err) {
@@ -444,7 +427,6 @@ router.get("/rate", async (req, res) => {
 
     res.status(400).json({
       result: "failed",
-      data: listTypesOfService,
     });
   } catch (error) {
     console.log(error);
