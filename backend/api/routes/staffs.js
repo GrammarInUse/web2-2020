@@ -493,4 +493,5 @@ router.put("/editRate/:id", checkAuth.checkAuthStaff, async (req, res) => {
     throw error;
   }
 });
+
 module.exports = router;
