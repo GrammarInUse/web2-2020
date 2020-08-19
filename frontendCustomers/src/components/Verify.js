@@ -6,12 +6,33 @@ export default class Verify extends Component {
         super(props);
         
         this.state={
-            
+            identifyId: "", 
+            dOIssurance: ""
         }
     }
+
+    changeHandler = (e) => {
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+
+    submitHandler = (e) => {
+        e.preventDefault();
+
+        const data = {
+            identifyId: this.state.identifyId,
+            dOI: this.state.dOIssurance,
+            currentUser: this.props.currentUser
+        }
+
+        console.log(data);
+        
+    }
+
     render() {
-        console.log(this.state);
         return (
+            this.props.currentUser?
             <div className="container emp-profile">
                 <form>
                     <div className="row">
@@ -19,7 +40,7 @@ export default class Verify extends Component {
                             <Upload nameOfPhoto="frontSideIdentify" />
                         </div>
                         <div className="col-md-4">
-                            Chứng minh nhân dân mặt trước
+                            Chứng minh nhân dân mặt trước - Bấm check để kiểm tra
                         </div>
                     </div>
                     <div className="row">
@@ -27,41 +48,35 @@ export default class Verify extends Component {
                             <Upload nameOfPhoto="backSideIdentify" />
                         </div>
                         <div className="col-md-4">
-                            Chứng minh nhân dân mặt sau
+                            Chứng minh nhân dân mặt sau - Bấm check để kiểm tra
                         </div>
                     </div>
-                    <div className="form">
-                        <div id="sendmessage"></div>
+                    <div style={{marginTop: "50px"}} className="form">
+                        <div id="sendmessage">
+
+                        </div>
                         <div id="errormessage" />
-                        <form method="post" role="form" className="contactForm">
+                        <form onSubmit={this.submitHandler} role="form" className="contactForm">
                             <div className="form-row">
-                                <div className="form-group col-md-6">
-                                <input type="text" name="name" className="form-control" id="name" placeholder="Full Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
-                                <div className="validation" /></div>
-                                <div className="form-group col-md-6">
-                                    <input type="email" className="form-control" name="email" id="email" placeholder="Identity Card Number" data-rule="email" data-msg="Please enter a valid email" />
-                                    <div className="validation" /></div></div>
-                                    <div className="form-row"><div className="form-group col-md-6">
-                                <input type="text" name="name" className="form-control" id="name" placeholder="DOB" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
-                                <div className="validation" /></div>
-                                <div className="form-group col-md-6">
-                                    <input type="email" className="form-control" name="email" id="email" placeholder="SEX" data-rule="email" data-msg="Please enter a valid email" />
-                                    <div className="validation" /></div></div>
-                                    <div className="form-group"><input type="text" className="form-control" name="subject" id="subject" placeholder="National" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject" />
-                                    <div className="validation" /></div>
-                                    <div className="form-group"><input type="text" className="form-control" name="subject" id="subject" placeholder="Home Town" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject" />
-                                    <div className="validation" /></div>
-                                    <div className="form-group"><input type="text" className="form-control" name="subject" id="subject" placeholder="Address" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject" />
-                                    <div className="validation" /></div>
-                                    <div className="form-group"><input type="text" className="form-control" name="subject" id="subject" placeholder="Date Issuance" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject" />
-                                    <div className="validation" /></div>
-                                    <div className="form-group"><textarea className="form-control" name="message" rows={5} data-rule="required" data-msg="Please write something for us" placeholder="Characteristic" defaultValue={""} />
-                                    <div className="validation" /></div><div className="text-center"><button type="submit">Send Form Verified</button>
+                                <div className="form-group col-md-12">
+                                    <p style={{width: "20%", display: "inline-block"}}>Số CMND: </p>
+                                    <input onChange={this.changeHandler} style={{width: "80%", display: "inline-block"}} type="text" name="identifyId" className="form-control" id="identifyId" placeholder="Identify Code: "/>
+                                </div>
+                            </div>
+                            <div className="form-row">
+                                <div className="form-group col-md-12">
+                                    <p style={{width: "20%", display: "inline-block"}}>Ngày cấp: </p>
+                                    <input onChange={this.changeHandler} style={{width: "80%", display: "inline-block"}}type="date" name="dOIssurance" className="form-control" id="dOIssurance" required />
+                                    <div className="validation" />
+                                </div>
+                            </div>
+                            <div className="text-center">
+                                <button type="submit">Verify</button>
                             </div>
                         </form>
                     </div>
                 </form>   
-            </div>
+            </div>:<div>Sorry, you have not logged in ...</div>
         )
     }
 }

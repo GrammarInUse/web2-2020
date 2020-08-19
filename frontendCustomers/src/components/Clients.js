@@ -1,4 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import Upload from "./Upload";
+import axios from "axios";
 
 export default class Clients extends Component {
     constructor(props){
@@ -9,7 +11,9 @@ export default class Clients extends Component {
             phone: "",
             message: "",
             password: "",
-            comfirmPassword: ""
+            comfirmPassword: "",
+            avatar: "",
+            file: ""
         }
     }
 
@@ -27,6 +31,14 @@ export default class Clients extends Component {
     changeHandler = (e) => {
         this.setState({
             [e.target.name]: e.target.value,
+        });
+    }
+
+    onChange = (e) => {
+        e.preventDefault();
+    
+        this.setState({
+          file: e.target.files[0],
         });
     }
 
@@ -101,7 +113,82 @@ export default class Clients extends Component {
         }
     }
 
+    onSubmit = (e) => {
+        // Avatar
+        e.preventDefault();
+        if (!this.state.file) {
+          alert("ban chua chon file");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("file", this.state.file);
+        const config = {
+          headers: {
+            "content-type": "multipart/form-data",
+          }
+        };
+        const url = "http://localhost:8080/customers/upload/avatar/" + this.props.id;
+        axios
+          .post(url, formData.get("file"), config)
+          .then((res) => {
+            console.log(res);
+            this.storeAvatar();
+          })
+          .catch((err) => {
+            console.log(err + " ERRR");
+          });
+    }
+
+    storeAvatar = async () => {
+        if(this.props.login){
+            const url = "http://localhost:8080/customers/getImages";
+            const data = {
+                currentUser: this.props.id,
+                nameOfPhoto: "avatar"
+            }
+            const fetchOpts = {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            };
+
+            await fetch(url, fetchOpts)
+            .then((response) => {
+                response.json()
+                .then((result) => {
+                    const b64 = Buffer.from(result.data.data).toString("base64");
+                    this.setState({
+                        avatar: "data:image/jpeg;base64, " + b64
+                    }, () => {
+                        //DOING SOMETHING
+                    })
+                })
+                .catch((err) => {
+                    console.log("Something went wrong when you parse response from fetch");
+                    console.error(err);
+                });
+            })
+            .catch((err) => {
+                console.log("Something went wrong when you storeAvatar from server");
+                console.error(err);
+            });
+        }else{
+            console.log("CC");
+        }
+    }
+
+    componentDidMount() {
+        console.log("MOUT AVATAR");
+        setTimeout(() => {
+            this.storeAvatar();
+        }, 20)
+    }
+
     render() {
+        console.log(this.state.file);
         return (
             this.props.login?
             <div className="container emp-profile">
@@ -109,10 +196,15 @@ export default class Clients extends Component {
                     <div className="row">
                         <div className="col-md-4">
                             <div className="profile-img">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog" alt="Avatar" />
-                                <div className="file btn btn-lg btn-primary">
-                                Change Photo
-                                <input type="file" name="file" />
+                                <div className="profile-img">
+                                    <img src= {this.state.avatar || ""} alt="Avatar" />
+                                    <div className="file btn btn-lg btn-primary">
+                                    Change Photo
+                                    <form encType="multipart/form-data" onSubmit={this.onSubmit}>
+                                        <input style={{width: "100%", cursor: "pointer"}} name="file" type="file" onChange={this.onChange}/>
+                                        <button type="submit">upload</button>
+                                    </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>

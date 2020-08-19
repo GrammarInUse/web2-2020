@@ -16,6 +16,7 @@ import Contact from './components/Contact';
 import Transaction from './components/Transaction';
 import History from './components/History';
 import Verify from './components/Verify';
+import Rates from './components/Rates';
 
 class App extends Component {
   constructor(props) {
@@ -88,9 +89,11 @@ class App extends Component {
       <div className="App">
         <HamburberButton />
         <NavMenu />      
-        <Verify />
         <Router>
           <Switch>
+            <Route path="/rates">
+              <Rates />
+            </Route>
             <Route path="/transform">
               <Transaction />
             </Route>
@@ -98,7 +101,7 @@ class App extends Component {
               <History />
             </Route>
             <Route path="/verify-id">
-              <Verify />
+              <Verify currentUser={this.state.id}/>
             </Route>
             <Route path="/profile">
               <Clients id={this.state.id} fullName={this.state.fullName} email={this.state.email} phone={this.state.phone} login={this.state.login}/>

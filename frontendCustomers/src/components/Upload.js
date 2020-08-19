@@ -20,47 +20,34 @@ export default class upload extends Component {
   };
 
   onSubmit = (e) => {
-    //FrontSIDE IDENTIFY
+    // IDENTIFY
     e.preventDefault();
-
     if (!this.state.file) {
       alert("ban chua chon file");
       return;
     }
     const formData = new FormData();
     formData.append("file", this.state.file);
-
     const config = {
       headers: {
         "content-type": "multipart/form-data",
-        
       }
     };
-       
-    const url = "http://localhost:8080/upload";
+    const url = "http://localhost:8080/customers/upload/" + this.props.nameOfPhoto + "/" + this.state.currentUser;
     axios
-      .post("http://localhost:8080/upload", formData, config)
+      .post(url, formData.get("file"), config)
       .then((res) => {
-        console.log(res.data);
+        console.log(res);
       })
       .catch((err) => {
-        console.log(err + "");
+        console.log(err + " ERRR");
       });
-
-    // const url = "http://localhost:8080/customers/upload/" + this.props.nameOfPhoto + "/" + this.state.currentUser;
-    // fetch(url, config)
-    // .then((response) => {
-    //   console.log(response);
-    // })
-    // .catch((err) => {
-    //   console.log(err + "HERE");
-    // }); 
 }
 
   clickHandler = (e) => {
     e.preventDefault();
     const data = {
-      currentUser: "2121",
+      currentUser: this.state.currentUser,
       nameOfPhoto: this.props.nameOfPhoto
     }
     const url = "http://localhost:8080/customers/getImages";
@@ -124,7 +111,7 @@ export default class upload extends Component {
                 <div className="file btn btn-lg btn-primary">
                   Change Photo
                   <form encType="multipart/form-data" onSubmit={this.onSubmit}>
-                    <input style={{width: "100%", cursor: "pointer"}} encType="multipart/form-data" name="file" type="file" onChange={this.onChange}/>
+                    <input style={{width: "100%", cursor: "pointer"}} name="file" type="file" onChange={this.onChange}/>
                     <button type="submit">upload</button>
                   </form>
                 </div>

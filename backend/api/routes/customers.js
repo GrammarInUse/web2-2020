@@ -13,6 +13,9 @@ const checkAuth = require("../../middlewares/checkAuth");
 const { isNullOrUndefined, isNumber } = require("util");
 const Transactions = require("../../models/transactions");
 const InformationUsers = require("../../models/information-user");
+const IdentifyCard = require("../../models/identity-card");
+const sharp = require("sharp");
+const qs = require("querystring");
 
 //CUSTOMER API
 router.post("/verifyCode", async (req, res) => {
@@ -59,48 +62,20 @@ router.post("/getImages", async (req, res) => {
 router.post("/upload/:nameOfPhoto/:id", async (req, res) => {   
     const currentUser = req.params.id;
     const nameOfPhoto = req.params.nameOfPhoto;
-    console.log("STEP 1");
-    console.log(currentUser);
-    console.log(nameOfPhoto);
+    var body = [];
+    
+    req.on("data", (data) => {
+        body.push(data);
+    });
 
-    let promise = () => new Promise((resolve, rejects) => {
-        let temp = [];
-        req.on("data", (data, err) => {
-            if(err){
-                return rejects(err);
-            }else{
-                console.log("----------I am here---------");
-                console.log(data);
-                temp.push(data);
-                console.log("----------------------------");
-            }
-        });
-        return resolve(temp);
-    });
-    let moveFile = (file) => new Promise((resolve, rejects) => {
-        fs.writeFile('./public/images/PhotosOfId' + currentUser + '/' + nameOfPhoto + '.jpg', file, (err, info) => {
-            if(err) return rejects(err);
-            else{
-                return resolve(info);
-            }
-        });
-    });
-    console.log("STEP 2");
-    await promise()
-    .then(async (data) => {
-        console.log("STEP 3");     
-        console.log(data[0]);
-        moveFile(data[0])
-        .then(() => {
-            console.log("FINAL STEP: ");
+    req.on("end", () => {
+        var post = qs.parse(body);
+        const data = Buffer.concat(body);
+        fs.writeFile("./public/images/PhotosOfId" + currentUser + "/" + nameOfPhoto + ".jpg", data, () => {
+            console.log("DONE");
         })
-        .catch((err) => {
-            console.error(err);
-        });     
     })
-    .catch((err) => {
-        console.error(err);
-    });
+
     return res.status(200).json({
         userMessage: "Successfully written"
     })
@@ -160,7 +135,7 @@ router.post("/signup", async (req, res) => {
                 password,
                 verifyToken
             }).then(() => {
-                fs.mkdir("./public/PhotosOfId" + id, () => {
+                fs.mkdir("./public/images/PhotosOfId" + id, () => {
                     console.log("SUCCESSFULLY CREATED FOLDER FOR USER:")
                 })
                 console.log("Succesfully created a account");
@@ -498,6 +473,10 @@ router.get("/history/:id", checkAuth.checkAuthCustomer, async (req, res) => {
             userMessage: "FAILED TO FETCH ACTIVITY"
         })
     }
+});
+
+router.post("verify", checkAuth.checkAuthCustomer, async (req, res) => {
+    
 });
 
 
