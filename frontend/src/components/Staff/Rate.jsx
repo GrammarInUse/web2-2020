@@ -101,7 +101,6 @@ class Rate extends PureComponent {
       .catch((err) => {
         console.log(err + "");
       });
-    this.setState({ listRate: data });
   };
   componentDidMount() {
     this.getAll();
