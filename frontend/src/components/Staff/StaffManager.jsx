@@ -25,6 +25,9 @@ class StaffManager extends Component {
 
   getAll = async () => {
     let staffs = await api.get("/listStaff/").then(({ data }) => data);
+    this.setState({
+      staffs,
+    });
   };
   Lock = (id) => {
     let index = this.findIndex(id);

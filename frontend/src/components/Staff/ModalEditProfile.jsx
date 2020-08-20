@@ -80,11 +80,16 @@ class ModalEditProfile extends PureComponent {
   };
   createStaff = async () => {
     let { name, position, email, salary, role } = this.state;
-    let data = { name, position, email, salary, role, isLock: false };
-    let staff = await api.post("/addStaff/", data).then((res) => {
-      this.props.onGetAll();
-    });
-    return staff;
+    let data = { name, position, email, salary, role };
+    let staff = await api
+      .post("/addStaff/", data)
+      .then((res) => {
+        console.log(res);
+        this.props.onGetAll();
+      })
+      .catch((err) => {
+        console.log(err + "");
+      });
   };
   updateStaff = async () => {
     let { name, position, salary, role } = this.state;

@@ -39,11 +39,7 @@ class Verify extends PureComponent {
             <img style={{ width: 200, height: 100 }} src={item.frontCart} />
           </td>
           <td>
-            <img
-              style={{ width: 200, height: 100 }}
-              src={item.backCart}
-              alt=""
-            />
+            <img style={{ width: 200, height: 100 }} src={item.backCart} />
           </td>
 
           <td style={{ maxWidth: 100 }}>

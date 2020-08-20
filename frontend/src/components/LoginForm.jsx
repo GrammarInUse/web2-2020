@@ -1,5 +1,6 @@
 import React, { PureComponent } from "react";
 import { Redirect } from "react-router-dom";
+import { api } from "./Staff/api";
 export default class LoginForm extends PureComponent {
   constructor() {
     super();
@@ -17,7 +18,15 @@ export default class LoginForm extends PureComponent {
   };
   onSubmit = (e) => {
     e.preventDefault();
-    this.props.onIsLogin();
+    api
+      .post("/login", this.state)
+      .then((res) => {
+        if (res.data.accessToken) {
+          localStorage.setItem("token", res.data.accessToken);
+          this.props.onIsLogin(res.data.data);
+        }
+      })
+      .catch((err) => console.log(err + ""));
   };
   render() {
     const { username, password } = this.state;
