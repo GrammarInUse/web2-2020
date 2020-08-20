@@ -24,7 +24,8 @@ const IdentityCard = require("./models/identity-card");
 
 
 const app = express();
-app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors());
 
 const customerRoutes = require("./api/routes/customers");
 const staffRoutes = require("./api/routes/staffs");
@@ -51,42 +52,6 @@ app.use(bodyParser.urlencoded({limit: '10mb', extended: true}))
 
 app.use("/customers", customerRoutes);
 app.use("/staffs", staffRoutes);
-
-//TEST UPLOAD
-// const uploadPath = path.join(__dirname, "../", "images");
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//       cb(null, uploadPath);
-//     },
-//     filename: (req, file, cb) => {
-//         //const newFileName = `${uuidv4()}${path.extname(file.originalname)}`;
-//         //   const newFileName = "tend.jpg";
-//         //   cb(null, newFileName);
-//         cb(null, file.originalname);
-//     }
-// });
-  
-// var fileFilter = function (req, file, cb) {
-//     if (file.mimetype === 'application/zip'){
-//         req.fileValidationError = 'goes wrong on the mimetype';
-//         return cb(new Error('mimetype does not match application/zip. upload rejected'));
-//     }
-
-//     console.log('>> fileFilter good = ', file.mimetype);
-//     cb(null, true);
-// }
-
-// const upload = multer({ storage: storage });
-
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
-
-// app.post('/upload', upload.single('file'), (req, res) => {
-//     console.log(req.file);
-//     res.status(200).json({
-//         userMessage: "DONE"
-//     })
-// });
 
 app.get("/getRates", async (req, res) => {
     const listOfRates = await ServiceTypes.findAll({

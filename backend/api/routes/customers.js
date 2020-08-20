@@ -15,6 +15,7 @@ const Transactions = require("../../models/transactions");
 const InformationUsers = require("../../models/information-user");
 const IdentifyCard = require("../../models/identity-card");
 const qs = require("querystring");
+const { USER_EMAIL, PASSWORD_EMAIL } = require("../../configs/config");
 
 //CUSTOMER API
 router.post("/verifyCode", async (req, res) => {
@@ -22,18 +23,25 @@ router.post("/verifyCode", async (req, res) => {
     const id = req.body.id;
     const tempAccount = await Accounts.findByPk(id);
     tempAccount.verifyCode = tempCode;
-    tempAccount.save()
+    await tempAccount.save()
     .then(async () => {
         const mailOptions = {
-            from:USER_EMAIL,
+            from: USER_EMAIL,
             to: tempAccount.email,
             subject: "Mã xác thực S-Ebanking",
             text: 'Mã xác thực của bạn là: ' + tempCode
         }
-        await Send(mailOptions);
-        return res.status(200).json({
-            userMessage: "Nhận mã xác thực trong email! Vui lòng kiểm tra và xác thực việc chuyển khoản!",
-        })
+        await Send(mailOptions).then(() => {
+            console.log("SENT");
+            return res.status(200).json({
+                userMessage: "Nhận mã xác thực trong email! Vui lòng kiểm tra và xác thực việc chuyển khoản!",
+            })
+        }).catch((err) => {
+            return res.status(201).json({
+                userMessage: "Có lỗi trong lúc giao dịch, vui lòng thử lại sau!"
+            })
+        });
+        
     })
     .catch((err) => {
         return res.status(201).json({
@@ -43,43 +51,44 @@ router.post("/verifyCode", async (req, res) => {
 
 })
 
-router.post("/getImages", async (req, res) => {
-    const currentUser = req.body.currentUser;
-    const nameOfPhoto = req.body.nameOfPhoto;
-    console.log(nameOfPhoto);
+//#region COMMENT
+// router.post("/getImages", async (req, res) => {
+//     const currentUser = req.body.currentUser;
+//     const nameOfPhoto = req.body.nameOfPhoto;
+//     console.log(nameOfPhoto);
 
-    const tempPath = path.join(__dirname, "../../public/images/PhotosOfId" + currentUser, nameOfPhoto + ".jpg");
-    console.log(tempPath);
+//     const tempPath = path.join(__dirname, "../../public/images/PhotosOfId" + currentUser, nameOfPhoto + ".jpg");
+//     console.log(tempPath);
 
-    const temp = fs.readFileSync(tempPath);
-    res.status(200).json({
-        userMessage: "DONE",
-        data: temp
-    })
-})
+//     const temp = fs.readFileSync(tempPath);
+//     res.status(200).json({
+//         userMessage: "DONE",
+//         data: temp
+//     })
+// })
 
-router.post("/upload/:nameOfPhoto/:id", async (req, res) => {   
-    const currentUser = req.params.id;
-    const nameOfPhoto = req.params.nameOfPhoto;
-    var body = [];
+// router.post("/upload/:nameOfPhoto/:id", async (req, res) => {   
+//     const currentUser = req.params.id;
+//     const nameOfPhoto = req.params.nameOfPhoto;
+//     var body = [];
     
-    req.on("data", (data) => {
-        body.push(data);
-    });
+//     req.on("data", (data) => {
+//         body.push(data);
+//     });
 
-    req.on("end", () => {
-        var post = qs.parse(body);
-        const data = Buffer.concat(body);
-        fs.writeFile("./public/images/PhotosOfId" + currentUser + "/" + nameOfPhoto + ".jpg", data, () => {
-            console.log("DONE");
-        })
-    })
+//     req.on("end", () => {
+//         var post = qs.parse(body);
+//         const data = Buffer.concat(body);
+//         fs.writeFile("./public/images/PhotosOfId" + currentUser + "/" + nameOfPhoto + ".jpg", data, () => {
+//             console.log("DONE");
+//         })
+//     })
 
-    return res.status(200).json({
-        userMessage: "Successfully written"
-    })
-});
-
+//     return res.status(200).json({
+//         userMessage: "Successfully written"
+//     })
+// });
+//#endregion
 router.post("/signup", async (req, res) => {
     const id = Date.now().toString();
     const username = req.body.username;
@@ -134,9 +143,6 @@ router.post("/signup", async (req, res) => {
                 password,
                 verifyToken
             }).then(() => {
-                fs.mkdir("./public/images/PhotosOfId" + id, () => {
-                    console.log("SUCCESSFULLY CREATED FOLDER FOR USER:")
-                })
                 console.log("Succesfully created a account");
             })
             .catch((err) => {
@@ -147,7 +153,12 @@ router.post("/signup", async (req, res) => {
             await Services.create({
                 id: serviceId,
                 accountId
-            });
+            }).then(() => {
+                console.log("Succesfully created a Services");
+            })
+            .catch((err) => {
+                console.log("Something went wrong when you create an Services!" + err);
+            });;
             
             await CustomerInfo.create({
                 fullName,
@@ -157,7 +168,7 @@ router.post("/signup", async (req, res) => {
                 accountId
             }).then(() => {
                 return res.status(202).json({
-                    message: "Succesfully created a customer"
+                    message: "Succesfully created a Customer Info"
                 });
             })
             .catch((err) => {
@@ -183,7 +194,7 @@ router.post("/signup", async (req, res) => {
 
     const url = "http://localhost:8080/customers/signup/" + tempUser.get().id + "/" + tempUser.get().verifyToken;
     const mailOptions = {
-        from:USER_EMAIL,
+        from: USER_EMAIL,
         to: tempUser.email,
         subject: "Xác thực tài khoản S-Ebanking",
         text: 'Liên kết vào link sau để kích hoạt tài khoản: ' + url
@@ -234,6 +245,105 @@ router.post("/login", async (req, res) => {
             customer: null
         });
     }
+});
+
+router.post("/getAvatar", checkAuth.checkAuthCustomer, async (req, res) => {
+    const currentUser = req.body.currentUser;
+
+    const tempAccount = await Accounts.findByPk(currentUser);
+    const tempAvatar = tempAccount.avatar;
+
+    //console.log(tempAccount);
+
+    res.status(200).json({
+        userMessage: "DONE",
+        data: tempAvatar
+    })
+})
+
+router.post("/getFrontIdentify", checkAuth.checkAuthCustomer, async (req, res) => {
+    const currentUser = req.body.currentUser;
+
+    const tempIdentifyCard = await IdentifyCard.findAll({
+        where: {
+            accountId: currentUser
+        }
+    });
+    const tempidentify = tempIdentifyCard[0].dataValues.frontOfIdentify ? tempIdentifyCard[0].dataValues.frontOfIdentify : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog";
+
+    //console.log(tempAccount);
+
+    res.status(200).json({
+        userMessage: "DONE",
+        data: tempidentify
+    })
+})
+
+router.post("/getBackIdentify", checkAuth.checkAuthCustomer, async (req, res) => {
+    const currentUser = req.body.currentUser;
+
+    const tempIdentifyCard = await IdentifyCard.findAll({
+        where: {
+            accountId: currentUser
+        }
+    });
+
+    const tempidentify = tempIdentifyCard[0].dataValues.backOfIdentify ? tempIdentifyCard[0].dataValues.backOfIdentify : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog";
+
+    //console.log(tempAccount);
+
+    res.status(200).json({
+        userMessage: "DONE",
+        data: tempidentify
+    })
+})
+
+router.post("/upload", checkAuth.checkAuthCustomer, async (req, res) => {
+    const currentUser = req.body.currentUser;
+    const avatar = req.body.avatar;
+    const tempAccount = await Accounts.findByPk(currentUser);
+    tempAccount.avatar = avatar;
+
+    await tempAccount.save()
+    .then(() => {
+        console.log("STEP 4");
+        return res.status(200).json({
+            userMessage: "Successfully Image uploaded"
+        })
+    })
+    .catch(err => {
+        console.log("FAILED");
+        return res.status(200).json({
+            userMessage: "Failed Image uploaded"
+        })
+    })
+});
+
+router.post("/verify", checkAuth.checkAuthCustomer, async (req, res) => {
+    const currentUser = req.body.currentUser;
+    const identifyId = req.body.identifyId;
+    const dOI = req.body.dOI;
+    const front = req.body.front;
+    const back = req.body.back;
+
+    await IdentifyCard.create({
+        id: identifyId,
+        dOIssuance: dOI,
+        frontOfIdentify: front,
+        backOfIdentify: back,
+        accountId: currentUser
+    }).then((result) => {
+        console.log("DONE");
+        return res.status(200).json({
+            userMessage: "Successfully",
+            data: result
+        });
+    }).catch((err) => {
+        console.log(err);
+        return res.status(400).json({
+            userMessage: "Failed"
+        });
+    });  
 });
 
 router.get("/:id", checkAuth.checkAuthCustomer, async (req, res) => {
@@ -334,8 +444,15 @@ router.get("/signup/:id/:verifyToken", async (req, res) => {
 });
 
 router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
-    const id = Date.now().toString();
     const idOfSender = req.body.sender;
+    const tempAccount = await Accounts.findByPk(idOfSender);
+    if(tempAccount.isVerified === 0 || tempAccount.isVerified === -1){
+        return res.status(401).json({
+            userMessage: "Bạn chưa chứng thực tài khoản"
+        });
+    }
+
+    const id = Date.now().toString();
     const coinOfTransferRaw = req.body.cOT;
     const verifyCode = req.body.verifyCode;
     console.log(verifyCode);
@@ -474,9 +591,6 @@ router.get("/history/:id", checkAuth.checkAuthCustomer, async (req, res) => {
     }
 });
 
-router.post("verify", checkAuth.checkAuthCustomer, async (req, res) => {
-    
-});
 
 
 

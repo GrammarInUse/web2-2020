@@ -3,7 +3,7 @@ const sequelize = require("sequelize");
 const Model = sequelize.Model;
 const Accounts = require("./accounts");
 
-class IdentityCard extends Model{  }
+class IdentityCard extends Model{ }
 
 IdentityCard.init({
     id: {
@@ -16,23 +16,23 @@ IdentityCard.init({
         references: {
             key: "id",
             model: Accounts
-        },
+        }
     },
     dOissuance:{
         type: sequelize.DATEONLY,
-        allowNull: false
+        allowNull: true
     },
     frontOfIdentify: {
         type: sequelize.TEXT,
-        allowNull: false
+        allowNull: true
     },
     backOfIdentify: {
         type: sequelize.TEXT,
-        allowNull: false
+        allowNull: true
     }
 },{
     sequelize: db,
     ModalName:"IdentityCard"
 });
 
-module.exports=IdentityCard;
+module.exports = IdentityCard;
