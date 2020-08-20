@@ -2,7 +2,8 @@ const db = require("./db");
 const sequelize = require("sequelize");
 const Model = sequelize.Model;
 const Accounts = require("./accounts");
-class IdentityCard extends Model{  }
+
+class IdentityCard extends Model{ }
 
 IdentityCard.init({
     id: {
@@ -15,25 +16,29 @@ IdentityCard.init({
         references: {
             key: "id",
             model: Accounts
-        },
+        }
     },
     dOissuance:{
         type: sequelize.DATEONLY,
-        allowNull: false
+        allowNull: true
     },
     frontOfIdentify: {
         type: sequelize.TEXT,
-        allowNull: false
+        allowNull: true
     },
     backOfIdentify: {
         type: sequelize.TEXT,
-        allowNull: false
+        allowNull: true
     }
 },{
     sequelize: db,
     ModalName:"IdentityCard"
 });
 
+<<<<<<< HEAD
+module.exports = IdentityCard;
+=======
 IdentityCard.belongsTo(Accounts,{foreignKey:"accountId"})
 
 module.exports=IdentityCard;
+>>>>>>> 856faeab6646e518bdca720fb71cb384e1e1db34

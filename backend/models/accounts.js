@@ -51,6 +51,10 @@ Accounts.init({
     verifyCode: {
         type: sequelize.TEXT,
         allowNull: true
+    },
+    avatar: {
+        type: sequelize.TEXT,
+        allowNull: true
     }
 },{
     sequelize: db,
