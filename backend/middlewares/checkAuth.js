@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const Staffs = require("../models/staffs");
 const rateLimit = require('express-rate-limit');
 const { SECRET_KEY } = require("../configs/config");
-const { ne } = require("sequelize/types/lib/operators");
+// const { ne } = require("sequelize/types/lib/operators");
 
 
 const apiKey = SECRET_KEY;
