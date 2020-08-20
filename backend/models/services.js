@@ -50,6 +50,6 @@ Services.init({
     ModelName: "Services"
 });
 
-
-
+Services.belongsTo(Accounts,{foreignKey: "accountId"})
+Services.belongsTo(ServiceTypes,{foreignKey:"serviceType"})
 module.exports = Services; 
