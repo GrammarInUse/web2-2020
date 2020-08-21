@@ -12,8 +12,6 @@ const checkAuth = require("../../middlewares/checkAuth");
 const ServiceTypes = require("../../models/service-types");
 const { SECRET_KEY } = require("../../configs/config");
 const IdentityCard = require("../../models/identity-card");
-const Services = require("../../models/services");
-const Op = require("sequelize").Op;
 
 router.post("/login", checkAuth.loginAccountLimiter, async (req, res) => {
   try {
@@ -461,59 +459,6 @@ router.put("/editRate/:id", checkAuth.checkAuthStaff, async (req, res) => {
 
       return res.status(200).json({
         result: "ok",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-});
-
-router.get("/services", async (req, res) => {
-  try {
-    const listServices = await Services.findAll({
-      where: {
-        maturity: {
-          [Op.lte]: new Date().toISOString(),
-        },
-        serviceType: {
-          [Op.ne]: 0,
-        },
-      },
-      include: [
-        {
-          model: Accounts,
-          attributes: ["email"],
-          where: {
-            accountType: 1,
-          },
-        },
-        {
-          model: ServiceTypes,
-          attributes: ["name"],
-        },
-      ],
-    });
-
-    if (listServices.length > 0) {
-      let data = [];
-
-      listServices.forEach((item) => {
-        data.push({
-          accountId: item.accountId,
-          serviceType: item.serviceType,
-          email: item.Account.email,
-          ServiceType: item.ServiceType.name
-        });
-      });
-      res.status(200).json({
-        result: "ok",
-        data: data,
-      });
-    } else {
-      res.status(204).json({
-        result: "failed",
-        data: [],
       });
     }
   } catch (error) {
