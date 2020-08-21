@@ -5,6 +5,6 @@ export const api = Axios.create({
 
   headers: {
     "Content-Type": "application/json",
-    authorization: `Bear ${token}`,
+    "Authorization": `Bearer ${token}`,
   },
 });

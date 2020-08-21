@@ -9,6 +9,7 @@ import Rate from "./components/Staff/Rate";
 import StaffManager from "./components/Staff/StaffManager";
 import Verify from "./components/Staff/Verify";
 import LoginForm from "./components/LoginForm";
+
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route
     {...rest}
@@ -49,7 +50,7 @@ class App extends Component {
   componentDidMount() {}
   render() {
     let { isLogin } = this.state;
-
+    console.log(process.env.BASE_URL);
     return (
       <div className="App">
         <NavMenu isLogin={isLogin} onIsLogout={this.onIsLogout} />
