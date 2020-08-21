@@ -10,8 +10,9 @@ const generator = require("generate-password");
 const jwt = require("jsonwebtoken");
 const checkAuth = require("../../middlewares/checkAuth");
 const ServiceTypes = require("../../models/service-types");
-const { SECRET_KEY } = require("../../configs/config");
+const { SECRET_KEY, USER_EMAIL } = require("../../configs/config");
 const IdentityCard = require("../../models/identity-card");
+const Services = require("../../models/services");
 
 router.post("/login", checkAuth.loginAccountLimiter, async (req, res) => {
   try {
@@ -141,7 +142,7 @@ router.post("/addStaff", checkAuth.checkAuthStaff, async (req, res) => {
     })
       .then((account) => {
         const mailOptions = {
-          from: "hlb0932055041@gmail.com",
+          from: USER_EMAIL,
           to: account.email,
           subject: "Your username and password!",
           text: `Your account:
@@ -379,8 +380,7 @@ router.get("/verify", async (req, res) => {
 
 router.get("/find-user", async (req, res) => {
   try {
-    const listAccount = await informationUser.findAll({
-      attributes: ["fullName", "dOB", "sex", "phone", "accountId"],
+    const listAccount = await Services.findAll({
       include: [
         {
           model: Accounts,

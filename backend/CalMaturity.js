@@ -1,11 +1,11 @@
 require("dotenv").config();
 const cron = require("cron");
-const Services = require("../models/services");
-const ServiceTypes = require("../models/service-types");
+const Services = require("./models/services");
+const ServiceTypes = require("./models/service-types");
 const Op = require("sequelize").Op;
-const Accounts = require("../models/accounts");
-const { USER_EMAIL } = require("../configs/config");
-const Send = require("./send-email");
+const Accounts = require("./models/accounts");
+const { USER_EMAIL } = require("./configs/config");
+const Send = require("./services/send-email");
 
 const listCustomers = async () => {
   let temp = [];
