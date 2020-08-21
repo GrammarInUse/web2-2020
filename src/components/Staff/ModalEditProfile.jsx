@@ -7,12 +7,12 @@ class ModalEditProfile extends PureComponent {
     super(props);
     let { staff } = props;
     this.state = {
-      id: staff.id,
-      name: staff.name,
+      accountId: staff.accountId,
+      name: staff.fullname,
       position: staff.position,
       salary: staff.salary,
       role: staff.role,
-      email: staff.email,
+      email: staff.Account.email,
 
       nameErr: "",
       posErr: "",
@@ -21,7 +21,7 @@ class ModalEditProfile extends PureComponent {
   }
   closeModal = () => {
     this.setState({
-      id: null,
+      idaccountId: null,
       name: "",
       position: "",
       salary: 0,
@@ -51,7 +51,7 @@ class ModalEditProfile extends PureComponent {
     let nameErr = "";
     let posErr = "";
     let salErr = "";
-    let emailErr = "";
+
     let isName = re.test(this.removeAscent(name));
     let isPos = re.test(this.removeAscent(position));
     let isSal = sa.test(salary);
@@ -81,10 +81,9 @@ class ModalEditProfile extends PureComponent {
   createStaff = async () => {
     let { name, position, email, salary, role } = this.state;
     let data = { name, position, email, salary, role };
-    let staff = await api
+    await api
       .post("/addStaff/", data)
       .then((res) => {
-        console.log(res);
         this.props.onGetAll();
       })
       .catch((err) => {
@@ -94,11 +93,12 @@ class ModalEditProfile extends PureComponent {
   updateStaff = async () => {
     let { name, position, salary, role } = this.state;
     let data = { name, position, salary, role };
-    let staff = await api
-      .put(`/editStaff/${this.state.id}`, data)
+    await api
+      .put(`/editStaff/${this.state.accountId}`, data)
       .then((res) => {
-        console.log(res.status);
-        this.props.onGetAll();
+        if (res.data.result === "ok") {
+          this.props.onGetAll();
+        }
       })
       .catch((err) => {
         console.log(err + "");

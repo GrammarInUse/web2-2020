@@ -20,7 +20,11 @@ class Verify extends PureComponent {
   getAll = async () => {
     let data = await api
       .get("/verify/")
-      .then(({ data }) => data)
+      .then(({ data }) => {
+        this.setState({
+          listUserVeri: data,
+        });
+      })
       .catch((err) => []);
     this.setState({
       listUserVeri: data,

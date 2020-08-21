@@ -24,9 +24,14 @@ class StaffManager extends Component {
   }
 
   getAll = async () => {
-    let staffs = await api.get("/listStaff/").then(({ data }) => data);
-    this.setState({
-      staffs,
+    api.get("/listStaff").then(({ data }) => {
+      if (data.data) {
+        this.setState({
+          staffs: data.data,
+        });
+      } else {
+        this.props.onIsLogout();
+      }
     });
   };
   Lock = (id) => {
@@ -34,17 +39,19 @@ class StaffManager extends Component {
     const staff = this.state.staffs[index];
     let { staffs } = this.state;
     api
-      .put(`blockAccount/${id}`, { isLock: !staff.isLock })
+      .put(`blockAccount/${id}`)
       .then((res) => {
-        console.log(res.data);
+        console.log(res);
+        if (res.data.result === "ok") {
+          staffs[index].isLock = !staff.isLock;
+          this.setState({
+            staffs: [...staffs],
+          });
+        }
       })
       .catch((err) => {
         console.log(err + "");
       });
-    staffs[index].isLock = !staff.isLock;
-    this.setState({
-      staffs: [...staffs],
-    });
   };
   componentDidMount() {
     this.getAll();
@@ -53,7 +60,7 @@ class StaffManager extends Component {
     let staffs = this.state.staffs;
     let index = -1;
     staffs.forEach((item, i) => {
-      if (item.id === id) {
+      if (item.accountId === id) {
         index = i;
       }
     });
@@ -65,14 +72,14 @@ class StaffManager extends Component {
   listStaff = () => {
     let staffs = this.state.staffs;
     let list = staffs.map((item, index) => {
-      let role = item.role === 1 ? "watch" : "edit";
+      let role = item.role === 1 ? "Staff" : "Admin";
 
       return (
         <tbody key={index}>
           <tr id="listStaff">
-            <td>{item.id}</td>
-            <td>{item.name}</td>
-            <td>{item.email}</td>
+            <td>{item.accountId}</td>
+            <td>{item.fullname}</td>
+            <td>{item.Account.email}</td>
             <td>{item.position}</td>
             <td>{item.salary}</td>
             <td>{role}</td>
@@ -81,7 +88,7 @@ class StaffManager extends Component {
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={() => this.toggleModal(item.id)}
+                  onClick={() => this.toggleModal(item.accountId)}
                 >
                   <FaEdit />
                 </button>
@@ -91,7 +98,7 @@ class StaffManager extends Component {
                 <button
                   type="button"
                   className="btn  btn-danger"
-                  onClick={() => this.onLock(item.id)}
+                  onClick={() => this.onLock(item.accountId)}
                 >
                   {item.isLock ? <FaLock /> : <FaLockOpen />}
                 </button>

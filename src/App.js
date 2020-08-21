@@ -50,7 +50,7 @@ class App extends Component {
   componentDidMount() {}
   render() {
     let { isLogin } = this.state;
-    console.log(process.env.BASE_URL);
+
     return (
       <div className="App">
         <NavMenu isLogin={isLogin} onIsLogout={this.onIsLogout} />
@@ -68,6 +68,7 @@ class App extends Component {
             component={StaffManager}
             token={token}
             isLogin={isLogin}
+            onIsLogout={this.onIsLogout}
           />
           <PrivateRoute
             path="/find-user"
