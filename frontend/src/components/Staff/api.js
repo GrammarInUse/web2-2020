@@ -1,4 +1,10 @@
-import Axios from 'axios'
+import Axios from "axios";
+const token = localStorage.getItem("token");
 export const api = Axios.create({
-    baseURL: "http://localhost:8080/staffs",
+  baseURL: "https://s-ebanking-api.herokuapp.com/staffs",
+
+  headers: {
+    "Content-Type": "application/json",
+    authorization: `Bear ${token}`,
+  },
 });

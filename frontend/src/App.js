@@ -17,26 +17,42 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
     }
   />
 );
+const token = localStorage.getItem("token");
 class App extends Component {
   constructor() {
     super();
-    const token = localStorage.getItem("token");
+
     const isLogin = token !== null ? true : false;
 
     this.state = {
+      staff: {
+        id: null,
+        name: "",
+        salary: 0,
+        position: "",
+        role: null,
+      },
       isLogin,
     };
   }
-  onIsLogin = () => {
+  onIsLogin = (data) => {
     this.setState({
+      staff: data,
       isLogin: true,
     });
   };
+  onIsLogout = () => {
+    this.setState({
+      isLogin: false,
+    });
+  };
+  componentDidMount() {}
   render() {
     let { isLogin } = this.state;
+
     return (
       <div className="App">
-        <NavMenu isLogin={isLogin} />
+        <NavMenu isLogin={isLogin} onIsLogout={this.onIsLogout} />
 
         <Switch>
           <Route exact path="/">
@@ -49,6 +65,7 @@ class App extends Component {
           <PrivateRoute
             path="/staffmanager"
             component={StaffManager}
+            token={token}
             isLogin={isLogin}
           />
           <PrivateRoute
