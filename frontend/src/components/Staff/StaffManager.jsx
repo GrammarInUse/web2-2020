@@ -4,17 +4,15 @@ import "./style.css";
 import ModalEditProfile from "./ModalEditProfile";
 
 import { api } from "./api";
-
 let staff = {
+  id: "",
   id: null,
   name: "",
   position: "",
   salary: 0,
   role: 1,
   email: "",
-  isLock: false,
 };
-
 class StaffManager extends Component {
   constructor(props) {
     super(props);
@@ -27,7 +25,6 @@ class StaffManager extends Component {
 
   getAll = async () => {
     let staffs = await api.get("/listStaff/").then(({ data }) => data);
-
     this.setState({
       staffs,
     });
@@ -68,7 +65,7 @@ class StaffManager extends Component {
   listStaff = () => {
     let staffs = this.state.staffs;
     let list = staffs.map((item, index) => {
-      let role = item.role ? "watch" : "edit";
+      let role = item.role === 1 ? "watch" : "edit";
 
       return (
         <tbody key={index}>

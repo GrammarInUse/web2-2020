@@ -4,8 +4,6 @@ const jwt = require("jsonwebtoken");
 const Staffs = require("../models/staffs");
 const rateLimit = require('express-rate-limit');
 const { SECRET_KEY } = require("../configs/config");
-// const { ne } = require("sequelize/types/lib/operators");
-
 
 const apiKey = SECRET_KEY;
 
@@ -64,12 +62,8 @@ const checkAuthStaff = async (req, res, next) => {
         decentralizationId: staff.decentralizationId,
       };
       next();
-    }else{
-      res.status(401).json({
-        message: "Information of Staff is NULL!!!",
-      });
-      next();
     }
+    next();
   } catch (error) {
     res.status(401).json({ error: "Authentication Failed ! " + error });
   }

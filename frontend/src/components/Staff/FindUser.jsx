@@ -14,7 +14,7 @@ export default class FindUser extends Component {
       .get("/find-user/")
       .then(({ data }) => {
         this.setState({
-          listUser: data,
+          listUser: [...data],
         });
       })
       .catch((err) => {

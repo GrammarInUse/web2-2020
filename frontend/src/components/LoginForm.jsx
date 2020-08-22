@@ -1,109 +1,71 @@
-import React, { Component } from "react";
-import { PureComponent } from "react";
-import {api} from "./api"
-import { Redirect,useHistory } from "react-router-dom";
+import React, { PureComponent } from "react";
+import { Redirect } from "react-router-dom";
+import { api } from "./Staff/api";
 export default class LoginForm extends PureComponent {
-  constructor(){
-    super()
+  constructor() {
+    super();
     this.state = {
-      username:"",
-      password:"",
-      
-      
+      username: "",
+      password: "",
     };
   }
-  closeForm=()=>{
-   this.props.onToggleForm(1);
-  }
-  changeHandler = (e) => {
+
+  onChange = (e) => {
+    let { name, value } = e.target;
     this.setState({
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
-
-  submitHandler =async (e) => {
+  onSubmit = (e) => {
     e.preventDefault();
-    console.log(this.state)
-    await api.post('/customers/login',this.state).then((res)=>{
-      localStorage.setItem("token",res.data.token)
-      this.closeForm();
-    return <Redirect to="/verify" />;
-    })
-
- 
+    api
+      .post("/login", this.state)
+      .then((res) => {
+        if (res.data.accessToken) {
+          localStorage.setItem("token", res.data.accessToken);
+          this.props.onIsLogin(res.data.data);
+        }
+      })
+      .catch((err) => console.log(err + ""));
   };
   render() {
+    const { username, password } = this.state;
+    if (this.props.isLogin) {
+      return <Redirect to="/staffmanager" />;
+    }
     return (
-      <div>
-        <div id="id01" >
-          <form className="modal-content animate" onSubmit={this.submitHandler}>
-            <div className="imgcontainer">
-              <span
-               onClick={this.closeForm}
-                className="close"
-                title="Close Modal"
-              >
-                ×
-              </span>
-              <img
-                src="img/clients/client-1.png"
-                alt="Avatar"
-                className="avatar"
-              />
-            </div>
-            <div className="container row">
-              <label htmlFor="uname">
-                <b>Username</b>
-              </label>
-              <input
-                type="text"
-                onChange={this.changeHandler}
-                placeholder="Enter Username"
-                name="username"
-                required
-              />
-              <br />
-              <label htmlFor="psw">
-                <b>Password</b>
-              </label>
-              <input
-                type="password"
-                onChange={this.changeHandler}
-                placeholder="Enter Password"
-                name="password"
-                required
-              />
-              <br />
-              <button className="btnSubmit" type="submit">
-                Login
-              </button>
-              <br />
-              <label>
-                <input
-                  type="checkbox"
-                  defaultChecked="checked"
-                  name="remember"
-                />{" "}
-                Remember me
-              </label>
-            </div>
-            <div className="container" style={{ backgroundColor: "#f1f1f1" }}>
-              <button
-                type="button"
-              onClick={this.closeForm}
-                className="cancelbtn"
-              >
-                Cancel
-              </button>
-              <span className="psw">
-                Forgot{" "}
-                <a style={{ color: "black" }} href="#">
-                  password?
-                </a>
-              </span>
-            </div>
-          </form>
-        </div>
+      <div
+        style={{
+          width: "50%",
+          height: "60%",
+          marginLeft: "25%",
+          marginTop: 150,
+          backgroundColor: "#e8ded2",
+        }}
+      >
+        <h2>Login Form</h2>
+        <form
+          style={{
+            height: "300px",
+          }}
+          onSubmit={this.onSubmit}
+        >
+          <label>UserName</label>
+          <input
+            type="text"
+            name="username"
+            value={username}
+            onChange={this.onChange}
+          />
+          <label>PassWord</label>
+          <input
+            type="password"
+            name="password"
+            value={password}
+            onChange={this.onChange}
+          />
+          <button type="submit">Login</button>
+        </form>
       </div>
     );
   }

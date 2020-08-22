@@ -1,6 +1,4 @@
-import React, { Component } from "react";
-import { PureComponent } from "react";
-import { FaCheck, FaTimes } from "react-icons/fa";
+import React, { PureComponent } from "react";
 import { api } from "./api";
 class Verify extends PureComponent {
   constructor() {
@@ -41,11 +39,7 @@ class Verify extends PureComponent {
             <img style={{ width: 200, height: 100 }} src={item.frontCart} />
           </td>
           <td>
-            <img
-              style={{ width: 200, height: 100 }}
-              src={item.backCart}
-              alt=""
-            />
+            <img style={{ width: 200, height: 100 }} src={item.backCart} />
           </td>
 
           <td style={{ maxWidth: 100 }}>
@@ -76,9 +70,9 @@ class Verify extends PureComponent {
   handleVeri = (id, flag) => {
     let data = {};
     if (flag === 1) {
-      data = { isVerified: 1 };
+      data = 1;
     } else {
-      data = { isVerified: -1 };
+      data = -1;
     }
     api
       .put(`./verifyHandle/${id}`, data)

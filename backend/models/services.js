@@ -18,7 +18,7 @@ Services.init({
         primaryKey: true
     },
     balance: {
-        type: sequelize.BIGINT,
+        type: sequelize.DOUBLE,
         allowNull: false,
         defaultValue: 0
     },
@@ -26,6 +26,11 @@ Services.init({
     maturity: {
         type: sequelize.DATE,
         allowNull: true
+    },
+    cycle:{
+        type: sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: 0
     },
     serviceType: {
         type: sequelize.INTEGER,
@@ -39,7 +44,6 @@ Services.init({
     accountId: {
         type: sequelize.TEXT,
         allowNull: false,
-        unique: true,
         references: {
             key: "id",
             model: Accounts
@@ -50,6 +54,6 @@ Services.init({
     ModelName: "Services"
 });
 
-
-
+Services.belongsTo(Accounts,{foreignKey: "accountId"})
+Services.belongsTo(ServiceTypes,{foreignKey:"serviceType"})
 module.exports = Services; 

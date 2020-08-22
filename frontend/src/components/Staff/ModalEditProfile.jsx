@@ -1,8 +1,6 @@
 import React, { PureComponent } from "react";
-import * as bootstrapValidate from "bootstrap-validate";
-
-import "./style.css";
 import { api } from "./api";
+import "./style.css";
 
 class ModalEditProfile extends PureComponent {
   constructor(props) {
@@ -82,11 +80,16 @@ class ModalEditProfile extends PureComponent {
   };
   createStaff = async () => {
     let { name, position, email, salary, role } = this.state;
-    let data = { name, position, email, salary, role, isLock: false };
-    let staff = await api.post("/addStaff/", data).then((res) => {
-      this.props.onGetAll();
-    });
-    return staff;
+    let data = { name, position, email, salary, role };
+    let staff = await api
+      .post("/addStaff/", data)
+      .then((res) => {
+        console.log(res);
+        this.props.onGetAll();
+      })
+      .catch((err) => {
+        console.log(err + "");
+      });
   };
   updateStaff = async () => {
     let { name, position, salary, role } = this.state;
@@ -106,7 +109,9 @@ class ModalEditProfile extends PureComponent {
     let target = e.target;
     let name = target.name;
     let value = target.value;
-
+    if (name === "role") {
+      value = value === "2" ? 2 : 1;
+    }
     this.setState({
       [name]: value,
     });
@@ -209,24 +214,15 @@ class ModalEditProfile extends PureComponent {
                     <label>Role:</label>
                   </td>
                   <td>
-                    <select
-                      name="role"
-                      id="select"
-                      onChange={this.onChange}
-                      defaultValue={!role ? false : true}
-                    >
-                      <option value={true}>Watch</option>
-                      <option value={false}>Edit</option>
+                    <select name="role" id="select" onChange={this.onChange}>
+                      <option value="1">Watch</option>
+                      <option value="2">Edit</option>
                     </select>
                   </td>
                 </tr>
               </tbody>
 
-              <button
-                type="submit"
-                className="btn btn-sm btn-success"
-                disabled={validate === false ? true : false}
-              >
+              <button type="submit" className="btn btn-sm btn-success">
                 {id !== null ? "UPDATE" : "ADD"}
               </button>
             </form>
