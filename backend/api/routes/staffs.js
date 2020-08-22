@@ -166,10 +166,10 @@ router.post("/addStaff", checkAuth.checkAuthStaff, async (req, res) => {
       });
 
     const accountId = id;
-    const fullname = req.body.name;
+    const fullname = req.body.fullname;
     const position = req.body.position;
     const salary = req.body.salary;
-    let decentralizationId = req.body.role;
+    let decentralizationId = req.body.decentralizationId;
 
     await Staffs.create({
       accountId,
