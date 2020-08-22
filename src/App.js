@@ -9,6 +9,7 @@ import Rate from "./components/Staff/Rate";
 import StaffManager from "./components/Staff/StaffManager";
 import Verify from "./components/Staff/Verify";
 import LoginForm from "./components/LoginForm";
+import ServerError from "./components/ServerError";
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route
@@ -59,16 +60,19 @@ class App extends Component {
           <Route exact path="/">
             <LoginForm onIsLogin={this.onIsLogin} isLogin={isLogin} />
           </Route>
+          <Route exact path="/503page">
+            <ServerError />
+          </Route>
           <Route path="/login">
             <LoginForm onIsLogin={this.onIsLogin} isLogin={isLogin} />
           </Route>
           <PrivateRoute path="/verify" component={Verify} isLogin={isLogin} />
           <PrivateRoute
             path="/staffmanager"
+            onIsLogout={this.onIsLogout}
             component={StaffManager}
             token={token}
             isLogin={isLogin}
-            onIsLogout={this.onIsLogout}
           />
           <PrivateRoute
             path="/find-user"

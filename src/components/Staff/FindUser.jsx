@@ -1,21 +1,28 @@
 import React, { Component } from "react";
 import { api } from "./api";
+import Loading from "../Loading";
 
 export default class FindUser extends Component {
   constructor() {
     super();
+    const token = localStorage.getItem("token") || "";
+    api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
       listUser: [],
       key: "",
+      isLoading: false,
     };
   }
   getAll = async () => {
     api
       .get("/find-user/")
       .then(({ data }) => {
-        this.setState({
-          listUser: [...data],
-        });
+        if (data.data) {
+          this.setState({
+            listUser: data.data,
+            isLoading: true,
+          });
+        }
       })
       .catch((err) => {
         alert(err + "");
@@ -33,7 +40,10 @@ export default class FindUser extends Component {
   };
 
   render() {
-    let { key, listUser } = this.state;
+    let { key, listUser, isLoading } = this.state;
+    if (!isLoading) {
+      return <Loading />;
+    }
 
     if (key) {
       listUser = listUser.filter((user) => {
@@ -52,10 +62,9 @@ export default class FindUser extends Component {
     return (
       <div
         style={{
-          marginTop: 150,
+          marginTop: 100,
           height: "auto",
           minHeight: "100%",
-          backgroundColor: "#ffffdd",
         }}
       >
         <div className="find">

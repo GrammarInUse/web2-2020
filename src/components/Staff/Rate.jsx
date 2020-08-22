@@ -1,23 +1,19 @@
-import React, { Component } from "react";
-import { PureComponent } from "react";
-import {
-  FaCheck,
-  FaTimes,
-  FaPlus,
-  FaEdit,
-  FaLock,
-  FaLockOpen,
-} from "react-icons/fa";
-import ModalEditRate from "./ModalEditRate";
+import React, { PureComponent } from "react";
+import { FaEdit, FaLock, FaLockOpen, FaPlus } from "react-icons/fa";
+import Loading from "../Loading";
 import { api } from "./api";
+import ModalEditRate from "./ModalEditRate";
 
-let rate = { id: null, term: "", rate: 0, isLock: false };
+let rate = { id: null, name: "", value: 0, maturity: null };
 class Rate extends PureComponent {
   constructor() {
     super();
+    const token = localStorage.getItem("token") || "";
+    api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
       status: false,
       listRate: [],
+      isLoading: true,
     };
   }
 
@@ -38,58 +34,22 @@ class Rate extends PureComponent {
         rate = this.state.listRate[index];
       }
     } else {
-      rate = { id: null, term: "", rate: 0, isLock: false };
+      rate = { id: null, name: "", value: 0, maturity: null };
     }
     this.setState({
       status: !this.state.status,
     });
   };
-  onLock = (id) => {
-    const index = this.findIndex(id);
 
-    api
-      .put(`/rate/${id}`, { isLock: !this.state.listRate[index].isLock })
-      .then((res) => {
-        console.log(res.status);
-      })
-      .catch((err) => {
-        console.log(err + "");
-      });
-    let { listRate } = this.state;
-    listRate[index].isLock = !listRate[index].isLock;
-    this.setState({
-      listRate: [...listRate],
-    });
-  };
   listRate = () => {
     return this.state.listRate.map((item, index) => {
       return (
-        <tr>
+        <tr key={index}>
           <td>{item.id}</td>
-          <td>{item.term}</td>
-          <td>{item.rate} %</td>
+          <td>{item.name}</td>
+          <td>{item.value} %</td>
 
-          <td style={{ maxWidth: 100 }}>
-            <td style={{ border: "none" }}>
-              <button
-                type="button"
-                class="btn btn-primary"
-                onClick={() => this.onToggleModal(item.id)}
-              >
-                <FaEdit />
-              </button>
-            </td>
-
-            <td style={{ border: "none" }}>
-              <button
-                type="button"
-                className="btn  btn-danger"
-                onClick={() => this.onLock(item.id)}
-              >
-                {item.isLock ? <FaLock /> : <FaLockOpen />}
-              </button>
-            </td>
-          </td>
+          <td>{item.maturity === null ? 0 : item.maturity}</td>
         </tr>
       );
     });
@@ -97,7 +57,14 @@ class Rate extends PureComponent {
   getAll = async () => {
     let data = await api
       .get("/rate/")
-      .then(({ data }) => data)
+      .then(({ data }) => {
+        if (data.data) {
+          this.setState({
+            listRate: data.data,
+            isLoading: true,
+          });
+        }
+      })
       .catch((err) => {
         console.log(err + "");
       });
@@ -106,15 +73,17 @@ class Rate extends PureComponent {
     this.getAll();
   }
   render() {
-    const { status } = this.state;
+    const { status, isLoading } = this.state;
 
+    if (!isLoading) {
+      return <Loading />;
+    }
     return (
       <div
         style={{
-          marginTop: 150,
+          marginTop: 100,
           height: "auto",
           minHeight: "100%",
-          backgroundColor: "#ffffdd",
         }}
       >
         <div class="panel panel-default">
@@ -133,10 +102,10 @@ class Rate extends PureComponent {
             <thead>
               <tr>
                 <th> ID </th>
-                <th> Term </th>
-                <th>Rate</th>
+                <th> Name </th>
+                <th>Value</th>
 
-                <th>Handle</th>
+                <th>Maturity</th>
               </tr>
             </thead>
             <tbody>{this.listRate()}</tbody>

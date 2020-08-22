@@ -2,38 +2,45 @@
   position: fixed;
   width: 100%;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.8);
   top: 0;
   left: 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .profile {
   position: relative;
   background-color: wheat;
   width: 50%;
   height: 70%;
 }
+
 .formEdit tr {
   padding-top: 20px;
 }
+
 .formEdit tr td label {
   padding-left: 20px;
 }
+
 .formEdit tr td {
   padding-right: 100px;
   padding-top: 20px;
 }
+
 .formEdit tr td input {
   width: 400px;
   height: 30px;
 }
+
 #select {
   width: 100px;
   padding-left: 10px;
   margin-left: -305px;
 }
+
 h3 {
   margin-top: 10px;
   color: red;
@@ -50,6 +57,7 @@ h3 {
   cursor: pointer;
   color: #cf1b1b;
 }
+
 #listStaff td {
   align-items: center;
   font-weight: 200%;
@@ -60,12 +68,14 @@ h3 {
   height: 100%;
   margin-left: 20px;
 }
+
 .account-payment label {
   width: 15%;
   font-size: 20px;
   color: black;
   margin-bottom: 30px;
 }
+
 .account-payment label:first-child {
   color: #cf1b1b;
   font-size: 24px;
@@ -76,6 +86,7 @@ h3 {
   width: 25%;
   float: left;
 }
+
 .find-history a {
   height: 30px;
   width: 50px;
@@ -84,6 +95,7 @@ h3 {
   align-items: center;
   display: flex;
 }
+
 .find-history tr td {
   width: 15%;
   float: left;

@@ -21,12 +21,24 @@ export default class LoginForm extends PureComponent {
     api
       .post("/login", this.state)
       .then((res) => {
+        console.log(res);
         if (res.data.accessToken) {
           localStorage.setItem("token", res.data.accessToken);
           this.props.onIsLogin(res.data.data);
+        } else if (res.data.message === "Wrong password!") {
+          alert("sai mk");
         }
       })
-      .catch((err) => console.log(err + ""));
+      .catch((err) => {
+        console.log(err + "");
+        if (err.response) {
+          if (err.response.status === 401) {
+            alert("tai khoan hoac mk k chinh sac");
+          } else if (err.response.status === 429) {
+            alert("vui long k bam qua nhanh");
+          }
+        }
+      });
   };
   render() {
     const { username, password } = this.state;
