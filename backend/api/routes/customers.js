@@ -152,7 +152,8 @@ router.post("/signup", async (req, res) => {
             const serviceId = await Services.getSTT();
             await Services.create({
                 id: serviceId,
-                accountId
+                accountId,
+                currencyUnitId: 1
             }).then(() => {
                 console.log("Succesfully created a Services");
             })
@@ -166,9 +167,25 @@ router.post("/signup", async (req, res) => {
                 sex,
                 phone,
                 accountId
-            }).then(() => {
+            }).then(async () => {
+                const tempUser = await Accounts.findOne({
+                    where: {
+                        username
+                    }
+                });
+            
+            
+                const url = "http://localhost:8080/customers/signup/" + tempUser.get().id + "/" + tempUser.get().verifyToken;
+                const mailOptions = {
+                    from: USER_EMAIL,
+                    to: tempUser.email,
+                    subject: "Xác thực tài khoản S-Ebanking",
+                    text: 'Liên kết vào link sau để kích hoạt tài khoản: ' + url
+                }
+                await Send(mailOptions);
+
                 return res.status(202).json({
-                    message: "Succesfully created a Customer Info"
+                    message: "Succesfully created a Customer"
                 });
             })
             .catch((err) => {
@@ -183,21 +200,7 @@ router.post("/signup", async (req, res) => {
         console.log("ERROR SIGNUP API: " + err);
     }); 
 
-    const tempUser = await Accounts.findOne({
-        where: {
-            username
-        }
-    });
-
-
-    const url = "http://localhost:8080/customers/signup/" + tempUser.get().id + "/" + tempUser.get().verifyToken;
-    const mailOptions = {
-        from: USER_EMAIL,
-        to: tempUser.email,
-        subject: "Xác thực tài khoản S-Ebanking",
-        text: 'Liên kết vào link sau để kích hoạt tài khoản: ' + url
-    }
-    await Send(mailOptions);
+    
 });
 
 router.post("/login", async (req, res) => {
@@ -331,7 +334,6 @@ router.post("/verify", checkAuth.checkAuthCustomer, async (req, res) => {
         backOfIdentify: back,
         accountId: currentUser
     }).then(async (result) => {
-        console.log(result);
         const tempAccount = await Accounts.findByPk(currentUser);
         tempAccount.isVerified = 0;
         await tempAccount.save()
@@ -361,10 +363,10 @@ router.get("/:id", checkAuth.checkAuthCustomer, async (req, res) => {
     const findingAccount = await Accounts.findByPk(id);
     const findingService = await Services.findAll({
         where: {
-            accountId: id
+            accountId: id,
+            serviceType: 0
         }
     });
-
 
     const temp = {
         fullName: findingCustomer.fullName,
@@ -372,7 +374,8 @@ router.get("/:id", checkAuth.checkAuthCustomer, async (req, res) => {
         phone: findingCustomer.phone,
         dOB: findingCustomer.dOB,
         balance: findingService[0].balance,
-        isVerified: findingAccount.isVerified
+        isVerified: findingAccount.isVerified,
+        currencyUnitId: findingService[0].currencyUnitId
     }
 
     res.status(290).json({

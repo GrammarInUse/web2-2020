@@ -259,7 +259,7 @@ export default class Clients extends Component {
                             <div style={{display: "flex", flexWrap: "wrap", alignItems: "stretch", justifyContent: "space-between", padding: "0 5% 0"}}>
                                 <a style={{width: "140px", marginBottom: "10px"}} href="/transform" className="btn btn-primary">Transfers</a>
                                 <a style={{width: "140px", marginBottom: "10px"}} href="/activity-log" className="btn btn-primary">Activity Log</a>    
-                                {this.props.isVerified!==-1?
+                                {this.props.isVerified === 1 ?
                                 <button style={{width: "100%"}} disabled href="/verify-id" className="btn btn-primary">Identity Card</button>
                                 :<a style={{width: "100%"}} href="/verify-id" className="btn btn-primary">Identity Card</a>}
                             </div>
@@ -314,7 +314,7 @@ export default class Clients extends Component {
                                             <label>Balance: </label>
                                         </div>
                                         <div className="col-md-6">
-                                            <p>{this.props.balance} vnđ</p>
+                                            <p>{this.props.balance} {this.props.currencyUnit}</p>
                                         </div>
                                     </div>
                                 </div>
