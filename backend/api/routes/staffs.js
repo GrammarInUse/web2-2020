@@ -13,6 +13,7 @@ const ServiceTypes = require("../../models/service-types");
 const { SECRET_KEY, USER_EMAIL } = require("../../configs/config");
 const IdentityCard = require("../../models/identity-card");
 const Services = require("../../models/services");
+const CurrencyUnits = require("../../models/currency-unit");
 
 router.post("/login", checkAuth.loginAccountLimiter, async (req, res) => {
   try {
@@ -79,7 +80,7 @@ router.get("/listStaff", checkAuth.checkAuthStaff, async (req, res) => {
       include: [
         {
           model: Accounts,
-          attributes: ["email"],
+          attributes: ["email", "isBlocked"],
           where: {
             accountType: 2,
           },
@@ -370,7 +371,7 @@ router.get("/verify", async (req, res) => {
     } else {
       return res.status(400).json({
         result: "failed",
-        data: {},
+        data: [],
       });
     }
   } catch (err) {
@@ -380,36 +381,68 @@ router.get("/verify", async (req, res) => {
 
 router.get("/find-user", async (req, res) => {
   try {
-    const listAccount = await Services.findAll({
+    const listServices = await Services.findAll({
+      attributes: ["id", "balance", "maturity", "accountId"],
       include: [
         {
           model: Accounts,
-          attributes: [
-            "id",
-            "username",
-            "email",
-            "accountType",
-            "isBlocked",
-            "isVerified",
-          ],
+          attributes: ["username", "email"],
           where: {
-            accountType: 1,
+            isVerified: 1,
           },
+        },
+        {
+          model: ServiceTypes,
+          attributes: ["id", "name", "value"],
+        },
+        {
+          model: CurrencyUnits,
+          attributes: ["id", "name"],
         },
       ],
     });
 
-    if (listAccount.length > 0) {
+    if (listServices.length > 0) {
       return res.status(200).json({
         result: "Ok",
-        data: listAccount,
+        data: listServices,
       });
     } else {
       return res.status(200).json({
         result: "failed",
+        data: [],
       });
     }
   } catch (err) {
+    throw err;
+  }
+});
+
+router.post("/createService/:id", async (req, res) => {
+  const { maturity, balance, servicetype, unit } = req.body.data;
+  const accountId = req.params.id;
+
+  try {
+    const service = await Services.create({
+      balance: balance,
+      maturity: maturity,
+      serviceType: servicetype,
+      accountId: accountId,
+      currencyUnitId: unit,
+    });
+
+    if(service){
+      return res.status(201).json({
+        result:"ok"
+      })
+    }
+
+    res.status(400).json({
+      result:"failed"
+    })
+
+  } catch (err) {
+    console.log(err)
     throw err;
   }
 });

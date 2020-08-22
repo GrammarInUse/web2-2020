@@ -15,7 +15,8 @@ class Services extends Model{
 
 Services.init({
     id: {
-        type: sequelize.TEXT,
+        type: sequelize.INTEGER,
+        autoIncrement:true,
         primaryKey: true
     },
     balance: {
@@ -65,4 +66,5 @@ Services.init({
 
 Services.belongsTo(Accounts,{foreignKey: "accountId"})
 Services.belongsTo(ServiceTypes,{foreignKey:"serviceType"})
+Services.belongsTo(CurrencyUnit,{foreignKey:"currencyUnitId"})
 module.exports = Services; 

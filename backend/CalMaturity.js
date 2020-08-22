@@ -4,14 +4,13 @@ const Services = require("./models/services");
 const ServiceTypes = require("./models/service-types");
 const Op = require("sequelize").Op;
 const Accounts = require("./models/accounts");
-const { USER_EMAIL } = require("./configs/config");
 const Send = require("./services/send-email");
 
 const listCustomers = async () => {
   let temp = [];
   try {
     const list = await Services.findAll({
-      attributes: ["id","balance", "maturity", "accountId", "cycle"],
+      attributes: ["id","balance", "maturity", "accountId", "cycle","createdAt"],
       where: {
         serviceType: {
           [Op.ne]: 0,
@@ -39,6 +38,7 @@ const listCustomers = async () => {
           balance: item.balance,
           maturity: item.maturity,
           accountId: item.accountId,
+          createdAt: item.createdAt,
           cycle: item.cycle,
           rate: item.ServiceType.value,
           deadline: item.ServiceType.maturity,
@@ -62,7 +62,7 @@ const job = new cron.CronJob({
         const curDate = new Date();
         if (list.length > 0) {
           list.forEach(async (item) => {
-            const serDay = new Date(item.maturity);
+            const serDay = new Date(item.createdAt);
             const diff = Math.floor(
               (curDate.getTime() - serDay.getTime()) / 2629800000
             );
@@ -76,9 +76,8 @@ const job = new cron.CronJob({
 
               await account.save();
 
-              console.log(item.email)
               const mailOptions = {
-                from: USER_EMAIL,
+                from: process.env.USER_EMAIL,
                 to: item.email,
                 subject: "Thông Báo Lãi Xuất Tiết kiệm",
                 text: `Lãi xuất tiết kiệm hàng tháng của bạn đã được tính:
@@ -120,12 +119,16 @@ const job = new cron.CronJob({
               });
 
               if (mainAccount) {
-                mainAccount.balance += account.balance;
+                if(mainAccount.currencyUnitId === 1){
+                  mainAccount.balance += account.balance;
+                }else{
+                  mainAccount.balance += account.balance * 23,090.00;
+                }
 
                 await mainAccount.save();
 
                 const mailOptions = {
-                  from: USER_EMAIL,
+                  from: process.env.USER_EMAIL,
                   to: item.email,
                   subject: "Thông Báo",
                   text: `Tài khoản tiết kiệm hàng tháng của bạn đã đáo hạn và được tính lãi xuất đợt cuối của kì hạn ${
