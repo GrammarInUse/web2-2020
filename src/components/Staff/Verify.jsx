@@ -88,7 +88,6 @@ class Verify extends PureComponent {
       .then((res) => {})
       .catch((err) => {
         alert(err + "");
-        return;
       });
     let index = this.findIndex(id);
     this.state.listUserVeri.splice(index, 1);

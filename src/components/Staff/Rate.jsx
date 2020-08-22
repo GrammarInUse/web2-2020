@@ -13,7 +13,7 @@ class Rate extends PureComponent {
     this.state = {
       status: false,
       listRate: [],
-      isLoading: true,
+      isLoading: false,
     };
   }
 
@@ -34,7 +34,7 @@ class Rate extends PureComponent {
         rate = this.state.listRate[index];
       }
     } else {
-      rate = { id: null, name: "", value: 0, maturity: null };
+      rate = { id: null, name: "", value: 0, maturity: 0 };
     }
     this.setState({
       status: !this.state.status,
@@ -50,12 +50,20 @@ class Rate extends PureComponent {
           <td>{item.value} %</td>
 
           <td>{item.maturity === null ? 0 : item.maturity}</td>
+          <td>
+            <button
+              className="btn btn-primary"
+              onClick={() => this.onToggleModal(item.id)}
+            >
+              <FaEdit />
+            </button>
+          </td>
         </tr>
       );
     });
   };
   getAll = async () => {
-    let data = await api
+    await api
       .get("/rate/")
       .then(({ data }) => {
         if (data.data) {
@@ -88,16 +96,8 @@ class Rate extends PureComponent {
       >
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h3>RATE %</h3>
+            <h3>RATE </h3>
           </div>
-          <button
-            type="button"
-            class="btn btn-primary"
-            onClick={this.onToggleModal}
-            style={{ width: 40, height: 40 }}
-          >
-            <FaPlus />
-          </button>
           <table class="table table-bordered">
             <thead>
               <tr>
@@ -106,6 +106,7 @@ class Rate extends PureComponent {
                 <th>Value</th>
 
                 <th>Maturity</th>
+                <th>Handle</th>
               </tr>
             </thead>
             <tbody>{this.listRate()}</tbody>

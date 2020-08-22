@@ -54,7 +54,7 @@ class StaffManager extends Component {
                 isLoading: 3,
               });
             } else {
-              //this.isLogout();
+              this.isLogout();
             }
           }
         }

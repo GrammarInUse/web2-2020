@@ -14,24 +14,11 @@ export default class ModalEditRate extends Component {
       maturity,
     };
   }
-  createRate = async () => {
-    let { name, value, maturity } = this.state;
-    let data = { name, value, maturity };
-    await api
-      .post("/rate/", data)
-      .then((res) => {
-        console.log(res);
-        this.props.onGetAll();
-      })
-      .catch((err) => {
-        console.log(err + "");
-      });
-  };
+
   updateRate = async () => {
-    let { id, name, value, maturity } = this.state;
-    let data = { name, value, maturity };
+    console.log(this.state);
     await api
-      .put(`/rate/${id}`, data)
+      .put(`/editRate/${this.state.id}`, this.state)
       .then((res) => {
         console.log(res);
         this.props.onGetAll();
@@ -45,15 +32,13 @@ export default class ModalEditRate extends Component {
       id: null,
       name: "",
       value: 0,
-      maturity: null,
+      maturity: 0,
     });
     this.props.onToggleModal();
   };
   onSubmit = (e) => {
     e.preventDefault();
-    if (this.state.id === null) {
-      this.createRate();
-    } else {
+    if (this.state.id !== null) {
       this.updateRate();
     }
     this.closeModal();
@@ -75,7 +60,7 @@ export default class ModalEditRate extends Component {
       <div>
         <div className="modal-profile">
           <div className="profile">
-            <h3>{id !== null ? "Edit" : "Add"} Rate</h3>
+            <h3>Edit Rate</h3>
             <form className="formEdit" onSubmit={this.onSubmit}>
               <tbody>
                 <tr>
@@ -99,8 +84,9 @@ export default class ModalEditRate extends Component {
                   <td>
                     <input
                       type="number"
-                      name="rate"
+                      name="value"
                       value={value}
+                      s
                       onChange={this.onChange}
                     />
                   </td>
@@ -121,7 +107,7 @@ export default class ModalEditRate extends Component {
               </tbody>
 
               <button type="submit" className="btn btn-sm btn-success">
-                {id ? "UPDATE" : "ADD"}
+                UPDATE
               </button>
             </form>
             <a id="close" onClick={this.closeModal}>
