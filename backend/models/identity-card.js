@@ -35,10 +35,4 @@ IdentityCard.init({
     ModalName:"IdentityCard"
 });
 
-<<<<<<< HEAD
 module.exports = IdentityCard;
-=======
-IdentityCard.belongsTo(Accounts,{foreignKey:"accountId"})
-
-module.exports=IdentityCard;
->>>>>>> 856faeab6646e518bdca720fb71cb384e1e1db34

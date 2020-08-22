@@ -3,5 +3,5 @@ module.exports={
     PORT: process.env.PORT || 8080,
     SECRET_KEY: process.env.SECRET_KEY || "mySecret",
     USER_EMAIL: process.env.USER_EMAIL || "hlb0932055041@gmail.com",
-    PASSWORD_EMAIL: process.env.PASSWORD_EMAIL || "Taolatao0"
+    PASSWORD_EMAIL: process.env.PASSWORD_EMAIL || "Taolatao00"
 }
