@@ -36,14 +36,14 @@ Transactions.init({
     sender: {
         type: sequelize.TEXT,
         references: {
-            key: "accountId",
+            key: "id",
             model: Services
         }
     },
     receiver: {
         type: sequelize.TEXT,
         references: {
-            key: "accountId",
+            key: "id",
             model: Services
         }
     }
