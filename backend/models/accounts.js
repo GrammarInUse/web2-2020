@@ -45,7 +45,7 @@ Accounts.init({
     },
     isVerified: {
         type: sequelize.INTEGER,
-        defaultValue: -1,
+        defaultValue: 0,
         allowNull: false
     },
     verifyCode: {

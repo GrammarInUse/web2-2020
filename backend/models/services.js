@@ -3,6 +3,7 @@ const sequelize = require("sequelize");
 const Model = sequelize.Model;
 const Accounts = require("./accounts");
 const ServiceTypes = require("./service-types");
+const CurrencyUnit = require("./currency-unit");
 
 class Services extends Model{ 
     static async getSTT() {
@@ -47,6 +48,14 @@ Services.init({
         references: {
             key: "id",
             model: Accounts
+        }
+    },
+    currencyUnitId: {
+        type: sequelize.INTEGER,
+        allowNull: false,
+        references: {
+            key: "id",
+            model: CurrencyUnit
         }
     }
 },{
