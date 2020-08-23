@@ -14,6 +14,7 @@ const { SECRET_KEY, USER_EMAIL } = require("../../configs/config");
 const IdentityCard = require("../../models/identity-card");
 const Services = require("../../models/services");
 const CurrencyUnits = require("../../models/currency-unit");
+const Op = require("sequelize").Op;
 
 router.post("/login", checkAuth.loginAccountLimiter, async (req, res) => {
   try {
@@ -336,6 +337,20 @@ router.get("/verify", async (req, res) => {
 
     const listImage = await IdentityCard.findAll({
       attributes: ["accountId", "frontOfIdentify", "backOfIdentify"],
+      where: {
+        [Op.and]: [
+          {
+            frontOfIdentify: {
+              [Op.ne]: null,
+            },
+          },
+          {
+            backOfIdentify: {
+              [Op.ne]: null,
+            },
+          },
+        ],
+      },
       include: [
         {
           model: Accounts,
@@ -368,13 +383,13 @@ router.get("/verify", async (req, res) => {
         result: "Ok",
         data: result,
       });
-    } else {
-      return res.status(400).json({
-        result: "failed",
-        data: [],
-      });
     }
+    return res.status(400).json({
+      result: "failed",
+      data: [],
+    });
   } catch (err) {
+    console.log(err);
     throw err;
   }
 });
@@ -382,11 +397,11 @@ router.get("/verify", async (req, res) => {
 router.get("/find-user", async (req, res) => {
   try {
     const listServices = await Services.findAll({
-      attributes: ["id", "balance", "maturity", "accountId"],
+      attributes: ["id", "balance", "maturity"],
       include: [
         {
           model: Accounts,
-          attributes: ["username", "email"],
+          attributes: ["id","username", "email"],
           where: {
             isVerified: 1,
           },
@@ -419,30 +434,51 @@ router.get("/find-user", async (req, res) => {
 });
 
 router.post("/createService/:id", async (req, res) => {
-  const { maturity, balance, servicetype, unit } = req.body.data;
+  const balance = req.body.balance;
+  const servicetype = +req.body.servicetype;
   const accountId = req.params.id;
 
   try {
+
+    const deadline = await ServiceTypes.findByPk(servicetype);
+    let maturity = (new Date()).getTime();
+    switch (servicetype) {
+      case 1:
+        maturity = maturity + deadline.maturity * 2629800000 ;
+        break;
+      case 2:
+        maturity = maturity + deadline.maturity * 2629800000;
+        break;
+      case 3:
+        maturity = maturity + deadline.maturity * 2629800000;
+        break;
+      case 4:
+        maturity = maturity + deadline.maturity * 2629800000;
+        break;
+      default:
+        return
+    }
+
     const service = await Services.create({
+      id: Date.now().toString(),
       balance: balance,
       maturity: maturity,
       serviceType: servicetype,
       accountId: accountId,
-      currencyUnitId: unit,
+      currencyUnitId: 1,
     });
 
-    if(service){
+    if (service) {
       return res.status(201).json({
-        result:"ok"
-      })
+        result: "ok",
+      });
     }
 
     res.status(400).json({
-      result:"failed"
-    })
-
+      result: "failed",
+    });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     throw err;
   }
 });
@@ -475,7 +511,6 @@ router.put("/editRate/:id", checkAuth.checkAuthStaff, async (req, res) => {
       error: "Sorry You are unauthorized to make a manager",
     });
   }
-  console.log(req.user);
   try {
     const name = req.body.name;
     const value = req.body.value;

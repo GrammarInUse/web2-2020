@@ -15,8 +15,7 @@ class Services extends Model{
 
 Services.init({
     id: {
-        type: sequelize.INTEGER,
-        autoIncrement:true,
+        type: sequelize.TEXT,
         primaryKey: true
     },
     balance: {

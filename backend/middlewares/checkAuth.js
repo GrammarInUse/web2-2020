@@ -62,8 +62,11 @@ const checkAuthStaff = async (req, res, next) => {
         decentralizationId: staff.decentralizationId,
       };
       next();
+    }else{
+      res.status(400).json({
+        message: "Decentralization of Yours must not be NULL!!!",
+      });
     }
-    next();
   } catch (error) {
     res.status(401).json({ error: "Authentication Failed ! " + error });
   }
