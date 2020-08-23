@@ -439,7 +439,21 @@ router.post("/createService/:id", async (req, res) => {
   const accountId = req.params.id;
 
   try {
+    const check = await Services.findAll({
+      where:{
+        accountId: accountId,
+        serviceType:{
+          [Op.ne]: 0
+        }
+      }
+    })
 
+    if(check.length >= 1){
+      return res.status(400).json({
+        result: "failed",
+        message:"You can't create one more saving Account!!!"
+      });
+    }
     const deadline = await ServiceTypes.findByPk(servicetype);
     let maturity = (new Date()).getTime();
     switch (servicetype) {
