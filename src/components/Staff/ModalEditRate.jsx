@@ -106,9 +106,22 @@ export default class ModalEditRate extends Component {
                 </tr>
               </tbody>
 
-              <button type="submit" className="btn btn-sm btn-success">
-                UPDATE
-              </button>
+              <div style={{ marginTop: "2em" }}>
+                <button
+                  style={{ marginLeft: 120, width: 150 }}
+                  className="btn  btn-danger"
+                  onClick={this.closeModal}
+                >
+                  CANCEL
+                </button>
+                <button
+                  style={{ marginLeft: 120, width: 150 }}
+                  type="submit"
+                  className="btn  btn-success"
+                >
+                  UPDATE
+                </button>
+              </div>
             </form>
             <a id="close" onClick={this.closeModal}>
               x

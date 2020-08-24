@@ -6,6 +6,12 @@ import ModalEditProfile from "./ModalEditProfile";
 import { api } from "./api";
 import Loading from "../Loading";
 import ServerError from "../ServerError";
+
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Redirect } from "react-router-dom";
+toast.configure();
+
 let staff = {
   accountId: null,
   fullname: "",
@@ -14,10 +20,8 @@ let staff = {
   decentralizationId: 2,
   Account: {
     email: "",
+    isBlocked: false,
   },
-  isLocked: false,
-
-  isLoading: 1,
 };
 class StaffManager extends Component {
   constructor(props) {
@@ -25,13 +29,17 @@ class StaffManager extends Component {
     const token = localStorage.getItem("token") || "";
     api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
+      isLoading: 1,
       status: false,
       staffs: [],
+      redirect: false,
     };
   }
   isLogout = () => {
     localStorage.removeItem("token");
-    this.props.history.go("/");
+    this.setState({
+      redirect: true,
+    });
   };
 
   getAll = async () => {
@@ -41,18 +49,27 @@ class StaffManager extends Component {
         if (data.data) {
           this.setState({
             staffs: data.data,
-            isLoading: true,
+            isLoading: 2,
           });
         }
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.response);
         if (err.response) {
           if (typeof err.response.status) {
             if (err.response.status === 503) {
               this.setState({
                 isLoading: 3,
               });
+            } else if (err.response.data.error) {
+              if (
+                err.response.data.error ===
+                "Sorry You are unauthorized to make a manager"
+              ) {
+                this.setState({
+                  isLoading: 4,
+                });
+              }
             } else {
               this.isLogout();
             }
@@ -69,14 +86,16 @@ class StaffManager extends Component {
       .then((res) => {
         console.log(res);
         if (res.data.result === "ok") {
-          staffs[index].isLocked = !staff.isLocked;
+          let isBlocked = !staffs[index].Account.isBlocked;
+          staffs[index].Account.isBlocked = isBlocked;
+
           this.setState({
             staffs: [...staffs],
           });
         }
       })
       .catch((err) => {
-        console.log(err + "");
+        console.log(err);
       });
   };
   componentDidMount() {
@@ -126,7 +145,7 @@ class StaffManager extends Component {
                   className="btn  btn-danger"
                   onClick={() => this.onLock(item.accountId)}
                 >
-                  {item.isLocked ? <FaLock /> : <FaLockOpen />}
+                  {item.Account.isBlocked ? <FaLock /> : <FaLockOpen />}
                 </button>
               </td>
             </td>
@@ -151,9 +170,9 @@ class StaffManager extends Component {
         position: "",
         salary: 0,
         decentralizationId: 2,
-        isLocked: false,
         Account: {
           email: "",
+          isBloced: false,
         },
       };
     }
@@ -163,12 +182,20 @@ class StaffManager extends Component {
   };
 
   render() {
-    let { status, isLoading } = this.state;
+    let { status, isLoading, redirect } = this.state;
+    if (redirect) {
+      toast.warn("you is logout!", {
+        autoClose: false,
+      });
+      return <Redirect to="/" />;
+    }
     if (isLoading === 3) {
       return <ServerError />;
-    }
-    if (!isLoading) {
+    } else if (isLoading === 1) {
       return <Loading />;
+    } else if (isLoading === 4) {
+      toast.warn("test dialog");
+      return <Redirect to="find-user" />;
     }
 
     return (

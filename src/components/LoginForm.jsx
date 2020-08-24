@@ -17,6 +17,8 @@ export default class LoginForm extends PureComponent {
     let { name, value } = e.target;
     this.setState({
       [name]: value,
+      nameErr: "",
+      passErr: "",
     });
   };
   isValid = () => {
@@ -49,16 +51,20 @@ export default class LoginForm extends PureComponent {
             localStorage.setItem("token", res.data.accessToken);
             this.props.onIsLogin(res.data.data);
           } else if (res.data.message === "Wrong password!") {
-            alert("sai mk");
+            this.setState({
+              passErr: res.data.message,
+            });
           }
         })
         .catch((err) => {
           console.log(err + "");
           if (err.response) {
             if (err.response.status === 401) {
-              alert("tai khoan hoac mk k chinh sac");
+              this.setState({
+                passErr: "name or password Wrong!",
+              });
             } else if (err.response.status === 429) {
-              alert("vui long k bam qua nhanh");
+              alert("Please don't submit too fast");
             }
           }
         });

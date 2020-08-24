@@ -228,16 +228,29 @@ class ModalEditProfile extends PureComponent {
                       onChange={this.onChange}
                       defaultValue={decentralizationId === 1 ? "1" : "2"}
                     >
-                      <option value="1">Watch</option>
-                      <option value="2">Edit</option>
+                      <option value="1">Staff</option>
+                      <option value="2">Admin</option>
                     </select>
                   </td>
                 </tr>
               </tbody>
 
-              <button type="submit" className="btn btn-sm btn-success">
-                {accountId !== null ? "UPDATE" : "ADD"}
-              </button>
+              <div style={{ marginTop: "2em" }}>
+                <button
+                  style={{ marginLeft: 120, width: 150 }}
+                  className="btn  btn-danger"
+                  onClick={this.closeModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  style={{ marginLeft: 120, width: 150 }}
+                  type="submit"
+                  className="btn  btn-success"
+                >
+                  {accountId !== null ? "UPDATE" : "ADD"}
+                </button>
+              </div>
             </form>
             <a id="close" onClick={this.closeModal}>
               x

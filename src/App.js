@@ -10,6 +10,7 @@ import StaffManager from "./components/Staff/StaffManager";
 import Verify from "./components/Staff/Verify";
 import LoginForm from "./components/LoginForm";
 import ServerError from "./components/ServerError";
+import ModalErr from "./components/ModalErr";
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route
@@ -59,6 +60,9 @@ class App extends Component {
         <Switch>
           <Route exact path="/">
             <LoginForm onIsLogin={this.onIsLogin} isLogin={isLogin} />
+          </Route>
+          <Route exact path="/test">
+            <ModalErr content="xxxxxxxxxxxxxxxx" />
           </Route>
           <Route exact path="/503page">
             <ServerError />
