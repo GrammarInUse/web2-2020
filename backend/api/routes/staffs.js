@@ -434,7 +434,7 @@ router.get("/find-user", async (req, res) => {
 });
 
 router.post("/createService/:id", async (req, res) => {
-  const balance = req.body.balance;
+  const curbalance = req.body.balance;
   const servicetype = +req.body.servicetype;
   const accountId = req.params.id;
 
@@ -453,6 +453,26 @@ router.post("/createService/:id", async (req, res) => {
         result: "failed",
         message:"You can't create one more saving Account!!!"
       });
+    }
+    
+    const mainBalance = await Services.findOne({
+      where:{
+        accountId: accountId,
+        serviceType:{
+          [Op.eq]: 0
+        }
+      }
+    })
+    let ultiBalance = curbalance;
+    if(mainBalance){
+      ultiBalance = mainBalance.balance - ultiBalance;
+      if(ultiBalance < 0){
+        return res.status(400).json({
+          result:"failed",
+          message:"The available balance is not enough to perform the translation"
+        })
+      }
+
     }
     const deadline = await ServiceTypes.findByPk(servicetype);
     let maturity = (new Date()).getTime();
@@ -475,7 +495,7 @@ router.post("/createService/:id", async (req, res) => {
 
     const service = await Services.create({
       id: Date.now().toString(),
-      balance: balance,
+      balance: curbalance,
       maturity: maturity,
       serviceType: servicetype,
       accountId: accountId,

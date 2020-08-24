@@ -103,7 +103,7 @@ const job = new cron.CronJob({
 
               if(account){
                 account.cycle = 0;
-                account.balance = Math.round(total * 100) / 100;
+                account.balance = 0;
                 account.maturity = null;
   
                 await account.save();  
@@ -133,10 +133,9 @@ const job = new cron.CronJob({
                   subject: "Thông Báo",
                   text: `Tài khoản tiết kiệm hàng tháng của bạn đã đáo hạn và được tính lãi xuất đợt cuối của kì hạn ${
                     item.deadline
-                  } tháng:
-                  Lãi xuất: ${Math.round(total * 100) / 100},
-                  Tổng tiền vốn tiết kiệm: ${account.balance},
-                  Tiền tài khoản chính: ${mainAccount.balance}
+                  } tháng:                   
+                  Tổng tiền vốn tiết kiệm: ${Math.round(total * 100) / 100},
+                  Tổng Tiền tài khoản chính: ${mainAccount.balance}
                 `,
                 };
                 Send(mailOptions);
