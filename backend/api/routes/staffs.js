@@ -401,7 +401,7 @@ router.get("/find-user", async (req, res) => {
       include: [
         {
           model: Accounts,
-          attributes: ["id","username", "email"],
+          attributes: ["id", "username", "email"],
           where: {
             isVerified: 1,
           },
@@ -440,45 +440,44 @@ router.post("/createService/:id", async (req, res) => {
 
   try {
     const check = await Services.findAll({
-      where:{
+      where: {
         accountId: accountId,
-        serviceType:{
-          [Op.ne]: 0
-        }
-      }
-    })
+        serviceType: {
+          [Op.ne]: 0,
+        },
+      },
+    });
 
-    if(check.length >= 1){
+    if (check.length >= 1) {
       return res.status(400).json({
         result: "failed",
-        message:"You can't create one more saving Account!!!"
+        message: "You can't create one more saving Account!!!",
       });
     }
-    
-    const mainBalance = await Services.findOne({
-      where:{
-        accountId: accountId,
-        serviceType:{
-          [Op.eq]: 0
-        }
-      }
-    })
-    let ultiBalance = curbalance;
-    if(mainBalance){
-      ultiBalance = mainBalance.balance - ultiBalance;
-      if(ultiBalance < 0){
-        return res.status(400).json({
-          result:"failed",
-          message:"The available balance is not enough to perform the translation"
-        })
-      }
 
+    const mainBalance = await Services.findOne({
+      where: {
+        accountId: accountId,
+        serviceType: {
+          [Op.eq]: 0,
+        },
+      },
+    });
+    let ultiBalance = curbalance;
+    if (mainBalance) {
+      ultiBalance = mainBalance.balance - ultiBalance;
+      if (ultiBalance < 0) {
+        return res.status(400).json({
+          result: "failed",
+          message: "Available balance is not enough to execute the transaction",
+        });
+      }
     }
     const deadline = await ServiceTypes.findByPk(servicetype);
-    let maturity = (new Date()).getTime();
+    let maturity = new Date().getTime();
     switch (servicetype) {
       case 1:
-        maturity = maturity + deadline.maturity * 2629800000 ;
+        maturity = maturity + deadline.maturity * 2629800000;
         break;
       case 2:
         maturity = maturity + deadline.maturity * 2629800000;
@@ -490,7 +489,7 @@ router.post("/createService/:id", async (req, res) => {
         maturity = maturity + deadline.maturity * 2629800000;
         break;
       default:
-        return
+        return;
     }
 
     const service = await Services.create({
@@ -514,6 +513,31 @@ router.post("/createService/:id", async (req, res) => {
   } catch (err) {
     console.log(err);
     throw err;
+  }
+});
+
+router.delete("/deleteService/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    const service = await Services.findByPk(id);
+
+    if (service) {
+      if (service.maturity !== null) {
+        return res.status(400).json({
+          result: "failed",
+          message: "Unexpired saving Account!!!",
+        });
+      }
+
+      await service.destroy();
+
+      return res.status(400).json({
+        result: "ok",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
 });
 
