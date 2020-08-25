@@ -7,10 +7,8 @@ import { api } from "./api";
 import Loading from "../Loading";
 import ServerError from "../ServerError";
 
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { Redirect } from "react-router-dom";
-toast.configure();
+import Notification from "./Notification";
 
 let staff = {
   accountId: null,
@@ -184,9 +182,7 @@ class StaffManager extends Component {
   render() {
     let { status, isLoading, redirect } = this.state;
     if (redirect) {
-      toast.warn("you is logout!", {
-        autoClose: false,
-      });
+      Notification("ban da logout", "dark", false);
       return <Redirect to="/" />;
     }
     if (isLoading === 3) {
@@ -194,7 +190,6 @@ class StaffManager extends Component {
     } else if (isLoading === 1) {
       return <Loading />;
     } else if (isLoading === 4) {
-      toast.warn("test dialog");
       return <Redirect to="find-user" />;
     }
 

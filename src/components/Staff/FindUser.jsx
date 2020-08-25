@@ -92,7 +92,7 @@ export default class FindUser extends Component {
 
     if (key) {
       listUser = listUser.filter((user) => {
-        return user.name.toLowerCase().indexOf(key) !== -1;
+        return user.Account.id.indexOf(key) !== -1;
       });
     }
 
@@ -137,7 +137,12 @@ export default class FindUser extends Component {
         <div className="find" style={{ float: "left", marginLeft: 10 }}>
           <label style={{ paddingRight: 10 }}>Search</label>
 
-          <input type="text" name="key" value={key} onChange={this.onChange} />
+          <input
+            type="number"
+            name="key"
+            value={key}
+            onChange={this.onChange}
+          />
         </div>
         <div class="panel panel-default">
           <table class="table table-bordered">
