@@ -27,6 +27,10 @@ class App extends Component {
       fullName: "",
       email: "",
       phone: "",
+      dOB: "",
+      balance: "",
+      isVerified: "",
+      currencyUnitId: "",
       login: false
       // profession: "" ⚠ Updated later
     }
@@ -60,6 +64,10 @@ class App extends Component {
                             id: store.currentUser,
                             email: result.customer.email,
                             phone: result.customer.phone,
+                            dOB: result.customer.dOB,
+                            balance: result.customer.balance,
+                            isVerified: result.customer.isVerified,
+                            currencyUnitId: result.customer.currencyUnitId,
                             login: true
                         });
                     });
@@ -78,10 +86,10 @@ class App extends Component {
   componentDidMount(){
     this.storeCurrentUserCollector();
 
-    setTimeout(() => {
-      localStorage.removeItem("login");
-      window.location.reload();
-    }, 5 * 60 * 1000)
+    // setTimeout(() => {
+    //   localStorage.removeItem("login");
+    //   window.location.reload();
+    // }, 5 * 60 * 1000)
   }
 
   render(){
@@ -104,7 +112,7 @@ class App extends Component {
               <Verify currentUser={this.state.id}/>
             </Route>
             <Route path="/profile">
-              <Clients id={this.state.id} fullName={this.state.fullName} email={this.state.email} phone={this.state.phone} login={this.state.login}/>
+              <Clients id={this.state.id} fullName={this.state.fullName} email={this.state.email} phone={this.state.phone} login={this.state.login} dOB={this.state.dOB} balance={this.state.balance} isVerified={this.state.isVerified} currencyUnit={this.state.currencyUnitId===1?"VND":"Dollar"} />
             </Route>
             <Route path="/home">
               <Intros />

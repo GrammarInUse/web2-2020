@@ -55,7 +55,7 @@ export default class upload extends Component {
     const token = JSON.parse(localStorage.getItem("login")).token;
     const url = "http://localhost:8080/customers/uploadVerifiedImage";
     const file = this.state.file;
-    Resizer.imageFileResizer(file, 320, 240, 'jpeg', 100, 0, (uri) => {
+    Resizer.imageFileResizer(file, 230, 280, 'jpeg', 100, 0, (uri) => {
         if(uri){
             this.setState({
               verifiedImage: uri

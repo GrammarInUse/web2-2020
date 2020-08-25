@@ -115,32 +115,6 @@ export default class Clients extends Component {
         }
     }
 
-    // onSubmit = (e) => {
-    //     // Avatar
-    //     e.preventDefault();
-    //     if (!this.state.file) {
-    //       alert("ban chua chon file");
-    //       return;
-    //     }
-    //     const formData = new FormData();
-    //     formData.append("file", this.state.file);
-    //     const config = {
-    //       headers: {
-    //         "content-type": "multipart/form-data",
-    //       }
-    //     };
-    //     const url = "http://localhost:8080/customers/upload/avatar/" + this.props.id;
-    //     axios
-    //       .post(url, formData.get("file"), config)
-    //       .then((res) => {
-    //         console.log(res);
-    //         this.storeAvatar();
-    //       })
-    //       .catch((err) => {
-    //         console.log(err + " ERRR");
-    //       });
-    // }
-
     onSubmit = (e) => {
         e.preventDefault();
 
@@ -187,47 +161,6 @@ export default class Clients extends Component {
             }
         }, 'base64');     
     }
-
-    // storeAvatar = async () => {
-    //     if(this.props.login){
-    //         const url = "http://localhost:8080/customers/getImages";
-    //         const data = {
-    //             currentUser: this.props.id,
-    //             nameOfPhoto: "avatar"
-    //         }
-    //         const fetchOpts = {
-    //             method: "POST",
-    //             headers: {
-    //                 "Accept": "application/json",
-    //                 "Content-Type": "application/json"
-    //             },
-    //             body: JSON.stringify(data)
-    //         };
-
-    //         await fetch(url, fetchOpts)
-    //         .then((response) => {
-    //             response.json()
-    //             .then((result) => {
-    //                 const b64 = Buffer.from(result.data.data).toString("base64");
-    //                 this.setState({
-    //                     avatar: "data:image/jpeg;base64, " + b64
-    //                 }, () => {
-    //                     //DOING SOMETHING
-    //                 })
-    //             })
-    //             .catch((err) => {
-    //                 console.log("Something went wrong when you parse response from fetch");
-    //                 console.error(err);
-    //             });
-    //         })
-    //         .catch((err) => {
-    //             console.log("Something went wrong when you storeAvatar from server");
-    //             console.error(err);
-    //         });
-    //     }else{
-    //         console.log("CC");
-    //     }
-    // }
 
     storeAvatar = async () => {
         if(this.props.login){
@@ -300,131 +233,90 @@ export default class Clients extends Component {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-6" style={{marginTop: "20px"}}>
                             <div className="profile-head">
                                 <h5>
-                                {this.props.fullName}
+                                    {this.props.fullName}
                                 </h5>
-                                <h6>
-                                Web Developer and Designer
-                                </h6>
-                                <p className="proile-rating">RANKINGS : <span>8/10</span></p>
                                 <ul className="nav nav-tabs" id="myTab" role="tablist">
-                                <li className="nav-item">
-                                    <a className="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">About</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Timeline</a>
-                                </li>
+                                    <li className="nav-item">
+                                        <a className="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">About</a>
+                                    </li>
+                                    <li className="nav-item">
+                                        <a className="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Dashboard</a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
-                        <div className="col-md-2">
+                        <div className="col-md-2" style={{marginTop: "20px"}}>
                             <input onClick={this.displayEditFormHandler} type="button" className="profile-edit-btn" name="btnAddMore" value="Edit Profile" />
                             <input onClick={this.displayEditPasswordHandler} type="button" className="profile-edit-btn" name="btnAddMore" value="Edit Password" />
                         </div>
                     </div>
                     <div className="row">
-                        <div className="col-md-4">
-                            <div className="profile-work">
-                                <a href="/transform" className="btn btn-primary">Transfers</a>
-                                <br /> 
-                                <a href="/activity-log" className="btn btn-primary">Activity Log</a>
-                                <br />
-                                <a href="/verify-id" className="btn btn-primary">Identity Card</a>
+                        {/* HERE */}
+                        <div className="col-md-4" style={{marginTop: "20px"}}>
+                            <div style={{display: "flex", flexWrap: "wrap", alignItems: "stretch", justifyContent: "space-between", padding: "0 5% 0"}}>
+                                <a style={{width: "140px", marginBottom: "10px"}} href="/transform" className="btn btn-primary">Transfers</a>
+                                <a style={{width: "140px", marginBottom: "10px"}} href="/activity-log" className="btn btn-primary">Activity Log</a>    
+                                {this.props.isVerified === 1 ?
+                                <button style={{width: "100%"}} disabled href="/verify-id" className="btn btn-primary">Identity Card</button>
+                                :<a style={{width: "100%"}} href="/verify-id" className="btn btn-primary">Identity Card</a>}
                             </div>
                         </div>
-                        <div className="col-md-8">
+                        <div className="col-md-8" style={{marginTop: "-180px", textAlign: "left"}}>
                             <div className="tab-content profile-tab" id="myTabContent">
                                 <div className="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                <div className="row">
-                                    <div className="col-md-6">
-                                    <label>User Id</label>
+                                    <div className="row">
+                                        <div className="col-md-6">
+                                            <label>Name: </label>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <p>{this.props.fullName}</p>
+                                        </div>
                                     </div>
-                                    <div className="col-md-6">
-                                    <p>{this.props.id}</p>
+                                    <div className="row">
+                                        <div className="col-md-6">
+                                            <label>Email: </label>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <p>{this.props.email}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                    <label>Name</label>
+                                    <div className="row">
+                                        <div className="col-md-6">
+                                            <label>Phone: </label>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <p>{this.props.phone}</p>
+                                        </div>
                                     </div>
-                                    <div className="col-md-6">
-                                    <p>{this.props.fullName}</p>
+                                    <div className="row">
+                                        <div className="col-md-6">
+                                            <label>Date of Birth: </label>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <p>{this.props.dOB}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                    <label>Email</label>
-                                    </div>
-                                    <div className="col-md-6">
-                                    <p>{this.props.email}</p>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                    <label>Phone</label>
-                                    </div>
-                                    <div className="col-md-6">
-                                    <p>{this.props.phone}</p>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                    <label>Profession</label>
-                                    </div>
-                                    <div className="col-md-6">
-                                    <p>Web Developer and Designer</p>
-                                    </div>
-                                </div>
                                 </div>
                                 <div className="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                                <div className="row">
-                                    <div className="col-md-6">
-                                    <label>Experience</label>
+                                    <div className="row">
+                                        <div className="col-md-6">
+                                            <label>Bank account number: </label>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <p>{this.props.id}</p>
+                                        </div>
                                     </div>
-                                    <div className="col-md-6">
-                                    <p>Expert</p>
+                                    <div className="row">
+                                        <div className="col-md-6">
+                                            <label>Balance: </label>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <p>{this.props.balance} {this.props.currencyUnit}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                    <label>Hourly Rate</label>
-                                    </div>
-                                    <div className="col-md-6">
-                                    <p>10$/hr</p>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                    <label>Total Projects</label>
-                                    </div>
-                                    <div className="col-md-6">
-                                    <p>230</p>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                    <label>English Level</label>
-                                    </div>
-                                    <div className="col-md-6">
-                                    <p>Expert</p>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                    <label>Availability</label>
-                                    </div>
-                                    <div className="col-md-6">
-                                    <p>6 months</p>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-12">
-                                    <label>Your Bio</label><br />
-                                    <p>Your detail description</p>
-                                    </div>
-                                </div>
                                 </div>
                             </div>
                         </div>

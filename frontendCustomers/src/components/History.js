@@ -74,7 +74,7 @@ export default class History extends Component {
     }
     
     render() {
-        console.log(this.state.currentUser);
+        console.log(this.state.listOfTransactions);
         return (
             this.state.currentUser?
             <div className="container emp-profile">

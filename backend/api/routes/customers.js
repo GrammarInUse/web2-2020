@@ -152,7 +152,8 @@ router.post("/signup", async (req, res) => {
             const serviceId = await Services.getSTT();
             await Services.create({
                 id: serviceId,
-                accountId
+                accountId,
+                currencyUnitId: 1
             }).then(() => {
                 console.log("Succesfully created a Services");
             })
@@ -166,9 +167,25 @@ router.post("/signup", async (req, res) => {
                 sex,
                 phone,
                 accountId
-            }).then(() => {
+            }).then(async () => {
+                const tempUser = await Accounts.findOne({
+                    where: {
+                        username
+                    }
+                });
+            
+            
+                const url = "http://localhost:8080/customers/signup/" + tempUser.get().id + "/" + tempUser.get().verifyToken;
+                const mailOptions = {
+                    from: USER_EMAIL,
+                    to: tempUser.email,
+                    subject: "Xác thực tài khoản S-Ebanking",
+                    text: 'Liên kết vào link sau để kích hoạt tài khoản: ' + url
+                }
+                await Send(mailOptions);
+
                 return res.status(202).json({
-                    message: "Succesfully created a Customer Info"
+                    message: "Succesfully created a Customer"
                 });
             })
             .catch((err) => {
@@ -177,29 +194,13 @@ router.post("/signup", async (req, res) => {
                     error: err
                 });
             });
-            
-            
         }
     })
     .catch((err) => {
         console.log("ERROR SIGNUP API: " + err);
     }); 
 
-    const tempUser = await Accounts.findOne({
-        where: {
-            username
-        }
-    });
-
-
-    const url = "http://localhost:8080/customers/signup/" + tempUser.get().id + "/" + tempUser.get().verifyToken;
-    const mailOptions = {
-        from: USER_EMAIL,
-        to: tempUser.email,
-        subject: "Xác thực tài khoản S-Ebanking",
-        text: 'Liên kết vào link sau để kích hoạt tài khoản: ' + url
-    }
-    await Send(mailOptions);
+    
 });
 
 router.post("/login", async (req, res) => {
@@ -332,15 +333,25 @@ router.post("/verify", checkAuth.checkAuthCustomer, async (req, res) => {
         frontOfIdentify: front,
         backOfIdentify: back,
         accountId: currentUser
-    }).then((result) => {
-        console.log("DONE");
-        return res.status(200).json({
-            userMessage: "Successfully",
-            data: result
-        });
+    }).then(async (result) => {
+        const tempAccount = await Accounts.findByPk(currentUser);
+        tempAccount.isVerified = 0;
+        await tempAccount.save()
+        .then(() => {
+            return res.status(200).json({
+                userMessage: "Successfully"
+            });
+        })
+        .catch((err) => {
+            return res.status(401).json({
+                userMessage: "Failed"
+            });
+        })
+
+        
     }).catch((err) => {
         console.log(err);
-        return res.status(400).json({
+        return res.status(401).json({
             userMessage: "Failed"
         });
     });  
@@ -350,12 +361,21 @@ router.get("/:id", checkAuth.checkAuthCustomer, async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await CustomerInfo.findByPk(id);
     const findingAccount = await Accounts.findByPk(id);
-
+    const findingService = await Services.findAll({
+        where: {
+            accountId: id,
+            serviceType: 0
+        }
+    });
 
     const temp = {
         fullName: findingCustomer.fullName,
         email: findingAccount.email,
-        phone: findingCustomer.phone
+        phone: findingCustomer.phone,
+        dOB: findingCustomer.dOB,
+        balance: findingService[0].balance,
+        isVerified: findingAccount.isVerified,
+        currencyUnitId: findingService[0].currencyUnitId
     }
 
     res.status(290).json({
@@ -455,18 +475,28 @@ router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
     const id = Date.now().toString();
     const coinOfTransferRaw = req.body.cOT;
     const verifyCode = req.body.verifyCode;
-    console.log(verifyCode);
+    
+    
+
     const sender = await Services.findAll({
         where: {
             accountId: idOfSender
         }
     });
+
     const accountOfSender = await Accounts.findByPk(idOfSender);
     const receiver = await Services.findAll({
         where: {
             accountId: req.body.receiver
         }
     });
+
+    if(verifyCode !== accountOfSender.verifyCode){
+        return res.status(401).json({
+            userMessage: "Verify code was wrong, please try again. We really sorry about that"
+        });
+    }
+
     if(isNaN(coinOfTransferRaw)){
         return res.status(404).json({
             userMessage: "Tien sai dinh dang"
@@ -474,6 +504,13 @@ router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
     }
 
     const coinOfTransfer = parseInt(coinOfTransferRaw);
+
+    if(sender[0].balance < (coinOfTransfer + 7000)){
+        return res.status(404).json({
+            userMessage: "There is not enough money to handle this transition!!!"
+        });
+    }
+
     const comment = req.body.comment;
     const passwordCheck = await bcrypt.compare(req.body.password, accountOfSender.password);
     if(!passwordCheck){
@@ -485,8 +522,8 @@ router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
     const time = new Date(Date.now()).toLocaleString();
     const date = new Date(Date.now()).toLocaleDateString();
 
-    if(sender.length>=1 && receiver.length>=1 && isNumber(coinOfTransfer) && verifyCode === accountOfSender.verifyCode){
-        sender[0].balance = parseInt(sender[0].balance) - coinOfTransfer;
+    if(sender.length>=1 && receiver.length>=1 && isNumber(coinOfTransfer)){
+        sender[0].balance = parseInt(sender[0].balance) - (coinOfTransfer + 7000);
         receiver[0].balance = parseInt(receiver[0].balance) + coinOfTransfer;
         const statusOfSending = await sender[0].save();
         const statusOfReceiving = await receiver[0].save();
@@ -505,14 +542,24 @@ router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
             data.save()
             .then(() => {
                 res.status(200).json({
-                    userMessage: "DONE",
+                    userMessage: "Successfully handled this transition, please check your dashboard for changing!",
                     data
                 });
             })
             .catch((err) => {
-                res.status(404).json({
-                    userMessage: "LOI CATCH DATA",
-                    error: err
+                data.status = 3;
+                data.save()
+                .then(() => {
+                    res.status(200).json({
+                        userMessage: "There are some problem when you handle this transition, we really sorry about that",
+                        error: err
+                    });
+                })
+                .catch((err) => {
+                    res.status(404).json({
+                        userMessage: "There are some problem when you handle this transition, we really sorry about that",
+                        error: err
+                    });
                 });
             });
             
@@ -521,20 +568,6 @@ router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
             res.status(404).json({
                 error: err
             })
-            // data.status = 3;
-            // data.save()
-            // .then(() => {
-            //     res.status(200).json({
-            //         userMessage: "DONE",
-            //         data
-            //     });
-            // })
-            // .catch((err) => {
-            //     res.status(404).json({
-            //         userMessage: "LOI CATCH TEMP",
-            //         error: err
-            //     });
-            // });
         });
 
         
@@ -552,13 +585,13 @@ router.get("/history/:id", checkAuth.checkAuthCustomer, async (req, res) => {
             sender: id
         }
     });
-    const listOfTrans = [];
-    const data = {
-
-    }
-
+    var listOfTrans = [];
     if(tempTrans.length >= 1){
+        
         tempTrans.map((element) => {
+            let data = {
+
+            }
             let temp = element.get();
             data.id = temp.id;
             data.date = temp.dOT.toLocaleDateString();
@@ -579,6 +612,8 @@ router.get("/history/:id", checkAuth.checkAuthCustomer, async (req, res) => {
             data.content = temp.content;
             listOfTrans.push(data);
         })
+
+        
 
         return res.status(200).json({
             userMessage: "SUCCESSFULLY FETCH ACTIVITY",
