@@ -516,24 +516,63 @@ router.post("/createService/:id", async (req, res) => {
   }
 });
 
+router.put("/recharge/:id", checkAuth.checkAuthStaff, async (req, res) => {
+  const id = req.params.id;
+  const curBalance = req.body.balance;
+  try {
+    const paymentAccount = await Services.findByPk(id);
+
+    if (paymentAccount) {
+      if (paymentAccount.serviceType === 0) {
+        paymentAccount.balance = curBalance;
+
+        await paymentAccount.save();
+
+        return res.status(200).json({
+          result: "ok",
+        });
+      } else {
+        return res.status(400).json({
+          result: "failed",
+          message: "This is not a paymentAccount!!!",
+        });
+      }
+    }
+
+    return res.status(400).json({
+      result: "failed",
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+});
+
 router.delete("/deleteService/:id", async (req, res) => {
   const id = req.params.id;
   try {
     const service = await Services.findByPk(id);
 
     if (service) {
-      if (service.maturity !== null) {
+      if (service.serviceType !== 0) {
+        if (service.maturity !== null) {
+          return res.status(400).json({
+            result: "failed",
+            message: "Unexpired saving Account!!!",
+          });
+        }
+
+        await service.destroy();
+
+        return res.status(200).json({
+          result: "ok",
+        });
+      } else {
         return res.status(400).json({
           result: "failed",
-          message: "Unexpired saving Account!!!",
+          message: "You can't remove payment account!!!",
         });
       }
-
-      await service.destroy();
-
-      return res.status(400).json({
-        result: "ok",
-      });
     }
   } catch (error) {
     console.log(error);
