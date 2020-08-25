@@ -11,6 +11,7 @@ import Verify from "./components/Staff/Verify";
 import LoginForm from "./components/LoginForm";
 import ServerError from "./components/ServerError";
 import ModalErr from "./components/ModalErr";
+import History from "./components/Staff/History";
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route
@@ -71,6 +72,7 @@ class App extends Component {
             <LoginForm onIsLogin={this.onIsLogin} isLogin={isLogin} />
           </Route>
           <PrivateRoute path="/verify" component={Verify} isLogin={isLogin} />
+          <PrivateRoute path="/history" component={History} isLogin={isLogin} />
           <PrivateRoute
             path="/staffmanager"
             onIsLogout={this.onIsLogout}

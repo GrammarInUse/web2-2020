@@ -118,37 +118,35 @@ class StaffManager extends Component {
       let role = item.decentralizationId === 1 ? "Staff" : "Admin";
 
       return (
-        <tbody key={index}>
-          <tr id="listStaff">
-            <td>{item.accountId}</td>
-            <td>{item.fullname}</td>
-            <td>{item.Account.email}</td>
-            <td>{item.position}</td>
-            <td>{item.salary}</td>
-            <td>{role}</td>
-            <td style={{ maxWidth: 100 }}>
-              <td style={{ border: "none" }}>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => this.toggleModal(item.accountId)}
-                >
-                  <FaEdit />
-                </button>
-              </td>
-
-              <td style={{ border: "none" }}>
-                <button
-                  type="button"
-                  className="btn  btn-danger"
-                  onClick={() => this.onLock(item.accountId)}
-                >
-                  {item.Account.isBlocked ? <FaLock /> : <FaLockOpen />}
-                </button>
-              </td>
+        <tr id="listStaff">
+          <td>{item.accountId}</td>
+          <td>{item.fullname}</td>
+          <td>{item.Account.email}</td>
+          <td>{item.position}</td>
+          <td>{item.salary}</td>
+          <td>{role}</td>
+          <td style={{ maxWidth: 100 }}>
+            <td style={{ border: "none" }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => this.toggleModal(item.accountId)}
+              >
+                <FaEdit />
+              </button>
             </td>
-          </tr>
-        </tbody>
+
+            <td style={{ border: "none" }}>
+              <button
+                type="button"
+                className="btn  btn-danger"
+                onClick={() => this.onLock(item.accountId)}
+              >
+                {item.Account.isBlocked ? <FaLock /> : <FaLockOpen />}
+              </button>
+            </td>
+          </td>
+        </tr>
       );
     });
     return list;
@@ -224,7 +222,7 @@ class StaffManager extends Component {
                 <th>Handle</th>
               </tr>
             </thead>
-            {this.listStaff()}
+            <tbody>{this.listStaff()}</tbody>
           </table>
         </div>
         {status === true ? (

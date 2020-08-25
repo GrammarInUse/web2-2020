@@ -1,7 +1,33 @@
 import React, { Component } from "react";
+import { api } from "./api";
+import Notification from "./Notification";
 
 export default class Account extends Component {
+  constructor() {
+    super();
+
+    const token = localStorage.getItem("token") || "";
+    api.defaults.headers["authorization"] = `bearer ${token} `;
+  }
   closeModal = () => {
+    this.props.onCloseModal();
+  };
+  onDelete = (id) => {
+    if (id) {
+      api
+        .delete(`/deleteService/${id}`)
+        .then((res) => {
+          console.log(res);
+          if (res.data.message) {
+            Notification(res.data.message, "dark", false);
+          }
+        })
+        .catch((err) => {
+          if (err.response.data.message) {
+            Notification(err.response.data.message, "warning", false);
+          }
+        });
+    }
     this.props.onCloseModal();
   };
   render() {
@@ -50,6 +76,18 @@ export default class Account extends Component {
                 </tr>
               </tbody>
             </table>
+            <div>
+              {ServiceType.id === 0 ? (
+                ""
+              ) : (
+                <button
+                  onClick={() => this.onDelete(id)}
+                  className="btn btn-danger"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
             <a id="close" onClick={this.closeModal}>
               x
             </a>

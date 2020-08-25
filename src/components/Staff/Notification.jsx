@@ -3,7 +3,7 @@ import "react-toastify/dist/ReactToastify.css";
 toast.configure();
 export default Notification = (content, type, close) => {
   return toast(content, {
-    type: "default",
+    type: "" + type,
     autoClose: close,
   });
 };

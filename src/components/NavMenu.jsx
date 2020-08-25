@@ -32,6 +32,9 @@ export default class NavMenu extends Component {
                   <Link to="/find-user">List User</Link>
                 </li>
                 <li>
+                  <Link to="/history">History</Link>
+                </li>
+                <li>
                   <button className="btn btn-danger" onClick={this.onLogout}>
                     Logout
                   </button>

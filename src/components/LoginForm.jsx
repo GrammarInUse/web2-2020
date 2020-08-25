@@ -1,6 +1,7 @@
 import React, { PureComponent } from "react";
 import { Redirect } from "react-router-dom";
 import { api } from "./Staff/api";
+import Notification from "./Staff/Notification";
 export default class LoginForm extends PureComponent {
   constructor() {
     super();
@@ -46,7 +47,12 @@ export default class LoginForm extends PureComponent {
       api
         .post("/login", this.state)
         .then((res) => {
-          console.log(res);
+          if (res.data.data) {
+            if (res.data.data.isBlocked) {
+              Notification("Account is blocked!!!", "error", false);
+              return;
+            }
+          }
           if (res.data.accessToken) {
             localStorage.setItem("token", res.data.accessToken);
             this.props.onIsLogin(res.data.data);
@@ -64,7 +70,7 @@ export default class LoginForm extends PureComponent {
                 passErr: "name or password Wrong!",
               });
             } else if (err.response.status === 429) {
-              alert("Please don't submit too fast");
+              Notification("Plese dont submit too fast!!!", "default", 3000);
             }
           }
         });

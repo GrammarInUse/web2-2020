@@ -1,16 +1,27 @@
 import React, { Component } from "react";
 import { api } from "./api";
+import Notification from "./Notification";
 
 export default class AccountEdit extends Component {
   constructor(props) {
     super(props);
-    let { id, Account, balance, ServiceType } = this.props.Account;
-    this.state = {
-      balance,
-      name: 1,
-      id,
-      idAccount: Account.id,
-    };
+
+    if (typeof this.props.Account === "string") {
+      console.log(typeof this.props.Account);
+      this.state = {
+        idAccount: this.props.Account,
+        balance: 0,
+      };
+    } else {
+      let { id, Account, ServiceType } = this.props.Account;
+      console.log(false);
+      this.state = {
+        balance: 0,
+        name: 1,
+        id,
+        idAccount: Account.id,
+      };
+    }
   }
   onChange = (e) => {
     let name = e.target.name;
@@ -25,6 +36,19 @@ export default class AccountEdit extends Component {
   onSubmit = (e) => {
     e.preventDefault();
     console.log(this.state);
+    if (!this.state.id) {
+      let curBalance = this.state.balance;
+      api
+        .put(`/recharge/${this.state.idAccount}`, curBalance)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      this.closeModal();
+      return;
+    }
     let { idAccount, name, balance } = this.state;
 
     if (name === "1") {
@@ -41,7 +65,7 @@ export default class AccountEdit extends Component {
       .post(`/createService/${idAccount}`, { servicetype: name, balance })
       .then(({ data }) => {
         if (data.result === "ok") {
-          alert("oke them thanh cong");
+          Notification("Add complete!!!", "error", 3000);
         }
       })
       .catch((err) => {
@@ -50,39 +74,47 @@ export default class AccountEdit extends Component {
             err.response.data.message ===
             "You can't create one more saving Account!!!"
           ) {
-            alert("moi tai khoan cho ton tai 1 ");
+            Notification(
+              "You can't create one more saving Account!!!",
+              "error",
+              3000
+            );
           }
         } else {
-          alert("da co loi say ra");
+          Notification("Ops err", "error", 3000);
         }
       });
+    this.closeModal();
   };
   render() {
-    let { balance, name } = this.state;
-    console.log(this.state);
+    let { balance } = this.state;
     return (
       <div style={{ marginTop: 100 }}>
         <div className="modal-profile">
           <div className="profile" style={{ height: 300 }}>
             <h5 style={{ color: "#1a1a2e", textTransform: "uppercase" }}>
-              Edit Account
+              {this.state.id ? "ADD Account" : "ADD Money"}
             </h5>
 
             <form className="formEdit" onSubmit={this.onSubmit}>
               <tbody>
-                <tr>
-                  <td>
-                    <label>Name</label>
-                  </td>
-                  <td>
-                    <select name="name" onChange={this.onChange}>
-                      <option value={1}>3 thang</option>
-                      <option value={2}>6 thang</option>
-                      <option value={3}>9 thang</option>
-                      <option value={4}>12 thang</option>
-                    </select>
-                  </td>
-                </tr>
+                {this.state.id ? (
+                  <tr>
+                    <td>
+                      <label>Name</label>
+                    </td>
+                    <td>
+                      <select name="name" onChange={this.onChange}>
+                        <option value={1}>3 thang</option>
+                        <option value={2}>6 thang</option>
+                        <option value={3}>9 thang</option>
+                        <option value={4}>12 thang</option>
+                      </select>
+                    </td>
+                  </tr>
+                ) : (
+                  ""
+                )}
                 <tr>
                   <td>
                     <label>balance</label>
