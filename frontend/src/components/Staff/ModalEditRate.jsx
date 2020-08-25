@@ -4,32 +4,21 @@ import { api } from "./api";
 export default class ModalEditRate extends Component {
   constructor(props) {
     super(props);
-    let { id, rate, term } = props.rate;
-
+    let { id, name, value, maturity } = props.rate;
+    const token = localStorage.getItem("token") || "";
+    api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
       id,
-      rate,
-      term,
+      name,
+      value,
+      maturity,
     };
   }
-  createRate = async () => {
-    let { rate, term } = this.state;
-    let data = { rate, term, isLock: false };
-    await api
-      .post("/rate/", data)
-      .then((res) => {
-        console.log(res);
-        this.props.onGetAll();
-      })
-      .catch((err) => {
-        console.log(err + "");
-      });
-  };
+
   updateRate = async () => {
-    let { id, rate, term } = this.state;
-    let data = { rate, term };
+    console.log(this.state);
     await api
-      .put(`/rate/${id}`, data)
+      .put(`/editRate/${this.state.id}`, this.state)
       .then((res) => {
         console.log(res);
         this.props.onGetAll();
@@ -41,16 +30,15 @@ export default class ModalEditRate extends Component {
   closeModal = () => {
     this.setState({
       id: null,
-      rete: "",
-      term: "",
+      name: "",
+      value: 0,
+      maturity: 0,
     });
     this.props.onToggleModal();
   };
   onSubmit = (e) => {
     e.preventDefault();
-    if (this.state.id === null) {
-      this.createRate();
-    } else {
+    if (this.state.id !== null) {
       this.updateRate();
     }
     this.closeModal();
@@ -66,24 +54,24 @@ export default class ModalEditRate extends Component {
     });
   };
   render() {
-    const { id, term, rate } = this.state;
+    const { id, name, value, maturity } = this.state;
 
     return (
       <div>
         <div className="modal-profile">
           <div className="profile">
-            <h3>{id !== null ? "Edit" : "Add"} Rate</h3>
+            <h3>Edit Rate</h3>
             <form className="formEdit" onSubmit={this.onSubmit}>
               <tbody>
                 <tr>
                   <td>
-                    <label>Term</label>
+                    <label>Name</label>
                   </td>
                   <td>
                     <input
                       type="text"
-                      name="term"
-                      value={term}
+                      name="name"
+                      value={name}
                       onChange={this.onChange}
                     />
                   </td>
@@ -91,22 +79,49 @@ export default class ModalEditRate extends Component {
 
                 <tr>
                   <td>
-                    <label>Rate:</label>
+                    <label>Value:</label>
                   </td>
                   <td>
                     <input
                       type="number"
-                      name="rate"
-                      value={rate}
+                      name="value"
+                      value={value}
+                      s
+                      onChange={this.onChange}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label>maturity:</label>
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      name="maturity"
+                      value={maturity}
                       onChange={this.onChange}
                     />
                   </td>
                 </tr>
               </tbody>
 
-              <button type="submit" className="btn btn-sm btn-success">
-                {id ? "UPDATE" : "ADD"}
-              </button>
+              <div style={{ marginTop: "2em" }}>
+                <button
+                  style={{ marginLeft: 120, width: 150 }}
+                  className="btn  btn-danger"
+                  onClick={this.closeModal}
+                >
+                  CANCEL
+                </button>
+                <button
+                  style={{ marginLeft: 120, width: 150 }}
+                  type="submit"
+                  className="btn  btn-success"
+                >
+                  UPDATE
+                </button>
+              </div>
             </form>
             <a id="close" onClick={this.closeModal}>
               x
