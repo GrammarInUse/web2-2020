@@ -1,10 +1,15 @@
 import React, { PureComponent } from "react";
+import Loading from "../Loading";
 import { api } from "./api";
 class Verify extends PureComponent {
   constructor() {
     super();
+    const token = localStorage.getItem("token") || "";
+    api.defaults.headers["authorization"] = `bearer ${token} `;
+
     this.state = {
       listUserVeri: [],
+      isLoading: false,
     };
   }
   findIndex = (id) => {
@@ -20,11 +25,15 @@ class Verify extends PureComponent {
   getAll = async () => {
     let data = await api
       .get("/verify/")
-      .then(({ data }) => data)
-      .catch((err) => []);
-    this.setState({
-      listUserVeri: data,
-    });
+      .then(({ data }) => {
+        if (data.data) {
+          this.setState({
+            listUserVeri: data,
+            isLoading: true,
+          });
+        }
+      })
+      .catch((err) => console.log(err + ""));
   };
   componentDidMount() {
     this.getAll();
@@ -79,7 +88,6 @@ class Verify extends PureComponent {
       .then((res) => {})
       .catch((err) => {
         alert(err + "");
-        return;
       });
     let index = this.findIndex(id);
     this.state.listUserVeri.splice(index, 1);
@@ -88,13 +96,16 @@ class Verify extends PureComponent {
     });
   };
   render() {
+    let { isLoading } = this.state;
+    if (!isLoading) {
+      return <Loading />;
+    }
     return (
       <div
         style={{
-          marginTop: 150,
+          marginTop: 100,
           height: "auto",
           minHeight: "100%",
-          backgroundColor: "#ffffdd",
         }}
       >
         <div class="panel panel-default">

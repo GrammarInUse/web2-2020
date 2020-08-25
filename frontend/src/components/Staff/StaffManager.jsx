@@ -4,47 +4,97 @@ import "./style.css";
 import ModalEditProfile from "./ModalEditProfile";
 
 import { api } from "./api";
+import Loading from "../Loading";
+import ServerError from "../ServerError";
+
+import { Redirect } from "react-router-dom";
+import Notification from "./Notification";
+
 let staff = {
-  id: "",
-  id: null,
-  name: "",
+  accountId: null,
+  fullname: "",
   position: "",
   salary: 0,
-  role: 1,
-  email: "",
+  decentralizationId: 2,
+  Account: {
+    email: "",
+    isBlocked: false,
+  },
 };
 class StaffManager extends Component {
   constructor(props) {
     super(props);
-
+    const token = localStorage.getItem("token") || "";
+    api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
+      isLoading: 1,
       status: false,
       staffs: [],
+      redirect: false,
     };
   }
+  isLogout = () => {
+    localStorage.removeItem("token");
+    this.setState({
+      redirect: true,
+    });
+  };
 
   getAll = async () => {
-    let staffs = await api.get("/listStaff/").then(({ data }) => data);
-    this.setState({
-      staffs,
-    });
+    api
+      .get("/listStaff")
+      .then(({ data }) => {
+        if (data.data) {
+          this.setState({
+            staffs: data.data,
+            isLoading: 2,
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response) {
+          if (typeof err.response.status) {
+            if (err.response.status === 503) {
+              this.setState({
+                isLoading: 3,
+              });
+            } else if (err.response.data.error) {
+              if (
+                err.response.data.error ===
+                "Sorry You are unauthorized to make a manager"
+              ) {
+                this.setState({
+                  isLoading: 4,
+                });
+              }
+            } else {
+              this.isLogout();
+            }
+          }
+        }
+      });
   };
   Lock = (id) => {
     let index = this.findIndex(id);
     const staff = this.state.staffs[index];
     let { staffs } = this.state;
     api
-      .put(`blockAccount/${id}`, { isLock: !staff.isLock })
+      .put(`blockAccount/${id}`)
       .then((res) => {
-        console.log(res.data);
+        console.log(res);
+        if (res.data.result === "ok") {
+          let isBlocked = !staffs[index].Account.isBlocked;
+          staffs[index].Account.isBlocked = isBlocked;
+
+          this.setState({
+            staffs: [...staffs],
+          });
+        }
       })
       .catch((err) => {
-        console.log(err + "");
+        console.log(err);
       });
-    staffs[index].isLock = !staff.isLock;
-    this.setState({
-      staffs: [...staffs],
-    });
   };
   componentDidMount() {
     this.getAll();
@@ -53,7 +103,7 @@ class StaffManager extends Component {
     let staffs = this.state.staffs;
     let index = -1;
     staffs.forEach((item, i) => {
-      if (item.id === id) {
+      if (item.accountId === id) {
         index = i;
       }
     });
@@ -65,14 +115,14 @@ class StaffManager extends Component {
   listStaff = () => {
     let staffs = this.state.staffs;
     let list = staffs.map((item, index) => {
-      let role = item.role === 1 ? "watch" : "edit";
+      let role = item.decentralizationId === 1 ? "Staff" : "Admin";
 
       return (
         <tbody key={index}>
           <tr id="listStaff">
-            <td>{item.id}</td>
-            <td>{item.name}</td>
-            <td>{item.email}</td>
+            <td>{item.accountId}</td>
+            <td>{item.fullname}</td>
+            <td>{item.Account.email}</td>
             <td>{item.position}</td>
             <td>{item.salary}</td>
             <td>{role}</td>
@@ -81,7 +131,7 @@ class StaffManager extends Component {
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={() => this.toggleModal(item.id)}
+                  onClick={() => this.toggleModal(item.accountId)}
                 >
                   <FaEdit />
                 </button>
@@ -91,9 +141,9 @@ class StaffManager extends Component {
                 <button
                   type="button"
                   className="btn  btn-danger"
-                  onClick={() => this.onLock(item.id)}
+                  onClick={() => this.onLock(item.accountId)}
                 >
-                  {item.isLock ? <FaLock /> : <FaLockOpen />}
+                  {item.Account.isBlocked ? <FaLock /> : <FaLockOpen />}
                 </button>
               </td>
             </td>
@@ -113,12 +163,15 @@ class StaffManager extends Component {
       }
     } else {
       staff = {
-        id: null,
-        name: "",
+        accountId: null,
+        fullname: "",
         position: "",
         salary: 0,
-        role: 1,
-        isLock: false,
+        decentralizationId: 2,
+        Account: {
+          email: "",
+          isBloced: false,
+        },
       };
     }
     this.setState({
@@ -127,15 +180,25 @@ class StaffManager extends Component {
   };
 
   render() {
-    let { status } = this.state;
+    let { status, isLoading, redirect } = this.state;
+    if (redirect) {
+      Notification("ban da logout", "dark", false);
+      return <Redirect to="/" />;
+    }
+    if (isLoading === 3) {
+      return <ServerError />;
+    } else if (isLoading === 1) {
+      return <Loading />;
+    } else if (isLoading === 4) {
+      return <Redirect to="find-user" />;
+    }
 
     return (
       <div
         style={{
-          marginTop: 150,
+          marginTop: 100,
           height: "auto",
           minHeight: "100%",
-          backgroundColor: "#ffffdd",
         }}
       >
         <div className="panel panel-default">

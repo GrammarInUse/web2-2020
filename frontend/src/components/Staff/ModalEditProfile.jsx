@@ -6,13 +6,15 @@ class ModalEditProfile extends PureComponent {
   constructor(props) {
     super(props);
     let { staff } = props;
+    const token = localStorage.getItem("token") || "";
+    api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
-      id: staff.id,
-      name: staff.name,
+      accountId: staff.accountId,
+      fullname: staff.fullname,
       position: staff.position,
       salary: staff.salary,
-      role: staff.role,
-      email: staff.email,
+      decentralizationId: staff.decentralizationId,
+      email: staff.Account.email,
 
       nameErr: "",
       posErr: "",
@@ -21,7 +23,7 @@ class ModalEditProfile extends PureComponent {
   }
   closeModal = () => {
     this.setState({
-      id: null,
+      idaccountId: null,
       name: "",
       position: "",
       salary: 0,
@@ -44,15 +46,15 @@ class ModalEditProfile extends PureComponent {
     return str;
   };
   isvalid = () => {
-    let { name, position, salary } = this.state;
+    let { fullname, position, salary } = this.state;
     const re = /^[A-Za-z]*$/;
     const sa = /^\d+$/;
     //const em = /^[a-z][a-z0-9_\.]{5,32}@[a-z0-9]{2,}(\.[a-z0-9]{2,4}){1,2}$/;
     let nameErr = "";
     let posErr = "";
     let salErr = "";
-    let emailErr = "";
-    let isName = re.test(this.removeAscent(name));
+
+    let isName = re.test(this.removeAscent(fullname));
     let isPos = re.test(this.removeAscent(position));
     let isSal = sa.test(salary);
 
@@ -65,7 +67,7 @@ class ModalEditProfile extends PureComponent {
     if (!isSal) {
       salErr = "please enter position only number";
     }
-    if (!name) {
+    if (!fullname) {
       nameErr = "name cannot emty ";
     }
     if (!position) {
@@ -79,12 +81,11 @@ class ModalEditProfile extends PureComponent {
     return true;
   };
   createStaff = async () => {
-    let { name, position, email, salary, role } = this.state;
-    let data = { name, position, email, salary, role };
-    let staff = await api
+    let { fullname, position, email, salary, decentralizationId } = this.state;
+    let data = { fullname, position, email, salary, decentralizationId };
+    await api
       .post("/addStaff/", data)
       .then((res) => {
-        console.log(res);
         this.props.onGetAll();
       })
       .catch((err) => {
@@ -92,13 +93,21 @@ class ModalEditProfile extends PureComponent {
       });
   };
   updateStaff = async () => {
-    let { name, position, salary, role } = this.state;
-    let data = { name, position, salary, role };
-    let staff = await api
-      .put(`/editStaff/${this.state.id}`, data)
+    let { fullname, position, email, salary, decentralizationId } = this.state;
+
+    let data = {
+      name: fullname,
+      position,
+      email,
+      salary,
+      role: decentralizationId,
+    };
+    await api
+      .put(`/editStaff/${this.state.accountId}`, data)
       .then((res) => {
-        console.log(res.status);
-        this.props.onGetAll();
+        if (res.data.result === "ok") {
+          this.props.onGetAll();
+        }
       })
       .catch((err) => {
         console.log(err + "");
@@ -109,7 +118,7 @@ class ModalEditProfile extends PureComponent {
     let target = e.target;
     let name = target.name;
     let value = target.value;
-    if (name === "role") {
+    if (name === "decentralizationId") {
       value = value === "2" ? 2 : 1;
     }
     this.setState({
@@ -120,7 +129,7 @@ class ModalEditProfile extends PureComponent {
     e.preventDefault();
     console.log(this.state);
     if (this.isvalid()) {
-      if (this.state.id === null) {
+      if (this.state.accountId === null) {
         this.createStaff();
       } else {
         this.updateStaff();
@@ -130,12 +139,11 @@ class ModalEditProfile extends PureComponent {
   };
   render() {
     let {
-      validate,
-      id,
-      name,
+      accountId,
+      fullname,
       position,
       salary,
-      role,
+      decentralizationId,
       email,
       nameErr,
       posErr,
@@ -146,7 +154,7 @@ class ModalEditProfile extends PureComponent {
       <div>
         <div className="modal-profile">
           <div className="profile">
-            <h3>{id !== null ? "Edit" : "Add"} Profile</h3>
+            <h3>{accountId !== null ? "Edit" : "Add"} Profile</h3>
             <form className="formEdit" onSubmit={this.onSubmit}>
               <tbody>
                 <tr>
@@ -157,8 +165,8 @@ class ModalEditProfile extends PureComponent {
                     <input
                       id="name"
                       type="text"
-                      name="name"
-                      value={name}
+                      name="fullname"
+                      value={fullname}
                       onChange={this.onChange}
                     />
                     <span style={{ color: "red" }}>{nameErr}</span>
@@ -214,17 +222,35 @@ class ModalEditProfile extends PureComponent {
                     <label>Role:</label>
                   </td>
                   <td>
-                    <select name="role" id="select" onChange={this.onChange}>
-                      <option value="1">Watch</option>
-                      <option value="2">Edit</option>
+                    <select
+                      name="decentralizationId"
+                      id="select"
+                      onChange={this.onChange}
+                      defaultValue={decentralizationId === 1 ? "1" : "2"}
+                    >
+                      <option value="1">Staff</option>
+                      <option value="2">Admin</option>
                     </select>
                   </td>
                 </tr>
               </tbody>
 
-              <button type="submit" className="btn btn-sm btn-success">
-                {id !== null ? "UPDATE" : "ADD"}
-              </button>
+              <div style={{ marginTop: "2em" }}>
+                <button
+                  style={{ marginLeft: 120, width: 150 }}
+                  className="btn  btn-danger"
+                  onClick={this.closeModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  style={{ marginLeft: 120, width: 150 }}
+                  type="submit"
+                  className="btn  btn-success"
+                >
+                  {accountId !== null ? "UPDATE" : "ADD"}
+                </button>
+              </div>
             </form>
             <a id="close" onClick={this.closeModal}>
               x
