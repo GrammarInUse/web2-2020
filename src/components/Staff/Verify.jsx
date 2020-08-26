@@ -39,16 +39,15 @@ class Verify extends PureComponent {
       })
       .catch((err) => {
         if (err.response.status) {
-          if (err.response.status === 400) {
-            Notification("Opps something went wrong!!!", "error", false);
-            this.setState({
-              isLoading: true,
-            });
-          }
           if (err.response.status === 401) {
             Notification("You have Logout", "warning", 3000);
             this.setState({
               redirect: true,
+            });
+          } else {
+            Notification("Opps something went wrong!!!", "error", false);
+            this.setState({
+              isLoading: true,
             });
           }
         }

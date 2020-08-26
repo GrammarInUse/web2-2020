@@ -71,7 +71,7 @@ class StaffManager extends Component {
         }
       });
   };
-  componentDidMount() {
+  getAll = () => {
     api
       .get("/listStaff")
       .then(({ data }) => {
@@ -95,10 +95,6 @@ class StaffManager extends Component {
               this.setState({
                 redirect: true,
               });
-            } else if (err.response.status === 503) {
-              this.setState({
-                isLoading: 3,
-              });
             } else if (err.response.data.error) {
               if (
                 err.response.data.error ===
@@ -112,6 +108,9 @@ class StaffManager extends Component {
           }
         }
       });
+  };
+  componentDidMount() {
+    this.getAll();
   }
   findIndex = (id) => {
     let staffs = this.state.staffs;

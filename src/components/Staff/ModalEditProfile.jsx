@@ -84,20 +84,16 @@ class ModalEditProfile extends PureComponent {
   createStaff = async () => {
     let { fullname, position, email, salary, decentralizationId } = this.state;
     let data = { fullname, position, email, salary, decentralizationId };
+    console.log(data);
     await api
-      .post("/addStaff/", data)
+      .post("/addStaff", data)
       .then((res) => {
+        Notification("Add Success!!!", "success", 3000);
         this.props.onGetAll();
       })
       .catch((err) => {
-        if (err.respone.data.err) {
-          if (
-            err.response.data.error ===
-            "Authentication Failed ! JsonWebTokenError: jwt malformed"
-          ) {
-            localStorage.removeItem("token");
-          }
-        }
+        console.log(err);
+        Notification("Opps something went wrong!!!", "error", 3000);
       });
   };
   updateStaff = async () => {
@@ -114,11 +110,12 @@ class ModalEditProfile extends PureComponent {
       .put(`/editStaff/${this.state.accountId}`, data)
       .then((res) => {
         if (res.data.result === "ok") {
+          Notification("Update Success!!!", "success", 3000);
           this.props.onGetAll();
         }
       })
       .catch((err) => {
-        console.log(err + "");
+        Notification("Opps something went wrong!!!", "error", false);
       });
   };
 

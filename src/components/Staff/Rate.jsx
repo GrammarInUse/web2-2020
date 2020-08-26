@@ -78,15 +78,17 @@ class Rate extends PureComponent {
         }
       })
       .catch((err) => {
-        if (err.respone.data.err) {
-          if (
-            err.response.data.error ===
-            "Authentication Failed ! JsonWebTokenError: jwt malformed"
-          ) {
-            Notification("You have logout!!!", "warning", 3000);
-            this.setState({
-              redirect: true,
-            });
+        if (err.respone) {
+          if (err.respone.data.error) {
+            if (
+              err.response.data.error ===
+              "Authentication Failed ! JsonWebTokenError: jwt malformed"
+            ) {
+              Notification("You have logout!!!", "warning", 3000);
+              this.setState({
+                redirect: true,
+              });
+            }
           }
         }
       });

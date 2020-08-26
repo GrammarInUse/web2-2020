@@ -45,7 +45,7 @@ export default class AccountEdit extends Component {
       .post(`/createService/${idAccount}`, { servicetype: name, balance })
       .then(({ data }) => {
         if (data.result === "ok") {
-          Notification("Add complete!!!", "error", 3000);
+          Notification("Add complete!!!", "success", 3000);
         }
       })
       .catch((err) => {
@@ -60,16 +60,8 @@ export default class AccountEdit extends Component {
               3000
             );
           }
-        }
-        if (err.respone) {
-          if (
-            err.response.data.error ===
-            "Authentication Failed ! JsonWebTokenError: jwt malformed"
-          ) {
-            localStorage.removeItem("token");
-          }
         } else {
-          Notification("Opps something went wrong!!! ", "error", 3000);
+          Notification("Opps something went wrong!!! ", "error", false);
         }
       });
     this.closeModal();

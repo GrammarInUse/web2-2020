@@ -33,17 +33,7 @@ export default class Account extends Component {
           }
         })
         .catch((err) => {
-          if (err.respone.data.err) {
-            if (
-              err.response.data.error ===
-              "Authentication Failed ! JsonWebTokenError: jwt malformed"
-            ) {
-              localStorage.removeItem("token");
-            }
-          }
-          if (err.response.data.message) {
-            Notification(err.response.data.message, "warning", false);
-          }
+          Notification(err.response.data.message, "warning", false);
         });
     }
     this.props.onCloseModal();

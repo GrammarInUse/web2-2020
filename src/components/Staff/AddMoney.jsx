@@ -13,14 +13,7 @@ export default class AddMoney extends Component {
         console.log(res);
       })
       .catch((err) => {
-        if (err.respone.data.err) {
-          if (
-            err.response.data.error ===
-            "Authentication Failed ! JsonWebTokenError: jwt malformed"
-          ) {
-            localStorage.removeItem("token");
-          }
-        }
+        Notification("Opps something went wrong!!!", "error", false);
       });
     this.props.onCloseModal();
   };

@@ -25,14 +25,7 @@ export default class ModalEditRate extends Component {
         this.props.onGetAll();
       })
       .catch((err) => {
-        if (err.respone.data.err) {
-          if (
-            err.response.data.error ===
-            "Authentication Failed ! JsonWebTokenError: jwt malformed"
-          ) {
-            localStorage.removeItem("token");
-          }
-        }
+        Notification("Opps something went wrong!!!", "error", false);
       });
   };
   closeModal = () => {
