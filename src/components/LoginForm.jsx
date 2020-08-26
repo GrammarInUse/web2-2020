@@ -5,12 +5,17 @@ import Notification from "./Staff/Notification";
 export default class LoginForm extends PureComponent {
   constructor() {
     super();
+    let isLogin = false;
+    if (localStorage.getItem("token")) {
+      isLogin = true;
+    }
     this.state = {
       username: "",
       password: "",
 
       nameErr: "",
       passErr: "",
+      isLogin,
     };
   }
 
@@ -55,10 +60,13 @@ export default class LoginForm extends PureComponent {
           }
           if (res.data.accessToken) {
             localStorage.setItem("token", res.data.accessToken);
-            this.props.onIsLogin(res.data.data);
+            this.setState({
+              isLogin: true,
+            });
           } else if (res.data.message === "Wrong password!") {
             this.setState({
               passErr: res.data.message,
+              isLogin: false,
             });
           }
         })
@@ -68,6 +76,7 @@ export default class LoginForm extends PureComponent {
             if (err.response.status === 401) {
               this.setState({
                 passErr: "name or password Wrong!",
+                isLogin: false,
               });
             } else if (err.response.status === 429) {
               Notification("Plese dont submit too fast!!!", "default", 3000);
@@ -77,8 +86,9 @@ export default class LoginForm extends PureComponent {
     }
   };
   render() {
-    const { username, password, nameErr, passErr } = this.state;
-    if (this.props.isLogin) {
+    const { username, password, nameErr, passErr, isLogin } = this.state;
+
+    if (isLogin) {
       return <Redirect to="/staffmanager" />;
     }
     return (

@@ -1,15 +1,19 @@
 import React, { PureComponent } from "react";
 import Loading from "../Loading";
 import { api } from "./api";
+import Notification from "./Notification";
+import { Redirect } from "react-router-dom";
 class Verify extends PureComponent {
   constructor() {
     super();
     const token = localStorage.getItem("token") || "";
     api.defaults.headers["authorization"] = `bearer ${token} `;
+    let redirect = token === "" ? true : false;
 
     this.state = {
       listUserVeri: [],
       isLoading: false,
+      redirect,
     };
   }
   findIndex = (id) => {
@@ -33,7 +37,22 @@ class Verify extends PureComponent {
           });
         }
       })
-      .catch((err) => console.log(err + ""));
+      .catch((err) => {
+        if (err.response.status) {
+          if (err.response.status === 400) {
+            Notification("Opps something went wrong!!!", "error", false);
+            this.setState({
+              isLoading: true,
+            });
+          }
+          if (err.response.status === 401) {
+            Notification("You have Logout", "warning", 3000);
+            this.setState({
+              redirect: true,
+            });
+          }
+        }
+      });
   };
   componentDidMount() {
     this.getAll();
@@ -55,7 +74,7 @@ class Verify extends PureComponent {
             <td style={{ border: "none" }}>
               <button
                 type="button"
-                class="btn btn-primary"
+                className="btn btn-primary"
                 onClick={() => this.handleVeri(item.id, 1)}
               >
                 Accept
@@ -65,7 +84,7 @@ class Verify extends PureComponent {
             <td style={{ border: "none" }}>
               <button
                 type="button"
-                class="btn  btn-danger"
+                className="btn  btn-danger"
                 onClick={() => this.handleVeri(item.id, 2)}
               >
                 Deline
@@ -87,7 +106,7 @@ class Verify extends PureComponent {
       .put(`./verifyHandle/${id}`, data)
       .then((res) => {})
       .catch((err) => {
-        alert(err + "");
+        Notification("Opps something went wrong!!!", "error", 3000);
       });
     let index = this.findIndex(id);
     this.state.listUserVeri.splice(index, 1);
@@ -96,7 +115,11 @@ class Verify extends PureComponent {
     });
   };
   render() {
-    let { isLoading } = this.state;
+    let { isLoading, redirect } = this.state;
+    if (redirect) {
+      localStorage.removeItem("token");
+      return <Redirect to="/login" />;
+    }
     if (!isLoading) {
       return <Loading />;
     }
@@ -108,12 +131,12 @@ class Verify extends PureComponent {
           minHeight: "100%",
         }}
       >
-        <div class="panel panel-default">
-          <div class="panel-heading">
+        <div className="panel panel-default">
+          <div className="panel-heading">
             <h3>VERIFY USER</h3>
           </div>
 
-          <table class="table table-bordered">
+          <table className="table table-bordered">
             <thead>
               <tr>
                 <th style={{ with: "10%" }}> ID </th>

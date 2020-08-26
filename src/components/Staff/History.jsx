@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { api } from "./api";
 import ModalHistory from "./ModalHistory";
+import LoginForm from "../LoginForm";
+import { Redirect } from "react-router-dom";
+import Notification from "./Notification";
 let transaction = {};
 export default class History extends Component {
   constructor() {
@@ -11,10 +14,18 @@ export default class History extends Component {
     this.state = {
       listHis: [],
       key: "",
-      type: 1,
+      type: "1",
       isOpen: false,
+      redirect: 0,
     };
   }
+  onChange = (e) => {
+    let name = e.target.name;
+    let value = e.target.value;
+    this.setState({
+      [name]: value,
+    });
+  };
   componentDidMount() {
     api
       .get("/getHistoryTransaction")
@@ -27,7 +38,14 @@ export default class History extends Component {
         }
       })
       .catch((err) => {
-        console.log(err);
+        if (err.response) {
+          if (err.response.status === 401) {
+            localStorage.removeItem("token");
+            this.setState({
+              redirect: 1,
+            });
+          }
+        }
       });
   }
   showHistory = (his) => {
@@ -42,8 +60,38 @@ export default class History extends Component {
       isOpen: false,
     });
   };
-  listHistory = () => {
-    let listHis = this.state.listHis;
+
+  render() {
+    let { key, type, redirect, listHis } = this.state;
+    if (redirect === 1) {
+      Notification("Opps something went wrong!!!!!!", "warning", 3000);
+      return (
+        <Redirect>
+          <LoginForm isLogin={false} />
+        </Redirect>
+      );
+    }
+    if (key && type) {
+      switch (type) {
+        case "1":
+          listHis = listHis.filter((i) => {
+            return i.Account.id.indexOf(key) > -1;
+          });
+          break;
+        case "2":
+          listHis = listHis.filter((i) => {
+            return (
+              i.Account.username.toLowerCase().indexOf(key.toLowerCase()) > -1
+            );
+          });
+          break;
+        case "3":
+          listHis = listHis.filter((i) => {
+            return i.Account.email.indexOf(key) > -1;
+          });
+          break;
+      }
+    }
     let list = listHis.map((item, index) => {
       return (
         <tr key={index}>
@@ -51,17 +99,21 @@ export default class History extends Component {
           <td>{item.Account.username}</td>
           <td>{item.Account.email}</td>
           <td>
-            <a href="#" onClick={() => this.showHistory(item.transaction)}>
+            <a
+              className="text-hover"
+              style={{
+                textDecorationLine: "underline",
+                textDecorationColor: "red",
+                cursor: "pointer",
+              }}
+              onClick={() => this.showHistory(item.transaction)}
+            >
               {item.transaction.content}
             </a>
           </td>
         </tr>
       );
     });
-    return list;
-  };
-
-  render() {
     return (
       <div
         style={{
@@ -71,6 +123,20 @@ export default class History extends Component {
         }}
       >
         <h3>History Transaction</h3>
+        <div style={{ float: "left", marginBottom: 10 }}>
+          <span>Search</span>
+          <input
+            style={{ marginLeft: 10, marginRight: 10 }}
+            type="text"
+            name="key"
+            onChange={this.onChange}
+          />
+          <select name="type" onChange={this.onChange}>
+            <option value={1}>By ID</option>
+            <option value={2}>By Name</option>
+            <option value={3}>By Email</option>
+          </select>
+        </div>
         <table className="table table-bordered">
           <thead>
             <tr>
@@ -80,7 +146,7 @@ export default class History extends Component {
               <th>Content</th>
             </tr>
           </thead>
-          <tbody>{this.listHistory()}</tbody>
+          <tbody>{list}</tbody>
         </table>
         {this.state.isOpen ? (
           <ModalHistory

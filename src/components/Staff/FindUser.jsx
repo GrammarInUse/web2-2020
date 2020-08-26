@@ -4,6 +4,9 @@ import Loading from "../Loading";
 import Account from "./Account";
 import { Redirect } from "react-router-dom";
 import AccountEdit from "./AccountEdit";
+import AddMoney from "./AddMoney";
+import { FaLock, FaLockOpen } from "react-icons/fa";
+import Notification from "./Notification";
 let account = {};
 
 export default class FindUser extends Component {
@@ -40,18 +43,14 @@ export default class FindUser extends Component {
   };
   Lock = (id) => {
     let index = this.findIndex(id);
-    const staff = this.state.listUser[index];
+    const user = this.state.listUser[index];
     let { listUser } = this.state;
     api
       .put(`blockAccount/${id}`)
       .then((res) => {
         console.log(res);
         if (res.data.result === "ok") {
-          // let isBlocked = !listUser[index].Account.isBlocked;
-          // staffs[index].Account.isBlocked = isBlocked;
-          // this.setState({
-          //   staffs: [...staffs],
-          // });
+          this.getAll();
         }
       })
       .catch((err) => {
@@ -70,6 +69,7 @@ export default class FindUser extends Component {
             listUser: data.data,
             isLoading: true,
             isOpenModal: false,
+            isOpenModalAdd: false,
           });
         }
       })
@@ -78,9 +78,12 @@ export default class FindUser extends Component {
         if (err.message) {
           if (err.message === "timeout of 2000ms exceeded") {
             this.setState({
-              redirect: true,
+              isLoading: true,
             });
+            Notification("Request timout!!!", "default", 3000);
           }
+        } else {
+          Notification("Opps something went wrong!!!", "error", 3000);
         }
       });
   };
@@ -114,6 +117,13 @@ export default class FindUser extends Component {
   onCloseModal = () => {
     this.setState({
       isOpenModal: false,
+      isOpenModalAdd: false,
+    });
+  };
+  onShowModalAddMoney = (i) => {
+    account = i;
+    this.setState({
+      isOpenModalAdd: true,
     });
   };
   render() {
@@ -125,6 +135,7 @@ export default class FindUser extends Component {
       redirect,
       isOpenModalEdit,
       type,
+      isOpenModalAdd,
     } = this.state;
     if (redirect) {
       return <Redirect to="/503page" />;
@@ -132,7 +143,10 @@ export default class FindUser extends Component {
     if (!isLoading) {
       return <Loading />;
     }
-
+    if (redirect) {
+      localStorage.removeItem("token");
+      return <Redirect to="/login" />;
+    }
     if (type) {
       switch (type) {
         case "1":
@@ -186,6 +200,14 @@ export default class FindUser extends Component {
             >
               detail
             </button>
+            <button
+              style={{ marginRight: 10 }}
+              onClick={() => this.onShowModalAddMoney(defaultAcc)}
+              onCloseModal={this.onCloseModal}
+              className="btn btn-primary"
+            >
+              Add Money
+            </button>
           </td>
           <td>
             <button
@@ -203,13 +225,6 @@ export default class FindUser extends Component {
             <div>
               <button
                 style={{ marginRight: 10 }}
-                onClick={() => this.onShowModalEdit(i.id)}
-                className="btn btn-primary"
-              >
-                ADD MONEY
-              </button>
-              <button
-                style={{ marginRight: 10 }}
                 onClick={() => this.onShowModalEdit(i)}
                 className="btn btn-primary"
               >
@@ -220,7 +235,7 @@ export default class FindUser extends Component {
                 onClick={() => this.onLock(i.Account.id)}
                 className="btn btn-danger"
               >
-                Lock
+                {i.Account.isBlocked ? <FaLock /> : <FaLockOpen />}
               </button>
             </div>
           </td>
@@ -236,7 +251,7 @@ export default class FindUser extends Component {
           minHeight: "100%",
         }}
       >
-        <div class="panel-heading">
+        <div className="panel-heading">
           <h3>LIST USER</h3>
         </div>
         <div className="find" style={{ float: "left", marginLeft: 10 }}>
@@ -276,6 +291,11 @@ export default class FindUser extends Component {
             Account={account}
             onCloseModalEdit={this.onCloseModalEdit}
           />
+        ) : (
+          ""
+        )}
+        {isOpenModalAdd ? (
+          <AddMoney Account={account} onCloseModal={this.onCloseModal} />
         ) : (
           ""
         )}
