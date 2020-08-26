@@ -1,16 +1,26 @@
 import React, { Component } from "react";
 import { api } from "./api";
 import Notification from "./Notification";
-
+import AddMoney from "./AddMoney";
+let Acc = { id: null, Account: {} };
 export default class Account extends Component {
   constructor() {
     super();
 
     const token = localStorage.getItem("token") || "";
     api.defaults.headers["authorization"] = `bearer ${token} `;
+    this.state = {
+      isOpen: false,
+    };
   }
   closeModal = () => {
     this.props.onCloseModal();
+  };
+  onOpenModal = (acc) => {
+    Acc = acc;
+    this.setState({
+      isOpen: true,
+    });
   };
   onDelete = (id) => {
     if (id) {
@@ -23,6 +33,14 @@ export default class Account extends Component {
           }
         })
         .catch((err) => {
+          if (err.respone.data.err) {
+            if (
+              err.response.data.error ===
+              "Authentication Failed ! JsonWebTokenError: jwt malformed"
+            ) {
+              localStorage.removeItem("token");
+            }
+          }
           if (err.response.data.message) {
             Notification(err.response.data.message, "warning", false);
           }
@@ -37,6 +55,8 @@ export default class Account extends Component {
       ServiceType,
       CurrencyUnit,
       id,
+      Account,
+      isOpen,
     } = this.props.Account;
     let date = maturity || "none";
 

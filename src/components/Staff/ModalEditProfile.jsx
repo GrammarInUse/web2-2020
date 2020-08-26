@@ -7,6 +7,7 @@ class ModalEditProfile extends PureComponent {
     super(props);
     let { staff } = props;
     const token = localStorage.getItem("token") || "";
+
     api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
       accountId: staff.accountId,
@@ -89,7 +90,14 @@ class ModalEditProfile extends PureComponent {
         this.props.onGetAll();
       })
       .catch((err) => {
-        console.log(err + "");
+        if (err.respone.data.err) {
+          if (
+            err.response.data.error ===
+            "Authentication Failed ! JsonWebTokenError: jwt malformed"
+          ) {
+            localStorage.removeItem("token");
+          }
+        }
       });
   };
   updateStaff = async () => {

@@ -3,17 +3,21 @@ import { FaEdit, FaLock, FaLockOpen, FaPlus } from "react-icons/fa";
 import Loading from "../Loading";
 import { api } from "./api";
 import ModalEditRate from "./ModalEditRate";
+import Notification from "./Notification";
+import { Redirect } from "react-router-dom";
 
 let rate = { id: null, name: "", value: 0, maturity: null };
 class Rate extends PureComponent {
   constructor() {
     super();
     const token = localStorage.getItem("token") || "";
+    let redirect = token === "" ? true : false;
     api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
       status: false,
       listRate: [],
       isLoading: false,
+      redirect,
     };
   }
 
@@ -74,18 +78,32 @@ class Rate extends PureComponent {
         }
       })
       .catch((err) => {
-        console.log(err + "");
+        if (err.respone.data.err) {
+          if (
+            err.response.data.error ===
+            "Authentication Failed ! JsonWebTokenError: jwt malformed"
+          ) {
+            Notification("You have logout!!!", "warning", 3000);
+            this.setState({
+              redirect: true,
+            });
+          }
+        }
       });
   };
   componentDidMount() {
     this.getAll();
   }
   render() {
-    const { status, isLoading } = this.state;
-
+    const { status, isLoading, redirect } = this.state;
+    if (redirect) {
+      localStorage.removeItem("token");
+      return <Redirect to="/login" />;
+    }
     if (!isLoading) {
       return <Loading />;
     }
+
     return (
       <div
         style={{
@@ -94,11 +112,11 @@ class Rate extends PureComponent {
           minHeight: "100%",
         }}
       >
-        <div class="panel panel-default">
-          <div class="panel-heading">
+        <div className="panel panel-default">
+          <div className="panel-heading">
             <h3>RATE </h3>
           </div>
-          <table class="table table-bordered">
+          <table className="table table-bordered">
             <thead>
               <tr>
                 <th> ID </th>

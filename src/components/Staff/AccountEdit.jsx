@@ -6,23 +6,16 @@ export default class AccountEdit extends Component {
   constructor(props) {
     super(props);
 
-    if (typeof this.props.Account === "string") {
-      console.log(typeof this.props.Account);
-      this.state = {
-        idAccount: this.props.Account,
-        balance: 0,
-      };
-    } else {
-      let { id, Account, ServiceType } = this.props.Account;
-      console.log(false);
-      this.state = {
-        balance: 0,
-        name: 1,
-        id,
-        idAccount: Account.id,
-      };
-    }
+    let { id, Account, ServiceType } = this.props.Account;
+
+    this.state = {
+      balance: 0,
+      name: 1,
+      id,
+      idAccount: Account.id,
+    };
   }
+
   onChange = (e) => {
     let name = e.target.name;
     let value = e.target.value;
@@ -35,20 +28,7 @@ export default class AccountEdit extends Component {
   };
   onSubmit = (e) => {
     e.preventDefault();
-    console.log(this.state);
-    if (!this.state.id) {
-      let curBalance = this.state.balance;
-      api
-        .put(`/recharge/${this.state.idAccount}`, curBalance)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      this.closeModal();
-      return;
-    }
+
     let { idAccount, name, balance } = this.state;
 
     if (name === "1") {
@@ -80,8 +60,16 @@ export default class AccountEdit extends Component {
               3000
             );
           }
+        }
+        if (err.respone) {
+          if (
+            err.response.data.error ===
+            "Authentication Failed ! JsonWebTokenError: jwt malformed"
+          ) {
+            localStorage.removeItem("token");
+          }
         } else {
-          Notification("Ops err", "error", 3000);
+          Notification("Opps something went wrong!!! ", "error", 3000);
         }
       });
     this.closeModal();
@@ -98,23 +86,20 @@ export default class AccountEdit extends Component {
 
             <form className="formEdit" onSubmit={this.onSubmit}>
               <tbody>
-                {this.state.id ? (
-                  <tr>
-                    <td>
-                      <label>Name</label>
-                    </td>
-                    <td>
-                      <select name="name" onChange={this.onChange}>
-                        <option value={1}>3 thang</option>
-                        <option value={2}>6 thang</option>
-                        <option value={3}>9 thang</option>
-                        <option value={4}>12 thang</option>
-                      </select>
-                    </td>
-                  </tr>
-                ) : (
-                  ""
-                )}
+                <tr>
+                  <td>
+                    <label>Name</label>
+                  </td>
+                  <td>
+                    <select name="name" onChange={this.onChange}>
+                      <option value={1}>3 thang</option>
+                      <option value={2}>6 thang</option>
+                      <option value={3}>9 thang</option>
+                      <option value={4}>12 thang</option>
+                    </select>
+                  </td>
+                </tr>
+
                 <tr>
                   <td>
                     <label>balance</label>

@@ -25,6 +25,7 @@ class StaffManager extends Component {
   constructor(props) {
     super(props);
     const token = localStorage.getItem("token") || "";
+    let redirect = token === "" ? true : false;
     api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
       isLoading: 1,
@@ -40,41 +41,6 @@ class StaffManager extends Component {
     });
   };
 
-  getAll = async () => {
-    api
-      .get("/listStaff")
-      .then(({ data }) => {
-        if (data.data) {
-          this.setState({
-            staffs: data.data,
-            isLoading: 2,
-          });
-        }
-      })
-      .catch((err) => {
-        console.log(err.response);
-        if (err.response) {
-          if (typeof err.response.status) {
-            if (err.response.status === 503) {
-              this.setState({
-                isLoading: 3,
-              });
-            } else if (err.response.data.error) {
-              if (
-                err.response.data.error ===
-                "Sorry You are unauthorized to make a manager"
-              ) {
-                this.setState({
-                  isLoading: 4,
-                });
-              }
-            } else {
-              this.isLogout();
-            }
-          }
-        }
-      });
-  };
   Lock = (id) => {
     let index = this.findIndex(id);
     const staff = this.state.staffs[index];
@@ -93,11 +59,59 @@ class StaffManager extends Component {
         }
       })
       .catch((err) => {
-        console.log(err);
+        if (err.response.status) {
+          if (err.response.status === 401) {
+            Notification("Opps something went wrong!!!!!!", "warn", 3000);
+            this.setState({
+              redirect: true,
+            });
+          }
+        } else {
+          Notification("Opps something went wrong!!!!!!", "warn", 3000);
+        }
       });
   };
   componentDidMount() {
-    this.getAll();
+    api
+      .get("/listStaff")
+      .then(({ data }) => {
+        if (data.data) {
+          this.setState({
+            staffs: data.data,
+            isLoading: 2,
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response) {
+          console.log(err.response.status);
+          if (err.response.status) {
+            if (
+              err.response.data.error ===
+              "Authentication Failed ! JsonWebTokenError: jwt malformed"
+            ) {
+              Notification("You have logout!!!", "warning", 3000);
+              this.setState({
+                redirect: true,
+              });
+            } else if (err.response.status === 503) {
+              this.setState({
+                isLoading: 3,
+              });
+            } else if (err.response.data.error) {
+              if (
+                err.response.data.error ===
+                "Sorry You are unauthorized to make a manager"
+              ) {
+                this.setState({
+                  isLoading: 4,
+                });
+              }
+            }
+          }
+        }
+      });
   }
   findIndex = (id) => {
     let staffs = this.state.staffs;
@@ -118,7 +132,7 @@ class StaffManager extends Component {
       let role = item.decentralizationId === 1 ? "Staff" : "Admin";
 
       return (
-        <tr id="listStaff">
+        <tr key={index} id="listStaff">
           <td>{item.accountId}</td>
           <td>{item.fullname}</td>
           <td>{item.Account.email}</td>
@@ -126,25 +140,21 @@ class StaffManager extends Component {
           <td>{item.salary}</td>
           <td>{role}</td>
           <td style={{ maxWidth: 100 }}>
-            <td style={{ border: "none" }}>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => this.toggleModal(item.accountId)}
-              >
-                <FaEdit />
-              </button>
-            </td>
-
-            <td style={{ border: "none" }}>
-              <button
-                type="button"
-                className="btn  btn-danger"
-                onClick={() => this.onLock(item.accountId)}
-              >
-                {item.Account.isBlocked ? <FaLock /> : <FaLockOpen />}
-              </button>
-            </td>
+            <button
+              style={{ marginRight: 10 }}
+              type="button"
+              className="btn btn-primary"
+              onClick={() => this.toggleModal(item.accountId)}
+            >
+              <FaEdit />
+            </button>
+            <button
+              type="button"
+              className="btn  btn-danger"
+              onClick={() => this.onLock(item.accountId)}
+            >
+              {item.Account.isBlocked ? <FaLock /> : <FaLockOpen />}
+            </button>
           </td>
         </tr>
       );
@@ -180,8 +190,8 @@ class StaffManager extends Component {
   render() {
     let { status, isLoading, redirect } = this.state;
     if (redirect) {
-      Notification("ban da logout", "dark", false);
-      return <Redirect to="/" />;
+      localStorage.removeItem("token");
+      return <Redirect to="/login" />;
     }
     if (isLoading === 3) {
       return <ServerError />;

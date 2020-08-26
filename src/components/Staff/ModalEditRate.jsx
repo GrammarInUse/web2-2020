@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { api } from "./api";
-
+import Notification from "./Notification";
 export default class ModalEditRate extends Component {
   constructor(props) {
     super(props);
     let { id, name, value, maturity } = props.rate;
     const token = localStorage.getItem("token") || "";
+
     api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
       id,
@@ -24,7 +25,14 @@ export default class ModalEditRate extends Component {
         this.props.onGetAll();
       })
       .catch((err) => {
-        console.log(err + "");
+        if (err.respone.data.err) {
+          if (
+            err.response.data.error ===
+            "Authentication Failed ! JsonWebTokenError: jwt malformed"
+          ) {
+            localStorage.removeItem("token");
+          }
+        }
       });
   };
   closeModal = () => {
@@ -54,7 +62,7 @@ export default class ModalEditRate extends Component {
     });
   };
   render() {
-    const { id, name, value, maturity } = this.state;
+    const { id, name, value, maturity, redirect } = this.state;
 
     return (
       <div>

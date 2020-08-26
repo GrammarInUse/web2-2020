@@ -60,7 +60,7 @@ class App extends Component {
 
         <Switch>
           <Route exact path="/">
-            <LoginForm onIsLogin={this.onIsLogin} isLogin={isLogin} />
+            <LoginForm isLogin={isLogin} />
           </Route>
           <Route exact path="/test">
             <ModalErr content="xxxxxxxxxxxxxxxx" />
@@ -69,7 +69,7 @@ class App extends Component {
             <ServerError />
           </Route>
           <Route path="/login">
-            <LoginForm onIsLogin={this.onIsLogin} isLogin={isLogin} />
+            <LoginForm isLogin={isLogin} />
           </Route>
           <PrivateRoute path="/verify" component={Verify} isLogin={isLogin} />
           <PrivateRoute path="/history" component={History} isLogin={isLogin} />
