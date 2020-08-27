@@ -2,21 +2,6 @@ import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { api } from "./Staff/api";
 export default class NavMenu extends Component {
-  constructor() {
-    super();
-    const token = localStorage.getItem("token") || "";
-    api.defaults.headers["authorization"] = `bearer ${token} `;
-    let isLogin = token === "" ? false : true;
-    this.state = {
-      isLogin,
-    };
-  }
-  onLogout = () => {
-    localStorage.removeItem("token");
-    this.setState({
-      isLogin: false,
-    });
-  };
   render() {
     return (
       <header id="header">
@@ -28,7 +13,7 @@ export default class NavMenu extends Component {
               </Link>
             </h1>
           </div>
-          {this.state.isLogin ? (
+          {this.props.isLogin ? (
             <nav id="nav-menu-container" style={{ color: "black" }}>
               <ul className="nav-menu">
                 <li>
@@ -47,7 +32,13 @@ export default class NavMenu extends Component {
                   <Link to="/history">History</Link>
                 </li>
                 <li>
-                  <button className="btn btn-danger" onClick={this.onLogout}>
+                  <Link to="/withDraw">Withdraw Cash</Link>
+                </li>
+                <li>
+                  <button
+                    className="btn btn-danger"
+                    onClick={this.props.onIsLogout}
+                  >
                     Logout
                   </button>
                 </li>

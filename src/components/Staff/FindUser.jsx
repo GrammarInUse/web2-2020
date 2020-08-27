@@ -43,8 +43,7 @@ export default class FindUser extends Component {
   };
   Lock = (id) => {
     let index = this.findIndex(id);
-    const user = this.state.listUser[index];
-    let { listUser } = this.state;
+
     api
       .put(`blockAccount/${id}`)
       .then((res) => {
@@ -74,17 +73,10 @@ export default class FindUser extends Component {
         }
       })
       .catch((err) => {
-        console.log(err.message);
-        if (err.message) {
-          if (err.message === "timeout of 2000ms exceeded") {
-            this.setState({
-              isLoading: true,
-            });
-            Notification("Request timout!!!", "default", 3000);
-          }
-        } else {
-          Notification("Opps something went wrong!!!", "error", 3000);
-        }
+        Notification("Opps something went wrong!!!", "error", 3000);
+        this.setState({
+          isLoading: true,
+        });
       });
   };
   componentDidMount() {

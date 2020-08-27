@@ -4,6 +4,7 @@ import ModalHistory from "./ModalHistory";
 import LoginForm from "../LoginForm";
 import { Redirect } from "react-router-dom";
 import Notification from "./Notification";
+import Loading from "../Loading";
 let transaction = {};
 export default class History extends Component {
   constructor() {
@@ -17,6 +18,7 @@ export default class History extends Component {
       type: "1",
       isOpen: false,
       redirect: 0,
+      isLoading: false,
     };
   }
   onChange = (e) => {
@@ -34,6 +36,7 @@ export default class History extends Component {
         if (res.data.result === "ok") {
           this.setState({
             listHis: res.data.data,
+            isLoading: true,
           });
         }
       })
@@ -62,7 +65,10 @@ export default class History extends Component {
   };
 
   render() {
-    let { key, type, redirect, listHis } = this.state;
+    let { key, type, redirect, listHis, isLoading } = this.state;
+    if (!isLoading) {
+      return <Loading />;
+    }
     if (redirect === 1) {
       Notification("Opps something went wrong!!!!!!", "warning", 3000);
       return (

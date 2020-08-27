@@ -8,12 +8,10 @@ class Verify extends PureComponent {
     super();
     const token = localStorage.getItem("token") || "";
     api.defaults.headers["authorization"] = `bearer ${token} `;
-    let redirect = token === "" ? true : false;
 
     this.state = {
       listUserVeri: [],
       isLoading: false,
-      redirect,
     };
   }
   findIndex = (id) => {
@@ -38,22 +36,8 @@ class Verify extends PureComponent {
         }
       })
       .catch((err) => {
-        console.log(err);
-        if (err.response) {
-          if (err.response.status) {
-            if (err.response.status === 401) {
-              Notification("You have Logout", "warning", 3000);
-              this.setState({
-                redirect: true,
-              });
-            }
-          }
-        } else {
-          Notification("Opps something went wrong!!!", "error", false);
-          this.setState({
-            isLoading: true,
-          });
-        }
+        Notification("Opps something went wrong!!!", "error", false);
+        this.setState({ isLoading: true });
       });
   };
   componentDidMount() {
@@ -78,7 +62,7 @@ class Verify extends PureComponent {
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={() => this.handleVeri(item.id, 1)}
+                onClick={() => this.handleVeri(item.id, "1")}
               >
                 Accept
               </button>
@@ -88,7 +72,7 @@ class Verify extends PureComponent {
               <button
                 type="button"
                 className="btn  btn-danger"
-                onClick={() => this.handleVeri(item.id, 2)}
+                onClick={() => this.handleVeri(item.id, "-1")}
               >
                 Deline
               </button>
@@ -100,16 +84,11 @@ class Verify extends PureComponent {
     return list;
   };
   handleVeri = (id, flag) => {
-    let data = {};
-    if (flag === 1) {
-      data = 1;
-    } else {
-      data = -1;
-    }
+    let data = flag;
+
     api
-      .put(`./verifyHandle/${id}`, data)
+      .put(`./verifyHandle/${id}`, { data })
       .then((res) => {
-        console.log(res);
         Notification("Successfully!!!", "success", 3000);
       })
       .catch((err) => {
@@ -124,10 +103,7 @@ class Verify extends PureComponent {
   render() {
     let { isLoading, redirect } = this.state;
     let list = this.listVeri();
-    if (redirect) {
-      localStorage.removeItem("token");
-      return <Redirect to="/login" />;
-    }
+
     if (!isLoading) {
       return <Loading />;
     }

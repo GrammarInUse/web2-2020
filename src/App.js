@@ -12,6 +12,7 @@ import LoginForm from "./components/LoginForm";
 import ServerError from "./components/ServerError";
 import ModalErr from "./components/ModalErr";
 import History from "./components/Staff/History";
+import WithDrawMoney from "./components/Staff/WithDrawMoney";
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route
@@ -21,36 +22,29 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
     }
   />
 );
-const token = localStorage.getItem("token");
 class App extends Component {
   constructor() {
+    let token = localStorage.getItem("token");
+    let isLogin = token ? true : false;
     super();
-    const token = localStorage.getItem("token");
-    const isLogin = token !== null ? true : false;
-
     this.state = {
-      staff: {
-        id: null,
-        name: "",
-        salary: 0,
-        position: "",
-        role: null,
-      },
       isLogin,
     };
   }
   onIsLogin = (data) => {
+    if (data) {
+      localStorage.setItem("token", data);
+    }
     this.setState({
-      staff: data,
       isLogin: true,
     });
   };
   onIsLogout = () => {
+    localStorage.removeItem("token");
     this.setState({
       isLogin: false,
     });
   };
-  componentDidMount() {}
   render() {
     let { isLogin } = this.state;
 
@@ -60,24 +54,20 @@ class App extends Component {
 
         <Switch>
           <Route exact path="/">
-            <LoginForm isLogin={isLogin} />
+            <LoginForm isLogin={isLogin} onIsLogin={this.onIsLogin} />
           </Route>
-          <Route exact path="/test">
-            <ModalErr content="xxxxxxxxxxxxxxxx" />
-          </Route>
+
           <Route exact path="/503page">
             <ServerError />
           </Route>
           <Route path="/login">
-            <LoginForm isLogin={isLogin} />
+            <LoginForm isLogin={isLogin} onIsLogin={this.onIsLogin} />
           </Route>
           <PrivateRoute path="/verify" component={Verify} isLogin={isLogin} />
           <PrivateRoute path="/history" component={History} isLogin={isLogin} />
           <PrivateRoute
             path="/staffmanager"
-            onIsLogout={this.onIsLogout}
             component={StaffManager}
-            token={token}
             isLogin={isLogin}
           />
           <PrivateRoute
@@ -86,6 +76,11 @@ class App extends Component {
             isLogin={isLogin}
           />
           <PrivateRoute path="/rate" component={Rate} isLogin={isLogin} />
+          <PrivateRoute
+            path="/withDraw"
+            component={WithDrawMoney}
+            isLogin={isLogin}
+          />
 
           <Route component={NotFound} />
         </Switch>

@@ -25,21 +25,14 @@ class StaffManager extends Component {
   constructor(props) {
     super(props);
     const token = localStorage.getItem("token") || "";
-    let redirect = token === "" ? true : false;
+
     api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
-      isLoading: 1,
+      isLoading: false,
       status: false,
       staffs: [],
-      redirect: false,
     };
   }
-  isLogout = () => {
-    localStorage.removeItem("token");
-    this.setState({
-      redirect: true,
-    });
-  };
 
   Lock = (id) => {
     let index = this.findIndex(id);
@@ -59,46 +52,25 @@ class StaffManager extends Component {
         }
       })
       .catch((err) => {
-        if (err.response.status) {
-          if (err.response.status === 401) {
-            Notification("Opps something went wrong!!!!!!", "warn", 3000);
-            this.setState({
-              redirect: true,
-            });
-          }
-        } else {
-          Notification("Opps something went wrong!!!!!!", "warn", 3000);
-        }
+        Notification("Opps something went wrong!!!", "error", false);
       });
   };
-  getAll = () => {
-    api
+  getAll = async () => {
+    await api
       .get("/listStaff")
       .then(({ data }) => {
         if (data.data) {
           this.setState({
             staffs: data.data,
-            isLoading: 2,
+            isLoading: true,
           });
         }
       })
       .catch((err) => {
-        console.log(err);
-        if (err.response) {
-          if (err.response.status) {
-            if (err.response.status === 401) {
-              Notification("You have logout!!!", "warning", false);
-              this.setState({
-                redirect: true,
-              });
-            } else {
-              Notification("You Opps something went wrong!!!", "error", 3000);
-              this.setState({
-                isLoading: true,
-              });
-            }
-          }
-        }
+        Notification("You Opps something went wrong!!!", "error", 3000);
+        this.setState({
+          isLoading: true,
+        });
       });
   };
   componentDidMount() {
@@ -179,14 +151,10 @@ class StaffManager extends Component {
   };
 
   render() {
-    let { status, isLoading, redirect } = this.state;
-    if (redirect) {
-      localStorage.removeItem("token");
-      return <Redirect to="/login" />;
-    } else if (isLoading === 1) {
+    let { status, isLoading } = this.state;
+    console.log(isLoading);
+    if (!isLoading) {
       return <Loading />;
-    } else if (isLoading === 4) {
-      return <Redirect to="find-user" />;
     }
 
     return (

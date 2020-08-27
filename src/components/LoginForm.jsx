@@ -2,6 +2,7 @@ import React, { PureComponent } from "react";
 import { Redirect } from "react-router-dom";
 import { api } from "./Staff/api";
 import Notification from "./Staff/Notification";
+import StaffManager from "./Staff/StaffManager";
 export default class LoginForm extends PureComponent {
   constructor() {
     super();
@@ -9,6 +10,7 @@ export default class LoginForm extends PureComponent {
     if (localStorage.getItem("token")) {
       isLogin = true;
     }
+    console.log(isLogin);
     this.state = {
       username: "",
       password: "",
@@ -16,6 +18,7 @@ export default class LoginForm extends PureComponent {
       nameErr: "",
       passErr: "",
       isLogin,
+      redirect: false,
     };
   }
 
@@ -59,10 +62,8 @@ export default class LoginForm extends PureComponent {
             }
           }
           if (res.data.accessToken) {
-            localStorage.setItem("token", res.data.accessToken);
-            this.setState({
-              isLogin: true,
-            });
+            this.props.onIsLogin(res.data.accessToken);
+            this.setState({ isLogin: true });
           } else if (res.data.message === "Wrong password!") {
             this.setState({
               passErr: res.data.message,

@@ -17,7 +17,6 @@ class Rate extends PureComponent {
       status: false,
       listRate: [],
       isLoading: false,
-      redirect,
     };
   }
 
@@ -79,30 +78,18 @@ class Rate extends PureComponent {
         }
       })
       .catch((err) => {
-        if (err.respone) {
-          if (err.respone.data.error) {
-            if (
-              err.response.data.error ===
-              "Authentication Failed ! JsonWebTokenError: jwt malformed"
-            ) {
-              Notification("You have logout!!!", "warning", 3000);
-              this.setState({
-                redirect: true,
-              });
-            }
-          }
-        }
+        Notification("Opps something went wrong!!!", "error", false);
+        this.setState({
+          isLoading: true,
+        });
       });
   };
   componentDidMount() {
     this.getAll();
   }
   render() {
-    const { status, isLoading, redirect } = this.state;
-    if (redirect) {
-      localStorage.removeItem("token");
-      return <Redirect to="/login" />;
-    }
+    const { status, isLoading } = this.state;
+
     if (!isLoading) {
       return <Loading />;
     }
