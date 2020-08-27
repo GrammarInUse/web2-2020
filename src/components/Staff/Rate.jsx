@@ -56,6 +56,7 @@ class Rate extends PureComponent {
           <td>{item.maturity === null ? 0 : item.maturity}</td>
           <td>
             <button
+              disabled={item.id === 0 ? true : false}
               className="btn btn-primary"
               onClick={() => this.onToggleModal(item.id)}
             >

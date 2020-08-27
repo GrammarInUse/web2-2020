@@ -83,27 +83,19 @@ class StaffManager extends Component {
         }
       })
       .catch((err) => {
-        console.log(err.response);
+        console.log(err);
         if (err.response) {
-          console.log(err.response.status);
           if (err.response.status) {
-            if (
-              err.response.data.error ===
-              "Authentication Failed ! JsonWebTokenError: jwt malformed"
-            ) {
-              Notification("You have logout!!!", "warning", 3000);
+            if (err.response.status === 401) {
+              Notification("You have logout!!!", "warning", false);
               this.setState({
                 redirect: true,
               });
-            } else if (err.response.data.error) {
-              if (
-                err.response.data.error ===
-                "Sorry You are unauthorized to make a manager"
-              ) {
-                this.setState({
-                  isLoading: 4,
-                });
-              }
+            } else {
+              Notification("You Opps something went wrong!!!", "error", 3000);
+              this.setState({
+                isLoading: true,
+              });
             }
           }
         }
@@ -191,9 +183,6 @@ class StaffManager extends Component {
     if (redirect) {
       localStorage.removeItem("token");
       return <Redirect to="/login" />;
-    }
-    if (isLoading === 3) {
-      return <ServerError />;
     } else if (isLoading === 1) {
       return <Loading />;
     } else if (isLoading === 4) {

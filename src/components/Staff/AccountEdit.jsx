@@ -50,16 +50,7 @@ export default class AccountEdit extends Component {
       })
       .catch((err) => {
         if (err.response.data.message) {
-          if (
-            err.response.data.message ===
-            "You can't create one more saving Account!!!"
-          ) {
-            Notification(
-              "You can't create one more saving Account!!!",
-              "error",
-              3000
-            );
-          }
+          Notification(err.response.data.message, "error", 3000);
         } else {
           Notification("Opps something went wrong!!! ", "error", false);
         }

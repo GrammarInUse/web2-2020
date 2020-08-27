@@ -32,24 +32,27 @@ class Verify extends PureComponent {
       .then(({ data }) => {
         if (data.data) {
           this.setState({
-            listUserVeri: data,
+            listUserVeri: data.data,
             isLoading: true,
           });
         }
       })
       .catch((err) => {
-        if (err.response.status) {
-          if (err.response.status === 401) {
-            Notification("You have Logout", "warning", 3000);
-            this.setState({
-              redirect: true,
-            });
-          } else {
-            Notification("Opps something went wrong!!!", "error", false);
-            this.setState({
-              isLoading: true,
-            });
+        console.log(err);
+        if (err.response) {
+          if (err.response.status) {
+            if (err.response.status === 401) {
+              Notification("You have Logout", "warning", 3000);
+              this.setState({
+                redirect: true,
+              });
+            }
           }
+        } else {
+          Notification("Opps something went wrong!!!", "error", false);
+          this.setState({
+            isLoading: true,
+          });
         }
       });
   };
@@ -57,7 +60,8 @@ class Verify extends PureComponent {
     this.getAll();
   }
   listVeri = () => {
-    return this.state.listUserVeri.map((item, index) => {
+    let listUserVeri = this.state.listUserVeri;
+    let list = listUserVeri.map((item, index) => {
       return (
         <tr key={index}>
           <td>{item.id}</td>
@@ -93,6 +97,7 @@ class Verify extends PureComponent {
         </tr>
       );
     });
+    return list;
   };
   handleVeri = (id, flag) => {
     let data = {};
@@ -103,7 +108,10 @@ class Verify extends PureComponent {
     }
     api
       .put(`./verifyHandle/${id}`, data)
-      .then((res) => {})
+      .then((res) => {
+        console.log(res);
+        Notification("Successfully!!!", "success", 3000);
+      })
       .catch((err) => {
         Notification("Opps something went wrong!!!", "error", 3000);
       });
@@ -115,6 +123,7 @@ class Verify extends PureComponent {
   };
   render() {
     let { isLoading, redirect } = this.state;
+    let list = this.listVeri();
     if (redirect) {
       localStorage.removeItem("token");
       return <Redirect to="/login" />;
@@ -145,7 +154,7 @@ class Verify extends PureComponent {
                 <th style={{ width: "20%" }}>Handle</th>
               </tr>
             </thead>
-            <tbody>{this.listVeri()}</tbody>
+            <tbody>{list ? list : <h2>no data</h2>}</tbody>
           </table>
         </div>
       </div>

@@ -25,7 +25,7 @@ const token = localStorage.getItem("token");
 class App extends Component {
   constructor() {
     super();
-
+    const token = localStorage.getItem("token");
     const isLogin = token !== null ? true : false;
 
     this.state = {

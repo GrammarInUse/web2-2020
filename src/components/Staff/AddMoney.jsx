@@ -3,23 +3,35 @@ import { api } from "./api";
 const token = localStorage.getItem("token") || "";
 api.defaults.headers["authorization"] = `bearer ${token} `;
 export default class AddMoney extends Component {
+  constructor() {
+    super();
+    this.state = {
+      balance: 0,
+    };
+  }
+  onChange = (e) => {
+    this.setState({
+      balance: e.target.value,
+    });
+  };
   AddMoney = (e) => {
     e.preventDefault();
-    let name = e.target.name;
-    let value = e.target.value;
+
     api
-      .put(`/recharge/${this.props.Account.Account.id}`, { name: value })
+      .put(`/recharge/${this.props.Account.id}`, {
+        balance: this.state.balance,
+      })
       .then((res) => {
         console.log(res);
+        Notification("Add Money Success!!!", "success", 3000);
+        this.props.onCloseModal();
       })
       .catch((err) => {
+        console.log(err);
         Notification("Opps something went wrong!!!", "error", false);
       });
-    this.props.onCloseModal();
   };
-  closeModal = () => {
-    this.props.onCloseModal();
-  };
+
   render() {
     let { id, Account } = this.props.Account;
     return (
@@ -49,7 +61,11 @@ export default class AddMoney extends Component {
                   <tr>
                     <td>Money</td>
                     <td>
-                      <input name="curBalance" type="number" />
+                      <input
+                        onChange={this.onChange}
+                        name="balance"
+                        type="number"
+                      />
                     </td>
                   </tr>
                 </tbody>
@@ -58,7 +74,7 @@ export default class AddMoney extends Component {
                 </button>
               </table>
             </form>
-            <a id="close" onClick={this.closeModal}>
+            <a id="close" onClick={() => this.props.onCloseModal()}>
               x
             </a>
           </div>

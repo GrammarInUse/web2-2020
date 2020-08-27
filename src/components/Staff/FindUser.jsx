@@ -113,12 +113,14 @@ export default class FindUser extends Component {
     this.setState({
       isOpenModalEdit: false,
     });
+    this.getAll();
   };
   onCloseModal = () => {
     this.setState({
       isOpenModal: false,
       isOpenModalAdd: false,
     });
+    this.getAll();
   };
   onShowModalAddMoney = (i) => {
     account = i;
@@ -274,7 +276,7 @@ export default class FindUser extends Component {
                 <th>ID</th>
                 <th>Username</th>
                 <th>Account Default</th>
-                <th>Spend Account</th>
+                <th>Saving Account</th>
                 <th>Handle</th>
               </tr>
             </thead>
