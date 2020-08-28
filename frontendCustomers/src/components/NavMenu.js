@@ -139,11 +139,15 @@ export default class NavMenu extends Component {
                 .then((response) => {
                     response.json()
                     .then((result) => {
-                        console.log(result);
+                        if(result.customer){
+                            this.setState({
+                                fullName: result.customer.fullName 
+                            });
+                        }else{
 
-                        this.setState({
-                            fullName: result.customer.fullName || "Guess"
-                        });
+                        }
+
+                        
                     });
                 })
                 .catch((error) => {

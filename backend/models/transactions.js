@@ -52,4 +52,5 @@ Transactions.init({
     ModelName: "Transactions"
 });
 
+Transactions.belongsTo(TransactionStatus,{foreignKey:"status"})
 module.exports = Transactions;

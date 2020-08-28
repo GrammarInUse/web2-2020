@@ -8,7 +8,8 @@ class ServiceTypes extends Model{
             id: 0,
             name: "Tài khoản thanh toán",
             value: 1.0,
-            maturity: null
+            maturity: null,
+            limit: 20000000
         })
         .then(console.log("Successfully Initialized a service!!!"))
         .catch((err) => {
@@ -75,6 +76,10 @@ ServiceTypes.init({
         allowNull: false
     },
     maturity: {
+        type: sequelize.INTEGER,
+        allowNull: true
+    },
+    limit: {
         type: sequelize.INTEGER,
         allowNull: true
     }

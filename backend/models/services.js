@@ -3,7 +3,7 @@ const sequelize = require("sequelize");
 const Model = sequelize.Model;
 const Accounts = require("./accounts");
 const ServiceTypes = require("./service-types");
-const CurrencyUnit = require("./currency-unit");
+const CurrencyUnits = require("./currency-unit");
 
 class Services extends Model{ 
     static async getSTT() {
@@ -19,7 +19,7 @@ Services.init({
         primaryKey: true
     },
     balance: {
-        type: sequelize.DOUBLE,
+        type: sequelize.BIGINT,
         allowNull: false,
         defaultValue: 0
     },
@@ -36,7 +36,7 @@ Services.init({
     serviceType: {
         type: sequelize.INTEGER,
         allowNull: false,
-        defaultValue: 1,
+        defaultValue: 0,
         references: {
             key: "id",
             model: ServiceTypes
@@ -55,7 +55,7 @@ Services.init({
         allowNull: false,
         references: {
             key: "id",
-            model: CurrencyUnit
+            model: CurrencyUnits
         }
     }
 },{
@@ -63,6 +63,7 @@ Services.init({
     ModelName: "Services"
 });
 
-Services.belongsTo(Accounts,{foreignKey: "accountId"})
-Services.belongsTo(ServiceTypes,{foreignKey:"serviceType"})
+Services.belongsTo(Accounts,{foreignKey: "accountId"});
+Services.belongsTo(ServiceTypes,{foreignKey:"serviceType"});
+Services.belongsTo(CurrencyUnits,{foreignKey:"currencyUnitId"})
 module.exports = Services; 

@@ -29,7 +29,6 @@ const checkAuthCustomer = (req, res, next) => {
       });
       if (
         currentUser.length >= 1 &&
-        currentUser[0].password === data.password &&
         currentUser[0].username === data.username
       ) {
         next();

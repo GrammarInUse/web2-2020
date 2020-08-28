@@ -64,11 +64,12 @@ export default class Verify extends Component {
 
     submitHandler = async (e) => {
         e.preventDefault();
-        const token = JSON.parse(localStorage.getItem("login")).token;
+        const store = JSON.parse(localStorage.getItem("login"))
+        const token = store.token;
         const data = {
             identifyId: this.state.identifyId,
             dOI: this.state.dOIssurance,
-            currentUser: this.props.currentUser,
+            currentUser: store.currentUser,
             front: this.state.verifiedImageFront,
             back: this.state.verifiedImageBack
         }

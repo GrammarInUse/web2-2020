@@ -14,8 +14,9 @@ const { isNullOrUndefined, isNumber } = require("util");
 const Transactions = require("../../models/transactions");
 const InformationUsers = require("../../models/information-user");
 const IdentifyCard = require("../../models/identity-card");
-const qs = require("querystring");
-const { USER_EMAIL, PASSWORD_EMAIL } = require("../../configs/config");
+const ServiceTypes = require("../../models/service-types");
+
+//const { USER_EMAIL, PASSWORD_EMAIL } = require("../../configs/config");
 
 //CUSTOMER API
 router.post("/verifyCode", async (req, res) => {
@@ -26,7 +27,7 @@ router.post("/verifyCode", async (req, res) => {
     await tempAccount.save()
     .then(async () => {
         const mailOptions = {
-            from: USER_EMAIL,
+            from: process.env.USER_EMAIL,
             to: tempAccount.email,
             subject: "Mã xác thực S-Ebanking",
             text: 'Mã xác thực của bạn là: ' + tempCode
@@ -127,13 +128,25 @@ router.post("/signup", async (req, res) => {
 
     await Accounts.findAll({
         where: {
+            email
+        }
+    }).then((result) => {
+        if(result.length>=1){
+            return res.status(409).json({
+                userMessage: "Email exists"
+            });
+        }
+    })
+
+    await Accounts.findAll({
+        where: {
             username
         }
     }).then(async (result) => {
         console.log(result);
         if(result.length>=1){
             return res.status(409).json({
-                message: "Username exists"
+                userMessage: "Username exists"
             });
         }else{
             await Accounts.create({
@@ -149,7 +162,7 @@ router.post("/signup", async (req, res) => {
                 console.log("Something went wrong when you create an account!" + err);
             });
 
-            const serviceId = await Services.getSTT();
+            const serviceId = Date.now().toString();
             await Services.create({
                 id: serviceId,
                 accountId,
@@ -167,7 +180,7 @@ router.post("/signup", async (req, res) => {
                 sex,
                 phone,
                 accountId
-            }).then(async () => {
+            }).then( async () => {
                 const tempUser = await Accounts.findOne({
                     where: {
                         username
@@ -175,22 +188,21 @@ router.post("/signup", async (req, res) => {
                 });
             
             
-                const url = "http://localhost:8080/customers/signup/" + tempUser.get().id + "/" + tempUser.get().verifyToken;
+                const url = "https://s-ebanking-api.herokuapp.com/customers/signup/" + tempUser.get().id + "/" + tempUser.get().verifyToken;
                 const mailOptions = {
-                    from: USER_EMAIL,
+                    from: process.env.USER_EMAIL,
                     to: tempUser.email,
                     subject: "Xác thực tài khoản S-Ebanking",
                     text: 'Liên kết vào link sau để kích hoạt tài khoản: ' + url
                 }
                 await Send(mailOptions);
-
                 return res.status(202).json({
-                    message: "Succesfully created a Customer"
+                    userMessage: "Succesfully created a Customer"
                 });
             })
             .catch((err) => {
                 return res.status(303).json({
-                    message: "There are some errors when you create a customer information",
+                    userMessage: "There are some errors when you create a customer information",
                     error: err
                 });
             });
@@ -207,7 +219,18 @@ router.post("/login", async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
 
-    const tempCustomer = await Accounts.findAll({where:{username}});
+    const tempCustomer = await Accounts.findAll({
+        where: {
+            $or: [
+                {
+                    username
+                },
+                {
+                    email: username
+                }
+            ]
+        }
+    });
 
     if(tempCustomer.length >= 1){
         const passwordAuth = await bcrypt.compare(password, tempCustomer[0].password);
@@ -216,11 +239,11 @@ router.post("/login", async (req, res) => {
         console.log(verifyToken);
         if(!passwordAuth){
             res.status(200).json({
-                message: "Wrong password!"
+                userMessage: "Wrong password!"
             });
         }else if(passwordAuth && (!isNullOrUndefined(verifyToken) && verifyToken.length !== 0)){
             res.status(200).json({
-                message: "You haven't verified your account! Please check your email!!!"
+                userMessage: "You haven't verified your account! Please check your email!!!"
             });
         }
         else if(passwordAuth && (isNullOrUndefined(verifyToken) || verifyToken.length === 0)){
@@ -230,19 +253,19 @@ router.post("/login", async (req, res) => {
             }, "mySecret");
 
             res.status(200).json({
-                message: "Successfully authenticated!",
+                userMessage: "Successfully authenticated!",
                 token,
                 customerId: tempCustomer[0].id
             });
         }else{
             res.status(200).json({
-                message: "Something went wrong!!!",
+                userMessage: "Something went wrong!!!",
                 customer: null
             });
         }
     }else{
         res.status(200).json({
-            message: "User not found!",
+            userMessage: "User not found!",
             customer: null
         });
     }
@@ -250,52 +273,12 @@ router.post("/login", async (req, res) => {
 
 router.post("/getAvatar", checkAuth.checkAuthCustomer, async (req, res) => {
     const currentUser = req.body.currentUser;
-
     const tempAccount = await Accounts.findByPk(currentUser);
     const tempAvatar = tempAccount.avatar;
-
-    //console.log(tempAccount);
 
     res.status(200).json({
         userMessage: "DONE",
         data: tempAvatar
-    })
-})
-
-router.post("/getFrontIdentify", checkAuth.checkAuthCustomer, async (req, res) => {
-    const currentUser = req.body.currentUser;
-
-    const tempIdentifyCard = await IdentifyCard.findAll({
-        where: {
-            accountId: currentUser
-        }
-    });
-    const tempidentify = tempIdentifyCard[0].dataValues.frontOfIdentify ? tempIdentifyCard[0].dataValues.frontOfIdentify : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog";
-
-    //console.log(tempAccount);
-
-    res.status(200).json({
-        userMessage: "DONE",
-        data: tempidentify
-    })
-})
-
-router.post("/getBackIdentify", checkAuth.checkAuthCustomer, async (req, res) => {
-    const currentUser = req.body.currentUser;
-
-    const tempIdentifyCard = await IdentifyCard.findAll({
-        where: {
-            accountId: currentUser
-        }
-    });
-
-    const tempidentify = tempIdentifyCard[0].dataValues.backOfIdentify ? tempIdentifyCard[0].dataValues.backOfIdentify : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog";
-
-    //console.log(tempAccount);
-
-    res.status(200).json({
-        userMessage: "DONE",
-        data: tempidentify
     })
 })
 
@@ -329,7 +312,7 @@ router.post("/verify", checkAuth.checkAuthCustomer, async (req, res) => {
 
     await IdentifyCard.create({
         id: identifyId,
-        dOIssuance: dOI,
+        dOissuance: dOI,
         frontOfIdentify: front,
         backOfIdentify: back,
         accountId: currentUser
@@ -343,16 +326,15 @@ router.post("/verify", checkAuth.checkAuthCustomer, async (req, res) => {
             });
         })
         .catch((err) => {
+            console.log(err);
             return res.status(401).json({
                 userMessage: "Failed"
             });
         })
-
-        
     }).catch((err) => {
         console.log(err);
         return res.status(401).json({
-            userMessage: "Failed"
+            userMessage: "You have verified you account, please wait for us!"
         });
     });  
 });
@@ -361,21 +343,25 @@ router.get("/:id", checkAuth.checkAuthCustomer, async (req, res) => {
     const id = req.params.id;
     const findingCustomer = await CustomerInfo.findByPk(id);
     const findingAccount = await Accounts.findByPk(id);
-    const findingService = await Services.findAll({
+    const findingService = await Services.findOne({
         where: {
             accountId: id,
-            serviceType: 0
+            serviceType: 0,
+            currencyUnitId: 1
         }
     });
+    console.log("SERVICE");
+    console.log(findingService);
 
     const temp = {
+        id: findingService.id,
         fullName: findingCustomer.fullName,
         email: findingAccount.email,
         phone: findingCustomer.phone,
         dOB: findingCustomer.dOB,
-        balance: findingService[0].balance,
+        balance: findingService.balance,
         isVerified: findingAccount.isVerified,
-        currencyUnitId: findingService[0].currencyUnitId
+        currencyUnitId: findingService.currencyUnitId
     }
 
     res.status(290).json({
@@ -443,12 +429,8 @@ router.patch("/password/:id", checkAuth.checkAuthCustomer, async (req, res) => {
 router.get("/signup/:id/:verifyToken", async (req, res) => {
     const id = req.params.id;
     const verifyToken = req.params.verifyToken;
-    console.log(id);
-    console.log(verifyToken);
-
+    
     const temp = await Accounts.findByPk(id);
-    console.log("TEMP");
-    console.log(temp);
 
     if(temp.verifyToken === verifyToken){
         temp.verifyToken = "";
@@ -465,6 +447,7 @@ router.get("/signup/:id/:verifyToken", async (req, res) => {
 
 router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
     const idOfSender = req.body.sender;
+    const idOfReceiver = req.body.receiver;
     const tempAccount = await Accounts.findByPk(idOfSender);
     if(tempAccount.isVerified === 0 || tempAccount.isVerified === -1){
         return res.status(401).json({
@@ -475,21 +458,40 @@ router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
     const id = Date.now().toString();
     const coinOfTransferRaw = req.body.cOT;
     const verifyCode = req.body.verifyCode;
-    
-    
 
     const sender = await Services.findAll({
         where: {
-            accountId: idOfSender
+            accountId: idOfSender,
+            serviceType: 0,
+            currencyUnitId: 1
         }
     });
 
+    
+
     const accountOfSender = await Accounts.findByPk(idOfSender);
+    const infoOfSender = await CustomerInfo.findByPk(idOfSender);
+    const serviceOfReceiver = await Services.findByPk(idOfReceiver);
+    const accountOfReceiver = await Accounts.findByPk(serviceOfReceiver.accountId);
+
     const receiver = await Services.findAll({
         where: {
-            accountId: req.body.receiver
+            id: idOfReceiver,
+            currencyUnitId: 1
         }
     });
+
+    if(receiver.length <= 0){
+        return res.status(401).json({
+            userMessage: "STK người nhận không hợp lệ, vui lòng kiểm tra và giao dịch lại! "
+        })
+    }
+
+    if(sender.length <= 0){
+        return res.status(401).json({
+            userMessage: "STK không hợp lệ, vui lòng kiểm tra và giao dịch lại"
+        })
+    }
 
     if(verifyCode !== accountOfSender.verifyCode){
         return res.status(401).json({
@@ -504,6 +506,13 @@ router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
     }
 
     const coinOfTransfer = parseInt(coinOfTransferRaw);
+
+    const tempServiceType = await ServiceTypes.findByPk(sender[0].serviceType);
+    if(coinOfTransfer > tempServiceType.limit){
+        return res.status(401).json({
+            userMessage: "Sorry because you sent money boyond the limit that we allow!"
+        })
+    }
 
     if(sender[0].balance < (coinOfTransfer + 7000)){
         return res.status(404).json({
@@ -522,25 +531,38 @@ router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
     const time = new Date(Date.now()).toLocaleString();
     const date = new Date(Date.now()).toLocaleDateString();
 
-    if(sender.length>=1 && receiver.length>=1 && isNumber(coinOfTransfer)){
-        sender[0].balance = parseInt(sender[0].balance) - (coinOfTransfer + 7000);
-        receiver[0].balance = parseInt(receiver[0].balance) + coinOfTransfer;
-        const statusOfSending = await sender[0].save();
-        const statusOfReceiving = await receiver[0].save();
-
+    if(sender.length>=1 && receiver.length>=1 && isNumber(coinOfTransfer) && coinOfTransfer >= 0){
         const temp = await Transactions.create({
             id,
             dOT: time,
             status: 1,
             content: comment, 
             deposit: coinOfTransfer,
-            sender: sender[0].accountId,
-            receiver: receiver[0].accountId
+            sender: sender[0].id,
+            receiver: receiver[0].id
         })
-        .then((data) => {
+        .then(async (data) => {
+            sender[0].balance = parseInt(sender[0].balance) - (coinOfTransfer + 7000);
+            receiver[0].balance = parseInt(receiver[0].balance) + coinOfTransfer;
+            const statusOfSending = await sender[0].save();
+            const statusOfReceiving = await receiver[0].save();
             data.status = 2;
             data.save()
-            .then(() => {
+            .then(async () => {
+                const mailOptions1 = {
+                    from: process.env.USER_EMAIL,
+                    to: accountOfSender.email,
+                    subject: "Thông báo về số dư tài khoản",
+                    text: "Số dư hiện tại của bạn sau khi gửi là: " + sender[0].balance
+                }
+                await Send(mailOptions1);
+                const mailOptions2 = {
+                    from: process.env.USER_EMAIL,
+                    to: accountOfReceiver.email,
+                    subject: "Thông báo về số dư tài khoản",
+                    text: "Bạn nhận được " + coinOfTransfer + " từ " + infoOfSender.fullName
+                }
+                await Send(mailOptions2);
                 res.status(200).json({
                     userMessage: "Successfully handled this transition, please check your dashboard for changing!",
                     data
@@ -573,27 +595,224 @@ router.post("/chuyentien", checkAuth.checkAuthCustomer, async (req, res) => {
         
     }else{
         res.status(404).json({
-            userMessage: "Mã xác thực không đúng, vui lòng thực hiện lại giao dịch!"
+            userMessage: "There are some problem when you handle this transition, we really sorry about that!"
         })
     }
 });
 
-router.get("/history/:id", checkAuth.checkAuthCustomer, async (req, res) => {
-    const id = req.params.id;
-    const tempTrans = await Transactions.findAll({
+router.post("/chuyentienVISA", checkAuth.checkAuthCustomer, async (req, res) => {
+    const id = Date.now().toString();
+    const currentUser = req.body.sender;
+    const idOfReceiver = req.body.receiver;
+    const comment = req.body.comment;
+    const password = req.body.password;
+    const coinOfTransferRaw = req.body.cOT;
+
+    const visaService = await Services.findAll({
         where: {
-            sender: id
+            accountId: currentUser,
+            serviceType: 0,
+            currencyUnitId: 2
         }
     });
-    var listOfTrans = [];
-    if(tempTrans.length >= 1){
+
+    if(visaService.length <= 0){
+        return res.status(401).json({
+            userMessage: "You haven't create VISA account. So create a new one and try it again. Thanks for using our service"
+        })
+    }
+
+    const visaServiceReceiver = await Services.findAll({
+        where: {
+            id: idOfReceiver,
+            serviceType: 0,
+            currencyUnitId: 2
+        }
+    })
+
+    if(visaServiceReceiver.length <= 0){
+        return res.status(401).json({
+            userMessage: "Input bank account number of receiver invalidly. Please check and try it again. Thanks for using our service"
+        })
+    }
+
+
+    const currentAccount = await Accounts.findByPk(currentUser);
+    const verifyCode = req.body.verifyCode;
+
+    if(currentAccount.verifyCode !== verifyCode){
+        return res.status(401).json({
+            userMessage: "Verify code is wrong! Please check and try it again. Thanks for using our service"
+        })
+    }
+
+    if(isNaN(coinOfTransferRaw)){
+        return res.status(404).json({
+            userMessage: "Tien sai dinh dang"
+        });
+    }
+    const coinOfTransfer = parseInt(coinOfTransferRaw);
+
+    const passwordCheck = await bcrypt.compare(password, currentAccount.password);
+    if(!passwordCheck){
+        return res.status(404).json({
+            userMessage: "The password doesn't match!!!"
+        });
+    }
+
+    const tempServiceType = await ServiceTypes.findByPk(visaService[0].serviceType);
+    if(coinOfTransfer > tempServiceType.limit*23000 && coinOfTransfer <= 0){
+        return res.status(401).json({
+            userMessage: "Sorry because you sent money boyond the limit that we allow!"
+        })
+    }
+
+    if(visaService[0].balance < (coinOfTransfer + 1)){
+        return res.status(404).json({
+            userMessage: "There is not enough money to handle this transition!!!"
+        });
+    }
+
+    const time = new Date(Date.now()).toLocaleString();
+    const receiverAccount = await Accounts.findByPk(visaServiceReceiver[0].accountId);
+    const infoOfSender = await CustomerInfo.findByPk(currentUser);
+
+    const temp = await Transactions.create({
+        id,
+        dOT: time,
+        status: 1,
+        content: comment, 
+        deposit: coinOfTransfer,
+        sender: visaService[0].id,
+        receiver: visaServiceReceiver[0].id
+    })
+    .then(async (data) => {
+        visaService[0].balance = parseInt(visaService[0].balance) - (coinOfTransfer + 1);
+        visaServiceReceiver[0].balance = parseInt(visaServiceReceiver[0].balance) + coinOfTransfer;
+        const statusOfSending = await visaService[0].save();
+        const statusOfReceiving = await visaServiceReceiver[0].save();
+        data.status = 2;
+        data.save()
+        .then(async () => {
+            const mailOptions1 = {
+                from: process.env.USER_EMAIL,
+                to: currentAccount.email,
+                subject: "News about your VISA card information",
+                text: "Your balance after transfering: " + visaService[0].balance
+            }
+            await Send(mailOptions1);
+            const mailOptions2 = {
+                from: process.env.USER_EMAIL,
+                to: receiverAccount.email,
+                subject: "News about your VISA card information",
+                text: "You got " + coinOfTransfer + "$ from " + infoOfSender.fullName
+            }
+            await Send(mailOptions2);
+            res.status(200).json({
+                userMessage: "Successfully handled this transition, please check your dashboard for changing!",
+                data
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+            data.status = 3;
+            data.save()
+            .then(() => {
+                res.status(200).json({
+                    userMessage: "There are some problem when you handle this transition, we really sorry about that",
+                    error: err
+                });
+            })
+            .catch((err) => {
+                res.status(404).json({
+                    userMessage: "There are some problem when you handle this transition, we really sorry about that",
+                    error: err
+                });
+            });
+        });
         
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(404).json({
+            error: err
+        })
+    });
+})
+
+router.post("/history", checkAuth.checkAuthCustomer, async (req, res) => {
+    const id = req.body.currentUser;
+    const startDate = req.body.startDate || "";
+    const endDate = req.body.endDate || "";
+
+    const listOfTrans = [];
+
+    const tempService = await Services.findAll({
+        where: {
+            accountId: id,
+            serviceType: 0
+        }
+    });
+    const tempTrans = await Transactions.findAll({
+        order: [['dOT', 'DESC']],
+        where: {
+            $or: [
+                {
+                    sender: tempService[0].id
+                },
+                {
+                    receiver: tempService[0].id
+                }
+            ]
+        }
+    }).then()
+    .catch(err => {
+        console.log(err);
+    });
+    if(tempTrans.length >= 1 && startDate && endDate){
+        const tempStartDate = new Date(startDate).toLocaleDateString();
+        const tempEndDate = new Date(endDate).toLocaleDateString();
         tempTrans.map((element) => {
             let data = {
 
             }
             let temp = element.get();
-            data.id = temp.id;
+            if(temp.dOT.toLocaleDateString() >= tempStartDate && temp.dOT.toLocaleDateString() <= tempEndDate){
+                data.id = id;
+                data.date = temp.dOT.toLocaleDateString();
+                data.time = temp.dOT.toLocaleTimeString();
+                data.receiverId = temp.receiver;
+                data.receiver = temp.receiver;
+                data.deposit = temp.deposit;
+                console.log(temp.status);
+                if(temp.status === 1){
+                    data.status = "Sending...";
+                }else if(temp.status === 2){
+                    data.status = "Sent"
+                }else if(temp.status === 3){
+                    data.status = "Cancelled";
+                }else{
+                    data.status = "Loading...";
+                }
+                data.content = temp.content;
+                listOfTrans.push(data);
+            }else{
+                //DO SOMETHING
+            }
+        });
+
+        return res.status(200).json({
+            userMessage: "SUCCESSFULLY FETCH ACTIVITY",
+            listOfTrans
+        })
+    }else if(tempTrans.length >= 1){
+        console.log("ELSE IF");
+        tempTrans.map((element) => {
+            let data = {
+
+            }
+            let temp = element.get();
+            data.id = id;
             data.date = temp.dOT.toLocaleDateString();
             data.time = temp.dOT.toLocaleTimeString();
             data.receiverId = temp.receiver;
@@ -611,22 +830,110 @@ router.get("/history/:id", checkAuth.checkAuthCustomer, async (req, res) => {
             }
             data.content = temp.content;
             listOfTrans.push(data);
-        })
-
-        
+        });
 
         return res.status(200).json({
             userMessage: "SUCCESSFULLY FETCH ACTIVITY",
             listOfTrans
         })
-    }else{
+    }else if(tempTrans.length <= 0){
+        console.log("ELSE IF 3");
         return res.status(404).json({
-            userMessage: "FAILED TO FETCH ACTIVITY"
+            userMessage: "FAILED TO FETCH ACTIVITY",
+            listOfTrans: null
+        })
+    }else{
+        console.log("ELSE");
+        tempTrans.map((element) => {
+            let data = {
+
+            }
+            let temp = element.get();
+            data.id = id;
+            data.date = temp.dOT.toLocaleDateString();
+            data.time = temp.dOT.toLocaleTimeString();
+            data.receiverId = temp.receiver;
+            data.receiver = temp.receiver;
+            data.deposit = temp.deposit;
+            console.log(temp.status);
+            if(temp.status === 1){
+                data.status = "Sending...";
+            }else if(temp.status === 2){
+                data.status = "Sent"
+            }else if(temp.status === 3){
+                data.status = "Cancelled";
+            }else{
+                data.status = "Loading...";
+            }
+            data.content = temp.content;
+            listOfTrans.push(data);
+        });
+
+        return res.status(200).json({
+            userMessage: "SUCCESSFULLY FETCH ACTIVITY",
+            listOfTrans
         })
     }
 });
 
+router.post("/getPassbook", checkAuth.checkAuthCustomer, async (req, res) => {
+    const currentUser = req.body.currentUser;
 
+    const tempService = await Services.findAll({
+        where: {
+            accountId: currentUser,
+            serviceType: {
+                $ne: 0
+            }
+        }
+    });
+
+    if(!tempService || tempService.length <= 0){
+        return res.status(401).json({
+            data: null
+        });
+    }
+
+    const data = {
+        passbookId: tempService[0].id,
+        passbookBalance: tempService[0].balance,
+        passbookMaturity: tempService[0].maturity.toLocaleDateString(),
+        passbookCurrencyUnit: tempService[0].currencyUnitId,
+        passbookBeginningDate: tempService[0].createdAt.toLocaleDateString()
+    };
+
+    return res.status(200).json({
+        data
+    });
+});
+
+router.post("/getVisa", checkAuth.checkAuthCustomer, async (req, res) => {
+    const currentUser = req.body.currentUser;
+
+    const tempService = await Services.findAll({
+        where: {
+            accountId: currentUser,
+            serviceType: 0, 
+            currencyUnitId: 2
+        }
+    });
+
+    if(!tempService || tempService.length <= 0){
+        return res.status(401).json({
+            data: null
+        });
+    }
+
+    const data = {
+        visaId: tempService[0].id,
+        visaBalance: tempService[0].balance,
+        visaCurrencyUnit: tempService[0].currencyUnitId,
+    };
+
+    return res.status(200).json({
+        data
+    });
+});
 
 
 module.exports = router;

@@ -31,7 +31,8 @@ CurrencyUnits.init({
     },
     name: {
         type: sequelize.TEXT,
-        allowNull: false
+        allowNull: false,
+        unique: true
     }
 },{
     sequelize: db,

@@ -59,9 +59,10 @@ class App extends Component {
                     .then((result) => {
                         console.log(result);
 
-                        this.setState({
+                        if(result.customer){
+                          this.setState({
                             fullName: result.customer.fullName,
-                            id: store.currentUser,
+                            id: result.customer.id,
                             email: result.customer.email,
                             phone: result.customer.phone,
                             dOB: result.customer.dOB,
@@ -69,7 +70,8 @@ class App extends Component {
                             isVerified: result.customer.isVerified,
                             currencyUnitId: result.customer.currencyUnitId,
                             login: true
-                        });
+                          });
+                        }
                     });
                 })
                 .catch((error) => {

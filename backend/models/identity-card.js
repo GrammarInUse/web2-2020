@@ -3,7 +3,7 @@ const sequelize = require("sequelize");
 const Model = sequelize.Model;
 const Accounts = require("./accounts");
 
-class IdentityCard extends Model{ }
+class IdentityCard extends Model{  }
 
 IdentityCard.init({
     id: {
@@ -16,7 +16,7 @@ IdentityCard.init({
         references: {
             key: "id",
             model: Accounts
-        }
+        },
     },
     dOissuance:{
         type: sequelize.DATEONLY,
@@ -34,5 +34,5 @@ IdentityCard.init({
     sequelize: db,
     ModalName:"IdentityCard"
 });
-
-module.exports = IdentityCard;
+IdentityCard.belongsTo(Accounts,{foreignKey: "accountId"});
+module.exports=IdentityCard;

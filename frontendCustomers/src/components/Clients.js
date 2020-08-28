@@ -46,8 +46,9 @@ export default class Clients extends Component {
 
     submitHandler = (e) => {
         e.preventDefault();
-        const token = JSON.parse(localStorage.getItem("login")).token;
-        const url = "http://localhost:8080/customers/profile/" + this.props.id;
+        const store = JSON.parse(localStorage.getItem("login"));
+        const token = store.token;
+        const url = "http://localhost:8080/customers/profile/" + store.currentUser;
         fetch(url, {
             method: "PATCH",
             headers: {
@@ -79,8 +80,9 @@ export default class Clients extends Component {
     submitChangePasswordHandler = (e) => {
         e.preventDefault();
         if(this.state.password === this.state.comfirmPassword){
-            const token = JSON.parse(localStorage.getItem("login")).token;
-            const url = "http://localhost:8080/customers/password/" + this.props.id;
+            const store = JSON.parse(localStorage.getItem("login"));
+            const token = store.token;
+            const url = "http://localhost:8080/customers/password/" + store.currentUser;
             fetch(url, {
                 method: "PATCH",
                 headers: {
@@ -122,7 +124,8 @@ export default class Clients extends Component {
           alert("ban chua chon file");
           return;
         }
-        const token = JSON.parse(localStorage.getItem("login")).token;
+        const store = JSON.parse(localStorage.getItem("login"));
+        const token = store.token;
 
         const url = "http://localhost:8080/customers/upload";
         const file = this.state.file;
@@ -141,7 +144,7 @@ export default class Clients extends Component {
                         },
                         body: JSON.stringify({
                             avatar: uri,
-                            currentUser: this.props.id
+                            currentUser: store.currentUser
                         })
                     })
                     .then(async (response) => {
@@ -165,9 +168,10 @@ export default class Clients extends Component {
     storeAvatar = async () => {
         if(this.props.login){
             const url = "http://localhost:8080/customers/getAvatar";
-            const token = JSON.parse(localStorage.getItem("login")).token;
+            const store = JSON.parse(localStorage.getItem("login"));
+            const token = store.token;
             const data = {
-                currentUser: this.props.id
+                currentUser: store.currentUser
             }
             const fetchOpts = {
                 method: "POST",
