@@ -1,23 +1,22 @@
-import React, { Component } from "react";
-import { PureComponent } from "react";
-import {
-  FaCheck,
-  FaTimes,
-  FaPlus,
-  FaEdit,
-  FaLock,
-  FaLockOpen,
-} from "react-icons/fa";
-import ModalEditRate from "./ModalEditRate";
+import React, { PureComponent } from "react";
+import { FaEdit, FaLock, FaLockOpen, FaPlus } from "react-icons/fa";
+import Loading from "../Loading";
 import { api } from "./api";
+import ModalEditRate from "./ModalEditRate";
+import Notification from "./Notification";
+import { Redirect } from "react-router-dom";
 
-let rate = { id: null, term: "", rate: 0, isLock: false };
+let rate = { id: null, name: "", value: 0, maturity: null };
 class Rate extends PureComponent {
   constructor() {
     super();
+    const token = localStorage.getItem("token") || "";
+    let redirect = token === "" ? true : false;
+    api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
       status: false,
       listRate: [],
+      isLoading: false,
     };
   }
 
@@ -38,104 +37,83 @@ class Rate extends PureComponent {
         rate = this.state.listRate[index];
       }
     } else {
-      rate = { id: null, term: "", rate: 0, isLock: false };
+      rate = { id: null, name: "", value: 0, maturity: 0 };
     }
     this.setState({
       status: !this.state.status,
     });
   };
-  onLock = (id) => {
-    const index = this.findIndex(id);
 
-    api
-      .put(`/rate/${id}`, { isLock: !this.state.listRate[index].isLock })
-      .then((res) => {
-        console.log(res.status);
-      })
-      .catch((err) => {
-        console.log(err + "");
-      });
-    let { listRate } = this.state;
-    listRate[index].isLock = !listRate[index].isLock;
-    this.setState({
-      listRate: [...listRate],
-    });
-  };
   listRate = () => {
     return this.state.listRate.map((item, index) => {
       return (
-        <tr>
+        <tr key={index}>
           <td>{item.id}</td>
-          <td>{item.term}</td>
-          <td>{item.rate} %</td>
+          <td>{item.name}</td>
+          <td>{item.value} %</td>
 
-          <td style={{ maxWidth: 100 }}>
-            <td style={{ border: "none" }}>
-              <button
-                type="button"
-                class="btn btn-primary"
-                onClick={() => this.onToggleModal(item.id)}
-              >
-                <FaEdit />
-              </button>
-            </td>
-
-            <td style={{ border: "none" }}>
-              <button
-                type="button"
-                className="btn  btn-danger"
-                onClick={() => this.onLock(item.id)}
-              >
-                {item.isLock ? <FaLock /> : <FaLockOpen />}
-              </button>
-            </td>
+          <td>{item.maturity === null ? 0 : item.maturity}</td>
+          <td>
+            <button
+              disabled={item.id === 0 ? true : false}
+              className="btn btn-primary"
+              onClick={() => this.onToggleModal(item.id)}
+            >
+              <FaEdit />
+            </button>
           </td>
         </tr>
       );
     });
   };
   getAll = async () => {
-    let data = await api
+    await api
       .get("/rate/")
-      .then(({ data }) => data)
+      .then(({ data }) => {
+        if (data.data) {
+          this.setState({
+            listRate: data.data,
+            isLoading: true,
+          });
+        }
+      })
       .catch((err) => {
-        console.log(err + "");
+        Notification("Opps something went wrong!!!", "error", false);
+        this.setState({
+          isLoading: true,
+        });
       });
   };
   componentDidMount() {
     this.getAll();
   }
   render() {
-    const { status } = this.state;
+    const { status, isLoading } = this.state;
+
+    if (!isLoading) {
+      return <Loading />;
+    }
 
     return (
       <div
         style={{
-          marginTop: 150,
+          marginTop: 100,
           height: "auto",
           minHeight: "100%",
-          backgroundColor: "#ffffdd",
         }}
       >
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3>RATE %</h3>
+        <div className="panel panel-default">
+          <div className="panel-heading">
+            <h3>RATE </h3>
           </div>
-          <button
-            type="button"
-            class="btn btn-primary"
-            onClick={this.onToggleModal}
-            style={{ width: 40, height: 40 }}
-          >
-            <FaPlus />
-          </button>
-          <table class="table table-bordered">
+          <table className="table table-bordered">
             <thead>
               <tr>
                 <th> ID </th>
-                <th> Term </th>
-                <th>Rate</th>
+                <th> Name </th>
+                <th>Value</th>
 
+                <th>Maturity</th>
                 <th>Handle</th>
               </tr>
             </thead>

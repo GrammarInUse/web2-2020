@@ -1,10 +1,17 @@
 import React, { PureComponent } from "react";
+import Loading from "../Loading";
 import { api } from "./api";
+import Notification from "./Notification";
+import { Redirect } from "react-router-dom";
 class Verify extends PureComponent {
   constructor() {
     super();
+    const token = localStorage.getItem("token") || "";
+    api.defaults.headers["authorization"] = `bearer ${token} `;
+
     this.state = {
       listUserVeri: [],
+      isLoading: false,
     };
   }
   findIndex = (id) => {
@@ -20,17 +27,25 @@ class Verify extends PureComponent {
   getAll = async () => {
     let data = await api
       .get("/verify/")
-      .then(({ data }) => data)
-      .catch((err) => []);
-    this.setState({
-      listUserVeri: data,
-    });
+      .then(({ data }) => {
+        if (data.data) {
+          this.setState({
+            listUserVeri: data.data,
+            isLoading: true,
+          });
+        }
+      })
+      .catch((err) => {
+        Notification("Opps something went wrong!!!", "error", false);
+        this.setState({ isLoading: true });
+      });
   };
   componentDidMount() {
     this.getAll();
   }
   listVeri = () => {
-    return this.state.listUserVeri.map((item, index) => {
+    let listUserVeri = this.state.listUserVeri;
+    let list = listUserVeri.map((item, index) => {
       return (
         <tr key={index}>
           <td>{item.id}</td>
@@ -46,8 +61,8 @@ class Verify extends PureComponent {
             <td style={{ border: "none" }}>
               <button
                 type="button"
-                class="btn btn-primary"
-                onClick={() => this.handleVeri(item.id, 1)}
+                className="btn btn-primary"
+                onClick={() => this.handleVeri(item.id, "1")}
               >
                 Accept
               </button>
@@ -56,8 +71,8 @@ class Verify extends PureComponent {
             <td style={{ border: "none" }}>
               <button
                 type="button"
-                class="btn  btn-danger"
-                onClick={() => this.handleVeri(item.id, 2)}
+                className="btn  btn-danger"
+                onClick={() => this.handleVeri(item.id, "-1")}
               >
                 Deline
               </button>
@@ -66,20 +81,18 @@ class Verify extends PureComponent {
         </tr>
       );
     });
+    return list;
   };
   handleVeri = (id, flag) => {
-    let data = {};
-    if (flag === 1) {
-      data = 1;
-    } else {
-      data = -1;
-    }
+    let data = flag;
+
     api
-      .put(`./verifyHandle/${id}`, data)
-      .then((res) => {})
+      .put(`./verifyHandle/${id}`, { data })
+      .then((res) => {
+        Notification("Successfully!!!", "success", 3000);
+      })
       .catch((err) => {
-        alert(err + "");
-        return;
+        Notification("Opps something went wrong!!!", "error", 3000);
       });
     let index = this.findIndex(id);
     this.state.listUserVeri.splice(index, 1);
@@ -88,21 +101,26 @@ class Verify extends PureComponent {
     });
   };
   render() {
+    let { isLoading, redirect } = this.state;
+    let list = this.listVeri();
+
+    if (!isLoading) {
+      return <Loading />;
+    }
     return (
       <div
         style={{
-          marginTop: 150,
+          marginTop: 100,
           height: "auto",
           minHeight: "100%",
-          backgroundColor: "#ffffdd",
         }}
       >
-        <div class="panel panel-default">
-          <div class="panel-heading">
+        <div className="panel panel-default">
+          <div className="panel-heading">
             <h3>VERIFY USER</h3>
           </div>
 
-          <table class="table table-bordered">
+          <table className="table table-bordered">
             <thead>
               <tr>
                 <th style={{ with: "10%" }}> ID </th>
@@ -112,7 +130,7 @@ class Verify extends PureComponent {
                 <th style={{ width: "20%" }}>Handle</th>
               </tr>
             </thead>
-            <tbody>{this.listVeri()}</tbody>
+            <tbody>{list ? list : <h2>no data</h2>}</tbody>
           </table>
         </div>
       </div>

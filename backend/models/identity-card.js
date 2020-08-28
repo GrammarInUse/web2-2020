@@ -34,5 +34,6 @@ IdentityCard.init({
     sequelize: db,
     ModalName:"IdentityCard"
 });
-IdentityCard.belongsTo(Accounts,{foreignKey: "accountId"});
-module.exports=IdentityCard;
+
+IdentityCard.belongsTo(Accounts,{foreignKey:"accountId"})
+module.exports = IdentityCard;

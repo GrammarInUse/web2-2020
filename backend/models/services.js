@@ -63,7 +63,7 @@ Services.init({
     ModelName: "Services"
 });
 
-Services.belongsTo(Accounts,{foreignKey: "accountId"});
-Services.belongsTo(ServiceTypes,{foreignKey:"serviceType"});
-Services.belongsTo(CurrencyUnits,{foreignKey:"currencyUnitId"})
+Services.belongsTo(Accounts,{foreignKey: "accountId"})
+Services.belongsTo(ServiceTypes,{foreignKey:"serviceType"})
+Services.belongsTo(CurrencyUnit,{foreignKey:"currencyUnitId"})
 module.exports = Services; 

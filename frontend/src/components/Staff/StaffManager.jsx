@@ -4,47 +4,74 @@ import "./style.css";
 import ModalEditProfile from "./ModalEditProfile";
 
 import { api } from "./api";
+import Loading from "../Loading";
+import ServerError from "../ServerError";
+
+import { Redirect } from "react-router-dom";
+import Notification from "./Notification";
+
 let staff = {
-  id: "",
-  id: null,
-  name: "",
+  accountId: null,
+  fullname: "",
   position: "",
   salary: 0,
-  role: 1,
-  email: "",
+  decentralizationId: 2,
+  Account: {
+    email: "",
+    isBlocked: false,
+  },
 };
 class StaffManager extends Component {
   constructor(props) {
     super(props);
+    const token = localStorage.getItem("token") || "";
 
+    api.defaults.headers["authorization"] = `bearer ${token} `;
     this.state = {
+      isLoading: false,
       status: false,
       staffs: [],
     };
   }
 
-  getAll = async () => {
-    let staffs = await api.get("/listStaff/").then(({ data }) => data);
-    this.setState({
-      staffs,
-    });
-  };
   Lock = (id) => {
     let index = this.findIndex(id);
     const staff = this.state.staffs[index];
     let { staffs } = this.state;
     api
-      .put(`blockAccount/${id}`, { isLock: !staff.isLock })
+      .put(`blockAccount/${id}`)
       .then((res) => {
-        console.log(res.data);
+        console.log(res);
+        if (res.data.result === "ok") {
+          let isBlocked = !staffs[index].Account.isBlocked;
+          staffs[index].Account.isBlocked = isBlocked;
+
+          this.setState({
+            staffs: [...staffs],
+          });
+        }
       })
       .catch((err) => {
-        console.log(err + "");
+        Notification("Opps something went wrong!!!", "error", false);
       });
-    staffs[index].isLock = !staff.isLock;
-    this.setState({
-      staffs: [...staffs],
-    });
+  };
+  getAll = async () => {
+    await api
+      .get("/listStaff")
+      .then(({ data }) => {
+        if (data.data) {
+          this.setState({
+            staffs: data.data,
+            isLoading: true,
+          });
+        }
+      })
+      .catch((err) => {
+        Notification("You Opps something went wrong!!!", "error", 3000);
+        this.setState({
+          isLoading: true,
+        });
+      });
   };
   componentDidMount() {
     this.getAll();
@@ -53,7 +80,7 @@ class StaffManager extends Component {
     let staffs = this.state.staffs;
     let index = -1;
     staffs.forEach((item, i) => {
-      if (item.id === id) {
+      if (item.accountId === id) {
         index = i;
       }
     });
@@ -65,40 +92,34 @@ class StaffManager extends Component {
   listStaff = () => {
     let staffs = this.state.staffs;
     let list = staffs.map((item, index) => {
-      let role = item.role === 1 ? "watch" : "edit";
+      let role = item.decentralizationId === 1 ? "Staff" : "Admin";
 
       return (
-        <tbody key={index}>
-          <tr id="listStaff">
-            <td>{item.id}</td>
-            <td>{item.name}</td>
-            <td>{item.email}</td>
-            <td>{item.position}</td>
-            <td>{item.salary}</td>
-            <td>{role}</td>
-            <td style={{ maxWidth: 100 }}>
-              <td style={{ border: "none" }}>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => this.toggleModal(item.id)}
-                >
-                  <FaEdit />
-                </button>
-              </td>
-
-              <td style={{ border: "none" }}>
-                <button
-                  type="button"
-                  className="btn  btn-danger"
-                  onClick={() => this.onLock(item.id)}
-                >
-                  {item.isLock ? <FaLock /> : <FaLockOpen />}
-                </button>
-              </td>
-            </td>
-          </tr>
-        </tbody>
+        <tr key={index} id="listStaff">
+          <td>{item.accountId}</td>
+          <td>{item.fullname}</td>
+          <td>{item.Account.email}</td>
+          <td>{item.position}</td>
+          <td>{item.salary}</td>
+          <td>{role}</td>
+          <td style={{ maxWidth: 100 }}>
+            <button
+              style={{ marginRight: 10 }}
+              type="button"
+              className="btn btn-primary"
+              onClick={() => this.toggleModal(item.accountId)}
+            >
+              <FaEdit />
+            </button>
+            <button
+              type="button"
+              className="btn  btn-danger"
+              onClick={() => this.onLock(item.accountId)}
+            >
+              {item.Account.isBlocked ? <FaLock /> : <FaLockOpen />}
+            </button>
+          </td>
+        </tr>
       );
     });
     return list;
@@ -113,12 +134,15 @@ class StaffManager extends Component {
       }
     } else {
       staff = {
-        id: null,
-        name: "",
+        accountId: null,
+        fullname: "",
         position: "",
         salary: 0,
-        role: 1,
-        isLock: false,
+        decentralizationId: 2,
+        Account: {
+          email: "",
+          isBloced: false,
+        },
       };
     }
     this.setState({
@@ -127,15 +151,18 @@ class StaffManager extends Component {
   };
 
   render() {
-    let { status } = this.state;
+    let { status, isLoading } = this.state;
+    console.log(isLoading);
+    if (!isLoading) {
+      return <Loading />;
+    }
 
     return (
       <div
         style={{
-          marginTop: 150,
+          marginTop: 100,
           height: "auto",
           minHeight: "100%",
-          backgroundColor: "#ffffdd",
         }}
       >
         <div className="panel panel-default">
@@ -161,7 +188,7 @@ class StaffManager extends Component {
                 <th>Handle</th>
               </tr>
             </thead>
-            {this.listStaff()}
+            <tbody>{this.listStaff()}</tbody>
           </table>
         </div>
         {status === true ? (

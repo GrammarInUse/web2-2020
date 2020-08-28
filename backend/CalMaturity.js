@@ -4,14 +4,13 @@ const Services = require("./models/services");
 const ServiceTypes = require("./models/service-types");
 const Op = require("sequelize").Op;
 const Accounts = require("./models/accounts");
-const { USER_EMAIL } = require("./configs/config");
 const Send = require("./services/send-email");
 
 const listCustomers = async () => {
   let temp = [];
   try {
     const list = await Services.findAll({
-      attributes: ["id","balance", "maturity", "accountId", "cycle"],
+      attributes: ["id","balance", "maturity", "accountId", "cycle","createdAt"],
       where: {
         serviceType: {
           [Op.ne]: 0,
@@ -39,6 +38,7 @@ const listCustomers = async () => {
           balance: item.balance,
           maturity: item.maturity,
           accountId: item.accountId,
+          createdAt: item.createdAt,
           cycle: item.cycle,
           rate: item.ServiceType.value,
           deadline: item.ServiceType.maturity,
@@ -55,19 +55,19 @@ const listCustomers = async () => {
 };
 
 const job = new cron.CronJob({
-  cronTime: "* 30 1 * * *",
+  cronTime: "* * * * * *",
   onTick: function () {
     try {
       listCustomers().then((list) => {
         const curDate = new Date();
         if (list.length > 0) {
           list.forEach(async (item) => {
-            const serDay = new Date(item.maturity);
+            const serDay = new Date(item.createdAt);
             const diff = Math.floor(
               (curDate.getTime() - serDay.getTime()) / 2629800000
             );
             if (diff > item.cycle && diff < item.deadline) {
-              const total = item.balance * (1 + item.rate / 100 / 12);
+              const total = +item.balance * (1 + item.rate / 100 / 12);
 
               const account = await Services.findByPk(item.id);
 
@@ -76,9 +76,8 @@ const job = new cron.CronJob({
 
               await account.save();
 
-              console.log(item.email)
               const mailOptions = {
-                from: USER_EMAIL,
+                from: process.env.USER_EMAIL,
                 to: item.email,
                 subject: "Thông Báo Lãi Xuất Tiết kiệm",
                 text: `Lãi xuất tiết kiệm hàng tháng của bạn đã được tính:
@@ -104,7 +103,7 @@ const job = new cron.CronJob({
 
               if(account){
                 account.cycle = 0;
-                account.balance = Math.round(total * 100) / 100;
+                account.balance = 0;
                 account.maturity = null;
   
                 await account.save();  
@@ -120,20 +119,19 @@ const job = new cron.CronJob({
               });
 
               if (mainAccount) {
-                mainAccount.balance += account.balance;
+                mainAccount.balance = +mainAccount.balance + Math.round(total * 100) / 100;
 
                 await mainAccount.save();
 
                 const mailOptions = {
-                  from: USER_EMAIL,
+                  from: process.env.USER_EMAIL,
                   to: item.email,
                   subject: "Thông Báo",
                   text: `Tài khoản tiết kiệm hàng tháng của bạn đã đáo hạn và được tính lãi xuất đợt cuối của kì hạn ${
                     item.deadline
-                  } tháng:
-                  Lãi xuất: ${Math.round(total * 100) / 100},
-                  Tổng tiền vốn tiết kiệm: ${account.balance},
-                  Tiền tài khoản chính: ${mainAccount.balance}
+                  } tháng:                   
+                  Tổng tiền vốn tiết kiệm: ${Math.round(total * 100) / 100},
+                  Tổng Tiền tài khoản chính: ${mainAccount.balance}
                 `,
                 };
                 Send(mailOptions);
