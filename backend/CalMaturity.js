@@ -55,7 +55,7 @@ const listCustomers = async () => {
 };
 
 const job = new cron.CronJob({
-  cronTime: "* 30 1 * * *",
+  cronTime: "* * * * * *",
   onTick: function () {
     try {
       listCustomers().then((list) => {
@@ -67,7 +67,7 @@ const job = new cron.CronJob({
               (curDate.getTime() - serDay.getTime()) / 2629800000
             );
             if (diff > item.cycle && diff < item.deadline) {
-              const total = item.balance * (1 + item.rate / 100 / 12);
+              const total = +item.balance * (1 + item.rate / 100 / 12);
 
               const account = await Services.findByPk(item.id);
 
@@ -119,11 +119,7 @@ const job = new cron.CronJob({
               });
 
               if (mainAccount) {
-                if(mainAccount.currencyUnitId === 1){
-                  mainAccount.balance += account.balance;
-                }else{
-                  mainAccount.balance += account.balance * 23,090.00;
-                }
+                mainAccount.balance = +mainAccount.balance + Math.round(total * 100) / 100;
 
                 await mainAccount.save();
 

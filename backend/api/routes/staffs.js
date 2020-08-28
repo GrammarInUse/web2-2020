@@ -518,13 +518,13 @@ router.post("/createService/:id", async (req, res) => {
 
 router.put("/recharge/:id", checkAuth.checkAuthStaff, async (req, res) => {
   const id = req.params.id;
-  const curBalance = req.body.balance;
+  const curBalance = +req.body.balance;
   try {
     const paymentAccount = await Services.findByPk(id);
 
     if (paymentAccount) {
       if (paymentAccount.serviceType === 0) {
-        paymentAccount.balance = curBalance;
+        paymentAccount.balance = +paymentAccount.balance + curBalance;
 
         await paymentAccount.save();
 
