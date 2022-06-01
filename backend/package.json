@@ -35,6 +35,6 @@
     "pg-hstore": "^2.3.3",
     "querystring": "^0.2.0",
     "sequelize": "^6.2.4",
-    "sharp": "^0.25.4"
+    "sharp": "^0.30.5"
   }
 }
